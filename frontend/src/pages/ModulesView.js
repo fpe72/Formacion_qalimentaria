@@ -9,7 +9,12 @@ function ModulesView() {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules');
+        const token = localStorage.getItem('token');
+        const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if (!response.ok) {
           setError('Error al obtener los módulos');
           setLoading(false);
@@ -24,7 +29,7 @@ function ModulesView() {
         setLoading(false);
       }
     };
-
+  
     fetchModules();
   }, []);
 
