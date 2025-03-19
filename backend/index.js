@@ -92,7 +92,7 @@ app.post('/login', async (req, res) => {
 // -------------------
 
 // Listar módulos
-app.get('/modules', async (req, res) => {
+app.get('/modules', authMiddleware, async (req, res) => {
   try {
     const modules = await Module.find({}).sort({ order: 1 });
     res.json(modules);
