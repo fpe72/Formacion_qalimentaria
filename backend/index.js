@@ -36,16 +36,21 @@ app.get('/', (req, res) => {
 // Registro de usuario
 app.post('/register', async (req, res) => {
   try {
-    const { email, password, name } = req.body;
-    if (!email || !password || !name) {
+    const { email, password, name, firstSurname, secondSurname, dni } = req.body;
+    if (!email || !password || !name || !firstSurname || !secondSurname || !dni) {
       return res.status(400).json({ message: 'Faltan datos' });
     }
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'El usuario ya está registrado' });
     }
+    // Validar que la contraseña solo contenga caracteres alfanuméricos
+    const passwordRegex = /^[A-Za-z0-9]+$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({ message: 'La contraseña debe contener solo caracteres alfanuméricos.' });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword, name });
+    const newUser = new User({ email, password: hashedPassword, name, firstSurname, secondSurname, dni });
     await newUser.save();
     return res.status(201).json({ message: 'Usuario registrado con éxito' });
   } catch (error) {
