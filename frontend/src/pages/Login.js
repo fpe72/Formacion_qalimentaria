@@ -1,12 +1,15 @@
 // src/pages/Login.js
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import AuthContext from '../context/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { setAuth } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
