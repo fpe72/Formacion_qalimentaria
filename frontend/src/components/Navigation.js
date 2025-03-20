@@ -20,7 +20,7 @@ function Navigation() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Sección izquierda: Logo y enlaces principales */}
         <div className="flex items-center">
-          <img src={logo} alt="Logo corporativo" className="w-24 mr-4" />
+          <img src={logo} alt="Logo corporativo" className="w-60 mr-4" />
           <div className="hidden md:flex space-x-4">
             <Link to="/" className="text-gray-700 hover:text-primary">Home</Link>
             {isLoggedIn && (
