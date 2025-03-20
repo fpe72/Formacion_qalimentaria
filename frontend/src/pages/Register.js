@@ -1,4 +1,3 @@
-// src/pages/Register.js
 import React, { useState } from 'react';
 
 function Register() {
@@ -61,75 +60,97 @@ function Register() {
   };
 
   return (
-    <div>
-      <h2>Registro</h2>
-      <form onSubmit={handleRegister}>
-        <div>
-          <label>Email:</label>
-          <input 
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required 
-          />
-        </div>
-        <div>
-          <label>Nombre:</label>
-          <input 
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required 
-          />
-        </div>
-        <div>
-          <label>Primer Apellido:</label>
-          <input 
-            type="text"
-            value={firstSurname}
-            onChange={(e) => setFirstSurname(e.target.value)}
-            required 
-          />
-        </div>
-        <div>
-          <label>Segundo Apellido:</label>
-          <input 
-            type="text"
-            value={secondSurname}
-            onChange={(e) => setSecondSurname(e.target.value)}
-            required 
-          />
-        </div>
-        <div>
-          <label>DNI / Documento de identificación:</label>
-          <input 
-            type="text"
-            value={dni}
-            onChange={(e) => setDni(e.target.value)}
-            required 
-          />
-        </div>
-        <div>
-          <label>Contraseña:</label>
-          <input 
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required 
-          />
-        </div>
-        <div>
-          <label>Repetir Contraseña:</label>
-          <input 
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required 
-          />
-        </div>
-        <button type="submit">Registrarse</button>
-      </form>
-      <p>{message}</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-lg">
+        <h2 className="text-2xl font-bold mb-6 text-center text-primary">
+          Registro de Usuario
+        </h2>
+        <form onSubmit={handleRegister}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-gray-700 mb-2">Nombre:</label>
+              <input 
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
+                required 
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Primer Apellido:</label>
+              <input 
+                type="text"
+                value={firstSurname}
+                onChange={(e) => setFirstSurname(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
+                required 
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Segundo Apellido:</label>
+              <input 
+                type="text"
+                value={secondSurname}
+                onChange={(e) => setSecondSurname(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
+                required 
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">DNI / Documento de identificación:</label>
+              <input 
+                type="text"
+                value={dni}
+                onChange={(e) => setDni(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
+                required 
+              />
+            </div>
+          </div>
+          <div className="mt-4">
+            <label className="block text-gray-700 mb-2">Email:</label>
+            <input 
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
+              required 
+            />
+          </div>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-gray-700 mb-2">Contraseña:</label>
+              <input 
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
+                required 
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 mb-2">Repetir Contraseña:</label>
+              <input 
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
+                required 
+              />
+            </div>
+          </div>
+          {message && (
+            <p className="text-red-500 mt-4">{message}</p>
+          )}
+          <button 
+            type="submit" 
+            className="w-full bg-primary text-white py-2 mt-6 rounded hover:bg-secondary transition duration-300"
+          >
+            Registrarse
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
