@@ -5,13 +5,21 @@ import IdleTimer from './IdleTimer';
 function Layout({ children }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <Navigation />
-      {/* IdleTimer se mantiene global para la detección de inactividad */}
+      {/* Header fijo */}
+      <header className="fixed top-0 left-0 right-0 z-50">
+        <Navigation />
+      </header>
+
+      {/* IdleTimer se puede mantener global */}
       <IdleTimer />
-      <main className="flex-grow container mx-auto px-4 py-6">
+
+      {/* Área principal: añadimos padding superior e inferior para compensar el header y el footer */}
+      <main className="flex-grow container mx-auto px-4 pt-24 pb-16">
         {children}
       </main>
-      <footer className="bg-gray-200 text-center py-4">
+
+      {/* Footer fijo */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-gray-200 text-center py-4">
         &copy; {new Date().getFullYear()} Q-Alimentaria. Todos los derechos reservados.
       </footer>
     </div>
