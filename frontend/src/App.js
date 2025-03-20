@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navigation from './components/Navigation';
-import IdleTimer from './components/IdleTimer';
+import Layout from './components/Layout';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -14,18 +13,17 @@ import CreateModule from './pages/CreateModule';
 function App() {
   return (
     <Router>
-      <Navigation />
-      {/* IdleTimer se activa globalmente */}
-      <IdleTimer />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/protected" element={<Protected />} />
-        <Route path="/modules" element={<ModulesView />} />
-        <Route path="/progress" element={<ProgressView />} />
-        <Route path="/create-module" element={<CreateModule />} />
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/protected" element={<Protected />} />
+          <Route path="/modules" element={<ModulesView />} />
+          <Route path="/progress" element={<ProgressView />} />
+          <Route path="/create-module" element={<CreateModule />} />
+        </Routes>
+      </Layout>
     </Router>
   );
 }

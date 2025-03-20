@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
+import logo from '../assets/images/logo.png'; // Asegúrate de que la ruta sea correcta
 
 function Navigation() {
   const { auth, setAuth } = useContext(AuthContext);
@@ -15,23 +16,43 @@ function Navigation() {
   };
 
   return (
-    <nav style={{ margin: '10px' }}>
-      <Link to="/" style={{ marginRight: '10px' }}>Home</Link>
-      {!isLoggedIn && (
-        <>
-          <Link to="/login" style={{ marginRight: '10px' }}>Login</Link>
-          <Link to="/register" style={{ marginRight: '10px' }}>Register</Link>
-        </>
-      )}
-      {isLoggedIn && (
-        <>
-          <Link to="/protected" style={{ marginRight: '10px' }}>Protected</Link>
-          <Link to="/modules" style={{ marginRight: '10px' }}>Módulos</Link>
-          <Link to="/progress" style={{ marginRight: '10px' }}>Progreso</Link>
-          {isAdmin && <Link to="/create-module" style={{ marginRight: '10px' }}>Crear Módulo</Link>}
-          <button onClick={handleLogout}>Cerrar Sesión</button>
-        </>
-      )}
+    <nav className="bg-white shadow-md">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Sección izquierda: Logo y enlaces principales */}
+        <div className="flex items-center">
+          <img src={logo} alt="Logo corporativo" className="w-24 mr-4" />
+          <div className="hidden md:flex space-x-4">
+            <Link to="/" className="text-gray-700 hover:text-primary">Home</Link>
+            {isLoggedIn && (
+              <>
+                <Link to="/protected" className="text-gray-700 hover:text-primary">Protected</Link>
+                <Link to="/modules" className="text-gray-700 hover:text-primary">Módulos</Link>
+                <Link to="/progress" className="text-gray-700 hover:text-primary">Progreso</Link>
+                {isAdmin && (
+                  <Link to="/create-module" className="text-gray-700 hover:text-primary">Crear Módulo</Link>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+        {/* Sección derecha: Login/Register o Logout */}
+        <div className="flex items-center">
+          {!isLoggedIn ? (
+            <div className="hidden md:flex space-x-4">
+              <Link to="/login" className="text-gray-700 hover:text-primary">Login</Link>
+              <Link to="/register" className="text-gray-700 hover:text-primary">Register</Link>
+            </div>
+          ) : (
+            <button 
+              onClick={handleLogout} 
+              className="bg-primary text-white px-3 py-2 rounded hover:bg-secondary transition-colors duration-300"
+            >
+              Cerrar Sesión
+            </button>
+          )}
+          {/* Aquí se podría agregar un botón de menú para dispositivos móviles */}
+        </div>
+      </div>
     </nav>
   );
 }
