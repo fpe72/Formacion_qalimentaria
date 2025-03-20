@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import logo from '../assets/images/logo.png'; // Asegúrate de que la ruta sea correcta
+import logo from '../assets/images/logo.png';
 
 function Navigation() {
   const { auth, setAuth } = useContext(AuthContext);
@@ -18,14 +18,12 @@ function Navigation() {
   return (
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Sección izquierda: Logo y enlaces principales */}
         <div className="flex items-center">
-          <img src={logo} alt="Logo corporativo" className="w-60 mr-4" />
+          <img src={logo} alt="Logo corporativo" className="w-24 mr-4" />
           <div className="hidden md:flex space-x-4">
             <Link to="/" className="text-gray-700 hover:text-primary">Home</Link>
             {isLoggedIn && (
               <>
-                <Link to="/protected" className="text-gray-700 hover:text-primary">Protected</Link>
                 <Link to="/modules" className="text-gray-700 hover:text-primary">Módulos</Link>
                 <Link to="/progress" className="text-gray-700 hover:text-primary">Progreso</Link>
                 {isAdmin && (
@@ -35,7 +33,6 @@ function Navigation() {
             )}
           </div>
         </div>
-        {/* Sección derecha: Login/Register o Logout */}
         <div className="flex items-center">
           {!isLoggedIn ? (
             <div className="hidden md:flex space-x-4">
@@ -45,12 +42,11 @@ function Navigation() {
           ) : (
             <button 
               onClick={handleLogout} 
-              className="bg-primary text-white px-3 py-2 rounded hover:bg-secondary transition-colors duration-300"
+              className="bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition-colors duration-300"
             >
               Cerrar Sesión
             </button>
           )}
-          {/* Aquí se podría agregar un botón de menú para dispositivos móviles */}
         </div>
       </div>
     </nav>

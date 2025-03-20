@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import AuthContext from '../context/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { setAuth } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -20,13 +23,18 @@ function Login() {
 
       const data = await response.json();
       if (response.ok) {
+        // Guardar token y actualizar el contexto
         localStorage.setItem('token', data.token);
+        const decoded = jwtDecode(data.token);
+        setAuth({ token: data.token, user: decoded });
         setMessage('Login exitoso');
-        navigate('/protected');
+        // Redirigir a la vista de módulos
+        navigate('/modules');
       } else {
         setMessage(data.message || 'Error en el login');
       }
     } catch (error) {
+      console.error(error);
       setMessage('Error de conexión');
     }
   };
