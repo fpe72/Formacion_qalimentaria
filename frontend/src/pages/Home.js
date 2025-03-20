@@ -6,7 +6,7 @@ function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-r from-primary to-secondary flex flex-col items-center justify-center text-center px-4">
       {/* Opcional: mostrar el logo */}
-      <img src={logo} alt="Logo corporativo" className="w-90 mb-4" />
+      <img src={logo} alt="Logo corporativo" className="w-90 mb-4 mt-8" />
 
       <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
         Bienvenido a la Formación de Q-Alimentaria

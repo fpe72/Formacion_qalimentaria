@@ -1,7 +1,9 @@
-// src/pages/ModulesView.js
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import ModuleCard from '../components/ModuleCard';
+import AuthContext from '../context/AuthContext';
 
 function ModulesView() {
+  const { auth } = useContext(AuthContext);
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,37 +31,32 @@ function ModulesView() {
         setLoading(false);
       }
     };
-  
+
     fetchModules();
   }, []);
 
-  if (loading) return <div>Cargando módulos...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className="text-center py-6">Cargando módulos...</div>;
+  if (error) return <div className="text-center text-red-500 py-6">{error}</div>;
 
   return (
-    <div>
-      <h2>Lista de Módulos</h2>
+    <div className="container mx-auto px-4 py-6">
+      {/* Mensaje de bienvenida */}
+      {auth && auth.user && (
+        <div className="mb-6 text-center">
+          <h2 className="text-2xl font-bold text-primary">
+            Bienvenido, {auth.user.name}
+          </h2>
+        </div>
+      )}
+      <h2 className="text-3xl font-bold text-primary mb-6 text-center">Lista de Módulos</h2>
       {modules.length === 0 ? (
-        <p>No hay módulos disponibles.</p>
+        <p className="text-center">No hay módulos disponibles.</p>
       ) : (
-        <table border="1" cellPadding="5">
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Descripción</th>
-              <th>Orden</th>
-            </tr>
-          </thead>
-          <tbody>
-            {modules.map(mod => (
-              <tr key={mod._id}>
-                <td>{mod.title}</td>
-                <td>{mod.description || 'Sin descripción'}</td>
-                <td>{mod.order}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {modules.map(module => (
+            <ModuleCard key={module._id} module={module} />
+          ))}
+        </div>
       )}
     </div>
   );
