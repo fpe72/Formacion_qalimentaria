@@ -11,7 +11,7 @@ function ModuleCard({ module }) {
       </p>
       <p className="text-sm text-gray-500 mb-4">Orden: {module.order}</p>
       <Link 
-        to={`/modules/${module._id}`} 
+        to={`/modulo1`} 
         className="bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition-colors duration-300"
       >
         Ver más
