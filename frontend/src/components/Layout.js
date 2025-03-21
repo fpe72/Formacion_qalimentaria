@@ -22,7 +22,8 @@ function Layout({ children }) {
       </main>
 
       {/* Footer fijo */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-gray-200 text-center py-4">
+      <footer className="fixed bottom-0 left-0 right-0 bg-gray-200 text-center py-4"
+      style={{ textAlign: 'center' }}>
         &copy; {new Date().getFullYear()} Q-Alimentaria. Todos los derechos reservados.
       </footer>
 
