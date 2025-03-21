@@ -1,3 +1,4 @@
+// frontend/src/components/Navigation.js
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
@@ -16,8 +17,9 @@ function Navigation() {
   };
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white shadow-md w-full">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Bloque izquierdo: logo y navegación principal */}
         <div className="flex items-center">
           <img src={logo} alt="Logo corporativo" className="w-24 mr-4" />
           <div className="hidden md:flex space-x-4">
@@ -33,6 +35,8 @@ function Navigation() {
             )}
           </div>
         </div>
+
+        {/* Bloque derecho: Login/Register o botón de Logout */}
         <div className="flex items-center">
           {!isLoggedIn ? (
             <div className="hidden md:flex space-x-4">
