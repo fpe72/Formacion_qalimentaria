@@ -1,3 +1,4 @@
+// frontend/src/components/Layout.js
 import React from 'react';
 import Navigation from './Navigation';
 import IdleTimer from './IdleTimer';
@@ -22,8 +23,7 @@ function Layout({ children }) {
       </main>
 
       {/* Footer fijo */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-gray-200 text-center py-4"
-      style={{ textAlign: 'center' }}>
+      <footer className="fixed bottom-0 left-0 right-0 bg-gray-200 text-center py-4">
         &copy; {new Date().getFullYear()} Q-Alimentaria. Todos los derechos reservados.
       </footer>
 
