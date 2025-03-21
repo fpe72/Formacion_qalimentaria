@@ -57,8 +57,9 @@ button:hover {
   background-color: #0c7d8c;
 }
 
-footer {
+.module1-container footer {
   margin-top: 20px;
   display: flex;
   justify-content: space-between;
 }
+

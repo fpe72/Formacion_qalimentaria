@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import logo from '../assets/images/logo.png';
+import logo from '/workspaces/Formacion_qalimentaria/frontend/src/assets/images/logo.png';
 
 function Navigation() {
   const { auth, setAuth } = useContext(AuthContext);
