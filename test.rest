@@ -1,0 +1,19 @@
+# Petición de registro
+POST http://localhost:5000/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "123456",
+  "name": "Test User"
+}
+
+###
+# Petición de login
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "123456"
+}
