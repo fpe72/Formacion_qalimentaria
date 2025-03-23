@@ -1,81 +1,68 @@
-// src/pages/ProgressView.js
-import React, { useState, useEffect } from 'react';
+// src/pages/ProgressView.js (ejemplo)
+import React, { useEffect, useState } from "react";
 
 function ProgressView() {
-  const [progressRecords, setProgressRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [progressList, setProgressList] = useState([]);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchProgress = async () => {
-      try {
-        // Obtener el token guardado en localStorage (asegúrate de haber hecho login)
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError('No se encontró un token. Por favor, inicia sesión.');
-          setLoading(false);
-          return;
-        }
-
-        // Hacer la petición GET al endpoint /progress de tu backend
-        const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          setError('Error al obtener el progreso.');
-          setLoading(false);
-          return;
-        }
-
-        const data = await response.json();
-        setProgressRecords(data);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setError('Error de conexión al obtener el progreso.');
-        setLoading(false);
+    // Al montar, obtenemos todos los documentos de progreso del usuario
+    fetch(`${process.env.REACT_APP_API_URL}/progress`, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    };
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        // data debe ser un array de documentos de progreso
+        setProgressList(data);
+      })
+      .catch((err) => console.error("Error al obtener progress:", err));
+  }, [token]);
 
-    fetchProgress();
-  }, []);
-
-  if (loading) {
-    return <div>Cargando progreso...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+  // Función auxiliar para obtener el total de lecciones de cada módulo
+  // (puedes cambiarla si el total se encuentra en la DB)
+  const getTotalLessons = (moduleDoc) => {
+    // Si en tu modelo Module guardas "totalLessons", úsalo:
+    // return moduleDoc?.totalLessons || 4;
+    return 4; // Por defecto, 4
+  };
 
   return (
-    <div>
-      <h2>Progreso del Usuario</h2>
-      {progressRecords.length === 0 ? (
-        <p>No se ha registrado progreso aún.</p>
-      ) : (
-        <table border="1" cellPadding="5">
-          <thead>
-            <tr>
-              <th>ID del Progreso</th>
-              <th>Módulo</th>
-              <th>Fecha Completada</th>
-            </tr>
-          </thead>
-          <tbody>
-            {progressRecords.map(record => (
-              <tr key={record._id}>
-                <td>{record._id}</td>
-                <td>{record.module.title || 'Sin título'}</td>
-                <td>{new Date(record.dateCompleted).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div style={{ padding: "20px" }}>
+      <h1>Mi Progreso</h1>
+      {progressList.length === 0 && (
+        <p>No hay registros de progreso aún (o aún no has completado nada).</p>
       )}
+
+      {progressList.map((record) => {
+        const { _id, module, lessonsCompleted } = record;
+        // Suponemos que el módulo viene populado (.populate('module'))
+        const total = getTotalLessons(module);
+        const completedCount = lessonsCompleted?.length || 0;
+        const percentage = Math.round((completedCount / total) * 100);
+
+        return (
+          <div
+            key={_id}
+            style={{
+              border: "1px solid #ccc",
+              margin: "10px 0",
+              padding: "10px",
+              borderRadius: "5px"
+            }}
+          >
+            <h2>{module?.title || "Módulo sin título"}</h2>
+            <p>Lecciones completadas: {completedCount} / {total}</p>
+            <p>Progreso: <strong>{percentage}%</strong></p>
+            {lessonsCompleted?.length > 0 && (
+              <p>
+                <em>Lecciones: {lessonsCompleted.join(", ")}</em>
+              </p>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

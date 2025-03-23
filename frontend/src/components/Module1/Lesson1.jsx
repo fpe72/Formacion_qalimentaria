@@ -1,38 +1,42 @@
-// frontend/src/components/Module1/Lesson1.jsx
-import React, { useState } from 'react';
+// src/components/Module1/Lesson1.jsx (ejemplo)
+import React from "react";
 
-const Lesson1 = ({ onNext, onPrev }) => {
-  const [quizFeedback, setQuizFeedback] = useState("");
-
-  const handleOptionClick = (answer) => {
-    setQuizFeedback(answer === "correct" ? "¡Correcto!" : "Incorrecto, revisa el contenido y vuelve a intentarlo.");
-  };
-
+function Lesson1({ onComplete, isCompleted }) {
   return (
-    <div className="lesson-screen">
-      <header>
-        <h2>Lección 1: Introducción a la Seguridad Alimentaria</h2>
-        <div className="progress-bar">
-          <div className="progress" style={{ width: '25%' }}></div>
-        </div>
-      </header>
-      <main>
-        <p>
-          Aquí se mostrará el contenido textual original sobre la definición y relevancia de la seguridad alimentaria.
+    <div
+      style={{
+        border: "1px solid #ccc",
+        margin: "10px 0",
+        padding: "10px",
+        borderRadius: "5px"
+      }}
+    >
+      <h2>Lección 1: Introducción</h2>
+      <p>
+        Aquí va el contenido de la lección 1: texto, imágenes, cualquier material
+        de formación que necesites.
+      </p>
+
+      {isCompleted ? (
+        <p style={{ color: "green", fontWeight: "bold" }}>
+          ¡Lección completada!
         </p>
-        <p><strong>Quiz:</strong> Selecciona la afirmación correcta sobre seguridad alimentaria.</p>
-        <button onClick={() => handleOptionClick("incorrect")} className="quiz-option">Opción 1</button>
-        <button onClick={() => handleOptionClick("correct")} className="quiz-option">Opción 2</button>
-        <div className="quiz-feedback" style={{ color: quizFeedback === "¡Correcto!" ? 'green' : 'red' }}>
-          {quizFeedback}
-        </div>
-      </main>
-      <footer>
-        <button onClick={onPrev}>Anterior</button>
-        <button onClick={onNext}>Siguiente</button>
-      </footer>
+      ) : (
+        <button
+          onClick={onComplete}
+          style={{
+            backgroundColor: "#4caf50",
+            color: "#fff",
+            padding: "10px 16px",
+            borderRadius: "4px",
+            cursor: "pointer"
+          }}
+        >
+          Marcar como completada
+        </button>
+      )}
     </div>
   );
-};
+}
 
 export default Lesson1;

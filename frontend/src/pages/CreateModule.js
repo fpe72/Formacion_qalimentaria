@@ -1,94 +1,152 @@
 // src/pages/CreateModule.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
 
 function CreateModule() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [content, setContent] = useState('');
-  const [order, setOrder] = useState(0);
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [order, setOrder] = useState("");
+
+  // Para manejar un array "lessons"
+  const [lessons, setLessons] = useState([]);
+  const [lessonId, setLessonId] = useState("");
+  const [lessonTitle, setLessonTitle] = useState("");
+  const [lessonContent, setLessonContent] = useState("");
+
+  const handleAddLesson = () => {
+    // Agregamos un objeto lección al array 'lessons'
+    if (!lessonId || !lessonTitle) {
+      alert("Completa al menos lessonId y lessonTitle");
+      return;
+    }
+    const newLesson = {
+      lessonId,
+      lessonTitle,
+      lessonContent
+    };
+    setLessons([...lessons, newLesson]);
+    // Limpiar campos
+    setLessonId("");
+    setLessonTitle("");
+    setLessonContent("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
+
+    const moduleData = {
+      title,
+      description,
+      order: order ? Number(order) : 0,
+      lessons
+    };
 
     try {
-      // Se asume que ya tienes un token admin en localStorage tras hacer login
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setMessage('Debes iniciar sesión como administrador.');
-        return;
-      }
-
-      const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
-        method: 'POST',
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/modules`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ title, description, content, order })
+        body: JSON.stringify(moduleData)
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        setMessage('Módulo creado con éxito');
-        // Puedes limpiar los campos o redireccionar a la lista de módulos
-        setTitle('');
-        setDescription('');
-        setContent('');
-        setOrder(0);
-        // Por ejemplo, redireccionar a la vista de módulos:
-        // navigate('/modules');
+      const data = await res.json();
+      if (res.ok) {
+        alert("Módulo creado con éxito");
+        // Resetear campos
+        setTitle("");
+        setDescription("");
+        setOrder("");
+        setLessons([]);
       } else {
-        setMessage(data.message || 'Error al crear el módulo');
+        alert("Error al crear módulo: " + (data.message || "Desconocido"));
       }
     } catch (error) {
-      console.error(error);
-      setMessage('Error de conexión');
+      console.error("Error al crear módulo:", error);
+      alert("Ocurrió un error al crear el módulo");
     }
   };
 
   return (
-    <div>
-      <h2>Crear Nuevo Módulo</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
+    <div style={{ padding: "20px" }}>
+      <h1>Crear Módulo (solo admin)</h1>
+      <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "10px" }}>
           <label>Título:</label>
-          <input 
+          <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required 
+            onChange={e => setTitle(e.target.value)}
+            required
           />
         </div>
-        <div>
+
+        <div style={{ marginBottom: "10px" }}>
           <label>Descripción:</label>
-          <input 
+          <input
             type="text"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
           />
         </div>
-        <div>
-          <label>Contenido:</label>
-          <textarea 
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </div>
-        <div>
+
+        <div style={{ marginBottom: "10px" }}>
           <label>Orden:</label>
-          <input 
+          <input
             type="number"
             value={order}
-            onChange={(e) => setOrder(Number(e.target.value))}
+            onChange={e => setOrder(e.target.value)}
           />
         </div>
-        <button type="submit">Crear Módulo</button>
+
+        <hr />
+
+        <h2>Lecciones del Módulo</h2>
+        <div style={{ marginBottom: "10px" }}>
+          <label>lessonId:</label>
+          <input
+            type="text"
+            value={lessonId}
+            onChange={e => setLessonId(e.target.value)}
+          />
+        </div>
+        <div style={{ marginBottom: "10px" }}>
+          <label>Título de la lección:</label>
+          <input
+            type="text"
+            value={lessonTitle}
+            onChange={e => setLessonTitle(e.target.value)}
+          />
+        </div>
+        <div style={{ marginBottom: "10px" }}>
+          <label>Contenido de la lección (HTML o texto):</label>
+          <textarea
+            value={lessonContent}
+            onChange={e => setLessonContent(e.target.value)}
+            rows={4}
+          />
+        </div>
+        <button type="button" onClick={handleAddLesson}>
+          Agregar Lección al array
+        </button>
+
+        {/* Mostrar lecciones añadidas */}
+        {lessons.length > 0 && (
+          <ul>
+            {lessons.map((l, i) => (
+              <li key={i}>
+                <strong>{l.lessonId}:</strong> {l.lessonTitle}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <hr />
+
+        <button type="submit">Guardar Módulo</button>
       </form>
-      {message && <p>{message}</p>}
     </div>
   );
 }
