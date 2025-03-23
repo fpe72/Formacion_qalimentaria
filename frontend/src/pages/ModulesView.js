@@ -1,63 +1,48 @@
-import React, { useContext, useState, useEffect } from 'react';
-import ModuleCard from '../components/ModuleCard';
-import AuthContext from '../context/AuthContext';
+// src/pages/ModulesView.js
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function ModulesView() {
-  const { auth } = useContext(AuthContext);
   const [modules, setModules] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchModules = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (!response.ok) {
-          setError('Error al obtener los módulos');
-          setLoading(false);
-          return;
-        }
-        const data = await response.json();
-        setModules(data);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setError('Error de conexión');
-        setLoading(false);
+    // Al montar el componente, obtener la lista de módulos
+    fetch(`${process.env.REACT_APP_API_URL}/modules`, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-    };
-
-    fetchModules();
-  }, []);
-
-  if (loading) return <div className="text-center py-6">Cargando módulos...</div>;
-  if (error) return <div className="text-center text-red-500 py-6">{error}</div>;
+    })
+      .then(res => res.json())
+      .then(data => {
+        // data es un array de módulos
+        setModules(data);
+      })
+      .catch(err => console.error("Error al obtener módulos:", err));
+  }, [token]);
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      {/* Mensaje de bienvenida */}
-      {auth && auth.user && (
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold text-primary">
-            Bienvenido, {auth.user.name}
-          </h2>
+    <div style={{ padding: 20 }}>
+      <h1>Lista de Módulos</h1>
+
+      {modules.map((mod) => (
+        <div
+          key={mod._id}
+          style={{
+            border: "1px solid #ccc",
+            marginBottom: "10px",
+            padding: "10px",
+            borderRadius: "4px"
+          }}
+        >
+          <h2>{mod.title}</h2>
+          <p>{mod.description}</p>
+          {/* Enlace al detalle usando su ID */}
+          <Link to={`/modules/${mod._id}`}>
+            <button>Ver Detalle</button>
+          </Link>
         </div>
-      )}
-      <h2 className="text-3xl font-bold text-primary mb-6 text-center">Lista de Módulos</h2>
-      {modules.length === 0 ? (
-        <p className="text-center">No hay módulos disponibles.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules.map(module => (
-            <ModuleCard key={module._id} module={module} />
-          ))}
-        </div>
-      )}
+      ))}
     </div>
   );
 }

@@ -1,38 +1,42 @@
-// frontend/src/components/Module1/Lesson3.jsx
-import React, { useState } from 'react';
+// src/components/Module1/Lesson1.jsx (ejemplo)
+import React from "react";
 
-const Lesson3 = ({ onNext, onPrev }) => {
-  const [quizFeedback, setQuizFeedback] = useState("");
-
-  const handleOptionClick = (answer) => {
-    setQuizFeedback(answer === "correct" ? "¡Correcto!" : "Incorrecto, intenta de nuevo.");
-  };
-
+function Lesson3({ onComplete, isCompleted }) {
   return (
-    <div className="lesson-screen">
-      <header>
-        <h2>Lección 3: Introducción al Sistema APPCC/HACCP</h2>
-        <div className="progress-bar">
-          <div className="progress" style={{ width: '75%' }}></div>
-        </div>
-      </header>
-      <main>
-        <p>
-          Aquí se mostrará el contenido textual original sobre la introducción al sistema APPCC/HACCP.
+    <div
+      style={{
+        border: "1px solid #ccc",
+        margin: "10px 0",
+        padding: "10px",
+        borderRadius: "5px"
+      }}
+    >
+      <h2>Lección 3: Introducción</h2>
+      <p>
+        Aquí va el contenido de la lección 1: texto, imágenes, cualquier material
+        de formación que necesites.
+      </p>
+
+      {isCompleted ? (
+        <p style={{ color: "green", fontWeight: "bold" }}>
+          ¡Lección completada!
         </p>
-        <p><strong>Quiz:</strong> Ordena los pasos del proceso APPCC.</p>
-        <button onClick={() => handleOptionClick("correct")}>Orden Correcta</button>
-        <button onClick={() => handleOptionClick("incorrect")}>Orden Incorrecta</button>
-        <div className="quiz-feedback" style={{ color: quizFeedback === "¡Correcto!" ? 'green' : 'red' }}>
-          {quizFeedback}
-        </div>
-      </main>
-      <footer>
-        <button onClick={onPrev}>Anterior</button>
-        <button onClick={onNext}>Siguiente</button>
-      </footer>
+      ) : (
+        <button
+          onClick={onComplete}
+          style={{
+            backgroundColor: "#4caf50",
+            color: "#fff",
+            padding: "10px 16px",
+            borderRadius: "4px",
+            cursor: "pointer"
+          }}
+        >
+          Marcar como completada
+        </button>
+      )}
     </div>
   );
-};
+}
 
 export default Lesson3;
