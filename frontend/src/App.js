@@ -1,25 +1,28 @@
 // frontend/src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Layout y otros componentes base
 import Layout from './components/Layout';
 
+// Páginas y componentes
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ModulesView from './pages/ModulesView';
+import ProgressView from './pages/ProgressView';
+import CreateModule from './pages/CreateModule';
+import ModuleDetail from './components/ModuleDetail';
 
-// Aquí se importan los componentes finales:
-import ModulesView from './pages/ModulesView';      // (Nuevo/actualizado para listar módulos con array de lecciones)
-import ProgressView from './pages/ProgressView';    // (Muestra el progreso, sin cambios mayores salvo adaptarlo si hace falta)
-import CreateModule from './pages/CreateModule';    // (Formulario para crear un módulo con varias lecciones)
-import ModuleDetail from './components/ModuleDetail'; // (Nuevo/actualizado para mostrar un solo módulo y sus lecciones)
-import Module1 from './components/Module1/Module1';   // (Puede seguir usándose como prototipo o demo)
+// (Opcional) Componente antiguo, prototipo de Módulo 1
+import Module1 from './components/Module1/Module1';
 
 function App() {
   return (
     <Router>
       <Layout>
         <Routes>
-          {/* Página de inicio */}
+          {/* Ruta de inicio */}
           <Route path="/" element={<Home />} />
 
           {/* Autenticación */}
@@ -30,13 +33,13 @@ function App() {
           <Route path="/modules" element={<ModulesView />} />
           <Route path="/modules/:id" element={<ModuleDetail />} />
 
-          {/* Progreso */}
+          {/* Progreso global (si lo usas) */}
           <Route path="/progress" element={<ProgressView />} />
 
-          {/* Creación de módulos (sólo para admin) */}
+          {/* Creación de módulos (HTML en 'content'), solo admin */}
           <Route path="/create-module" element={<CreateModule />} />
 
-          {/* Ejemplo de un módulo prototipo */}
+          {/* Demostración o prototipo anterior */}
           <Route path="/modulo1" element={<Module1 />} />
         </Routes>
       </Layout>

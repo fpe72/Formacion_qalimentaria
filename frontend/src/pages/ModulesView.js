@@ -1,4 +1,4 @@
-// src/pages/ModulesView.js
+// frontend/src/pages/ModulesView.js
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -7,7 +7,7 @@ function ModulesView() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    // Al montar el componente, obtener la lista de módulos
+    // Petición GET /modules
     fetch(`${process.env.REACT_APP_API_URL}/modules`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -15,7 +15,6 @@ function ModulesView() {
     })
       .then(res => res.json())
       .then(data => {
-        // data es un array de módulos
         setModules(data);
       })
       .catch(err => console.error("Error al obtener módulos:", err));
@@ -24,7 +23,6 @@ function ModulesView() {
   return (
     <div style={{ padding: 20 }}>
       <h1>Lista de Módulos</h1>
-
       {modules.map((mod) => (
         <div
           key={mod._id}
@@ -37,7 +35,7 @@ function ModulesView() {
         >
           <h2>{mod.title}</h2>
           <p>{mod.description}</p>
-          {/* Enlace al detalle usando su ID */}
+          {/* Enlace al detalle */}
           <Link to={`/modules/${mod._id}`}>
             <button>Ver Detalle</button>
           </Link>

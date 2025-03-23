@@ -1,32 +1,15 @@
-// models/Module.js (DESPUÉS)
-const mongoose = require('mongoose');
+// backend/models/Module.js
 
-// Subdocumento para cada lección
-const lessonSchema = new mongoose.Schema({
-  lessonId: {
-    type: String,
-    required: true
-  },
-  lessonTitle: {
-    type: String,
-    required: true
-  },
-  // El contenido puede ser HTML, Markdown o texto plano
-  lessonContent: {
-    type: String,
-    required: true
-  }
-});
+const mongoose = require('mongoose');
 
 const moduleSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   description: String,
+  content: String, // <--- campo único para HTML
   order: Number,
-  // Array de lecciones
-  lessons: [lessonSchema]
 });
 
 module.exports = mongoose.model('Module', moduleSchema);
