@@ -40,7 +40,6 @@ function ModulesView() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Mensaje de bienvenida */}
       {auth && auth.user && (
         <div className="mb-6 text-center">
           <h2 className="text-2xl font-bold text-primary">
