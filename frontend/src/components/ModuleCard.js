@@ -1,4 +1,4 @@
-// src/components/ModuleCard.js
+// frontend/src/components/ModuleCard.js
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ function ModuleCard({ module }) {
       </p>
       <p className="text-sm text-gray-500 mb-4">Orden: {module.order}</p>
       <Link 
-        to={`/modulo1`} 
+        to={`/modules/${module.order}`} 
         className="bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition-colors duration-300"
       >
         Ver más
