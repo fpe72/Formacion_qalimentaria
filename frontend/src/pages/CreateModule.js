@@ -1,96 +1,131 @@
-// src/pages/CreateModule.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// frontend/src/pages/CreateModule.js
+import React, { useState, useEffect } from 'react';
 
-function CreateModule() {
+const CreateModule = () => {
+  const [modules, setModules] = useState([]);
+  const [selectedModuleId, setSelectedModuleId] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
-  const [order, setOrder] = useState(0);
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  
+  const token = localStorage.getItem('token');
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .then(res => res.json())
+    .then(setModules);
+  }, [token]);
+
+  const handleSelectModule = (id) => {
+    const mod = modules.find(m => m._id === id);
+    setSelectedModuleId(id);
+    setTitle(mod.title);
+    setDescription(mod.description);
+    setContent(mod.content);
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setMessage('');
 
-    try {
-      // Se asume que ya tienes un token admin en localStorage tras hacer login
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setMessage('Debes iniciar sesión como administrador.');
-        return;
-      }
+    const method = selectedModuleId ? 'PUT' : 'POST';
+    const url = selectedModuleId
+      ? `https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules/${selectedModuleId}`
+      : 'https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules';
 
-      const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ title, description, content, order })
-      });
+    fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ title, description, content })
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(`Módulo ${selectedModuleId ? 'actualizado' : 'creado'} exitosamente`);
+      setTitle('');
+      setDescription('');
+      setContent('');
+      setSelectedModuleId('');
+      window.location.reload();
+    });
+  };
 
-      const data = await response.json();
-      if (response.ok) {
-        setMessage('Módulo creado con éxito');
-        // Puedes limpiar los campos o redireccionar a la lista de módulos
+  const handleDelete = () => {
+    if (window.confirm('¿Seguro que quieres eliminar este módulo?')) {
+      fetch(`https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules/${selectedModuleId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(() => {
+        alert('Módulo eliminado exitosamente');
         setTitle('');
         setDescription('');
         setContent('');
-        setOrder(0);
-        // Por ejemplo, redireccionar a la vista de módulos:
-        // navigate('/modules');
-      } else {
-        setMessage(data.message || 'Error al crear el módulo');
-      }
-    } catch (error) {
-      console.error(error);
-      setMessage('Error de conexión');
+        setSelectedModuleId('');
+        window.location.reload();
+      });
     }
   };
 
   return (
-    <div>
-      <h2>Crear Nuevo Módulo</h2>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Crear o Editar Módulo</h2>
+
+      <select
+        className="mb-4 p-2 border"
+        value={selectedModuleId}
+        onChange={(e) => handleSelectModule(e.target.value)}
+      >
+        <option value="">-- Crear nuevo módulo --</option>
+        {modules.map(m => (
+          <option key={m._id} value={m._id}>{m.title}</option>
+        ))}
+      </select>
+
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Título:</label>
-          <input 
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required 
-          />
-        </div>
-        <div>
-          <label>Descripción:</label>
-          <input 
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Contenido:</label>
-          <textarea 
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Orden:</label>
-          <input 
-            type="number"
-            value={order}
-            onChange={(e) => setOrder(Number(e.target.value))}
-          />
-        </div>
-        <button type="submit">Crear Módulo</button>
+        <input
+          type="text"
+          placeholder="Título del módulo"
+          className="mb-4 p-2 border w-full"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <textarea
+          placeholder="Descripción"
+          className="mb-4 p-2 border w-full"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+        <textarea
+          placeholder="Contenido HTML"
+          className="mb-4 p-2 border w-full h-48"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          required
+        />
+
+        <button type="submit" className="bg-primary text-white py-2 px-4 rounded">
+          {selectedModuleId ? 'Actualizar módulo' : 'Crear módulo'}
+        </button>
+
+        {selectedModuleId && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="bg-red-500 text-white py-2 px-4 rounded ml-4"
+          >
+            Eliminar módulo
+          </button>
+        )}
       </form>
-      {message && <p>{message}</p>}
     </div>
   );
-}
+};
 
 export default CreateModule;

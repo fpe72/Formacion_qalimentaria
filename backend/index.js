@@ -186,6 +186,25 @@ app.post('/modules', authMiddleware, adminMiddleware, async (req, res) => {
     return res.status(500).json({ message: 'Error al crear el módulo' });
   }
 });
+// Editar módulo existente
+app.put('/modules/:id', async (req, res) => {
+  try {
+    const updatedModule = await Module.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json(updatedModule);
+  } catch (error) {
+    res.status(500).json({ error: 'Error actualizando módulo' });
+  }
+});
+
+// Eliminar módulo existente
+app.delete('/modules/:id', async (req, res) => {
+  try {
+    await Module.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Módulo eliminado correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error eliminando módulo' });
+  }
+});
 
 // -------------------
 // Conexión a MongoDB Atlas
