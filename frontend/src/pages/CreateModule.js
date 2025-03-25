@@ -7,7 +7,8 @@ const CreateModule = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
-  
+  const [order, setOrder] = useState('');
+
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -20,10 +21,20 @@ const CreateModule = () => {
 
   const handleSelectModule = (id) => {
     const mod = modules.find(m => m._id === id);
-    setSelectedModuleId(id);
-    setTitle(mod.title);
-    setDescription(mod.description);
-    setContent(mod.content);
+
+    if (mod) {
+      setSelectedModuleId(id);
+      setTitle(mod.title);
+      setDescription(mod.description);
+      setContent(mod.content);
+      setOrder(mod.order);
+    } else {
+      setSelectedModuleId('');
+      setTitle('');
+      setDescription('');
+      setContent('');
+      setOrder('');
+    }
   };
 
   const handleSubmit = (e) => {
@@ -40,7 +51,7 @@ const CreateModule = () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ title, description, content })
+      body: JSON.stringify({ title, description, content, order: Number(order) })
     })
     .then(res => res.json())
     .then(data => {
@@ -48,6 +59,7 @@ const CreateModule = () => {
       setTitle('');
       setDescription('');
       setContent('');
+      setOrder('');
       setSelectedModuleId('');
       window.location.reload();
     });
@@ -65,9 +77,22 @@ const CreateModule = () => {
         setTitle('');
         setDescription('');
         setContent('');
+        setOrder('');
         setSelectedModuleId('');
         window.location.reload();
       });
+    }
+  };
+
+  // ← NUEVA FUNCIÓN PARA CARGAR ARCHIVO HTML →
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setContent(e.target.result);
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -95,6 +120,7 @@ const CreateModule = () => {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
+
         <textarea
           placeholder="Descripción"
           className="mb-4 p-2 border w-full"
@@ -102,11 +128,29 @@ const CreateModule = () => {
           onChange={(e) => setDescription(e.target.value)}
           required
         />
+
         <textarea
           placeholder="Contenido HTML"
           className="mb-4 p-2 border w-full h-48"
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          required
+        />
+
+        {/* NUEVO: Opción subir archivo HTML */}
+        <input
+          type="file"
+          accept=".html"
+          className="mb-4 p-2 border w-full"
+          onChange={handleFileUpload}
+        />
+
+        <input
+          type="number"
+          placeholder="Orden del módulo (número)"
+          className="mb-4 p-2 border w-full"
+          value={order}
+          onChange={(e) => setOrder(e.target.value)}
           required
         />
 
