@@ -1,4 +1,3 @@
-// frontend/src/pages/CreateModule.js
 import React, { useState, useEffect } from 'react';
 
 const CreateModule = () => {
@@ -8,6 +7,7 @@ const CreateModule = () => {
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
   const [order, setOrder] = useState('');
+  const [questions, setQuestions] = useState([]);
 
   const token = localStorage.getItem('token');
 
@@ -21,20 +21,40 @@ const CreateModule = () => {
 
   const handleSelectModule = (id) => {
     const mod = modules.find(m => m._id === id);
-
     if (mod) {
       setSelectedModuleId(id);
       setTitle(mod.title);
       setDescription(mod.description);
       setContent(mod.content);
       setOrder(mod.order);
+      setQuestions(mod.questions || []);
     } else {
       setSelectedModuleId('');
       setTitle('');
       setDescription('');
       setContent('');
       setOrder('');
+      setQuestions([]);
     }
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => setContent(e.target.result);
+      reader.readAsText(file);
+    }
+  };
+
+  const handleQuestionChange = (index, field, value) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index][field] = value;
+    setQuestions(updatedQuestions);
+  };
+
+  const addNewQuestion = () => {
+    setQuestions([...questions, { question: '', options: ['', '', ''], answer: '' }]);
   };
 
   const handleSubmit = (e) => {
@@ -51,49 +71,13 @@ const CreateModule = () => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ title, description, content, order: Number(order) })
+      body: JSON.stringify({ title, description, content, order: Number(order), questions })
     })
     .then(res => res.json())
     .then(data => {
       alert(`Módulo ${selectedModuleId ? 'actualizado' : 'creado'} exitosamente`);
-      setTitle('');
-      setDescription('');
-      setContent('');
-      setOrder('');
-      setSelectedModuleId('');
       window.location.reload();
     });
-  };
-
-  const handleDelete = () => {
-    if (window.confirm('¿Seguro que quieres eliminar este módulo?')) {
-      fetch(`https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules/${selectedModuleId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => res.json())
-      .then(() => {
-        alert('Módulo eliminado exitosamente');
-        setTitle('');
-        setDescription('');
-        setContent('');
-        setOrder('');
-        setSelectedModuleId('');
-        window.location.reload();
-      });
-    }
-  };
-
-  // ← NUEVA FUNCIÓN PARA CARGAR ARCHIVO HTML →
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setContent(e.target.result);
-      };
-      reader.readAsText(file);
-    }
   };
 
   return (
@@ -137,7 +121,6 @@ const CreateModule = () => {
           required
         />
 
-        {/* NUEVO: Opción subir archivo HTML */}
         <input
           type="file"
           accept=".html"
@@ -154,19 +137,48 @@ const CreateModule = () => {
           required
         />
 
-        <button type="submit" className="bg-primary text-white py-2 px-4 rounded">
+        <div className="mt-4 p-4 border rounded bg-gray-50">
+          <h3 className="text-lg font-bold">Preguntas del módulo</h3>
+          {questions.map((q, idx) => (
+            <div key={idx} className="my-4 p-2 border-b">
+              <input
+                type="text"
+                className="p-2 border w-full"
+                placeholder={`Pregunta ${idx + 1}`}
+                value={q.question}
+                onChange={(e) => handleQuestionChange(idx, 'question', e.target.value)}
+              />
+              {q.options.map((opt, oIdx) => (
+                <input
+                  key={oIdx}
+                  type="text"
+                  className="p-2 border w-full mt-2"
+                  placeholder={`Opción ${oIdx + 1}`}
+                  value={opt}
+                  onChange={(e) => {
+                    const newOpts = [...q.options];
+                    newOpts[oIdx] = e.target.value;
+                    handleQuestionChange(idx, 'options', newOpts);
+                  }}
+                />
+              ))}
+              <input
+                type="text"
+                className="p-2 border w-full mt-2 bg-green-50"
+                placeholder="Respuesta correcta"
+                value={q.answer}
+                onChange={(e) => handleQuestionChange(idx, 'answer', e.target.value)}
+              />
+            </div>
+          ))}
+          <button type="button" className="bg-secondary text-white py-2 px-4 rounded" onClick={addNewQuestion}>
+            + Añadir Pregunta
+          </button>
+        </div>
+
+        <button type="submit" className="bg-primary text-white py-2 px-4 rounded mt-4">
           {selectedModuleId ? 'Actualizar módulo' : 'Crear módulo'}
         </button>
-
-        {selectedModuleId && (
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="bg-red-500 text-white py-2 px-4 rounded ml-4"
-          >
-            Eliminar módulo
-          </button>
-        )}
       </form>
     </div>
   );

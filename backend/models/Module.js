@@ -1,11 +1,15 @@
-// backend/models/Module.js
 const mongoose = require('mongoose');
 
-const moduleSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String },
-  content: { type: String }, // Puedes usarlo para almacenar texto, HTML o URL de recursos multimedia.
-  order: { type: Number, default: 0 } // Para definir el orden de presentación de los módulos.
+const ModuleSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  content: String,
+  order: Number,
+  questions: [{
+    question: String,
+    options: [String],
+    answer: String
+  }]
 });
 
-module.exports = mongoose.model('Module', moduleSchema);
+module.exports = mongoose.model('Module', ModuleSchema);

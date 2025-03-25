@@ -6,105 +6,26 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 // Importar modelos
-const User = require('./models/User');      // Modelo de usuario
-const Module = require('./models/Module');    // Modelo de módulos
-const Progress = require('./models/Progress'); // Modelo de progreso
+const User = require('./models/User');
+const Module = require('./models/Module');
+const Progress = require('./models/Progress');
 
-// Cargar variables de entorno (.env debe estar en la carpeta backend)
 dotenv.config({ path: './.env' });
 
 const app = express();
 app.use(express.json());
-
-// Configurar CORS para pruebas
 app.use(cors());
 app.options('*', cors());
 
-// Definir puerto y clave secreta
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbackSecret';
 
-// Ruta raíz para comprobar que el backend funciona
+// Ruta raíz
 app.get('/', (req, res) => {
   res.send('Backend de Formacion Qalimentaria');
 });
 
-// -------------------
-// Endpoints Públicos
-// -------------------
-
-// Registro de usuario
-app.post('/register', async (req, res) => {
-  try {
-    const { email, password, name, firstSurname, secondSurname, dni } = req.body;
-    if (!email || !password || !name || !firstSurname || !secondSurname || !dni) {
-      return res.status(400).json({ message: 'Faltan datos' });
-    }
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'El usuario ya está registrado' });
-    }
-    // Validar que la contraseña solo contenga caracteres alfanuméricos
-    const passwordRegex = /^[A-Za-z0-9]+$/;
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({ message: 'La contraseña debe contener solo caracteres alfanuméricos.' });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword, name, firstSurname, secondSurname, dni });
-    await newUser.save();
-    return res.status(201).json({ message: 'Usuario registrado con éxito' });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error en el servidor' });
-  }
-});
-
-// Login de usuario
-app.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Faltan datos' });
-    }
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Credenciales inválidas' });
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Credenciales inválidas' });
-    }
-    // Generar token incluyendo el campo role
-    const token = jwt.sign(
-      { email: user.email, name: user.name, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-    return res.status(200).json({ message: 'Login exitoso', token });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error en el servidor' });
-  }
-});
-
-// -------------------
-// Endpoints Públicos (consulta de módulos)
-// -------------------
-
-// Listar módulos
-app.get('/modules', authMiddleware, async (req, res) => {
-  try {
-    const modules = await Module.find({}).sort({ order: 1 });
-    res.json(modules);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al obtener los módulos' });
-  }
-});
-
-// -------------------
-// Middleware de Autenticación
-// -------------------
+// Middleware autenticación
 function authMiddleware(req, res, next) {
   if (req.method === 'OPTIONS') return next();
   const authHeader = req.headers.authorization;
@@ -120,104 +41,66 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// Middleware para verificar rol admin
+// Middleware admin
 function adminMiddleware(req, res, next) {
-  if (req.user && req.user.role === 'admin') {
-    return next();
-  }
+  if (req.user && req.user.role === 'admin') return next();
   return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' });
 }
 
-// -------------------
-// Endpoints Protegidos (requieren autenticación)
-// -------------------
-
-// Registrar progreso del usuario
-app.post('/progress', authMiddleware, async (req, res) => {
-  try {
-    const { moduleId } = req.body;
-    if (!moduleId) {
-      return res.status(400).json({ message: 'Falta el ID del módulo' });
-    }
-    const userEmail = req.user.email;
-    const progressRecord = new Progress({ userEmail, module: moduleId });
-    await progressRecord.save();
-    res.status(201).json({ message: 'Progreso registrado con éxito', progress: progressRecord });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al registrar el progreso' });
-  }
-});
-
-// Consultar progreso del usuario
-app.get('/progress', authMiddleware, async (req, res) => {
-  try {
-    const userEmail = req.user.email;
-    const progressRecords = await Progress.find({ userEmail }).populate('module');
-    res.json(progressRecords);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al obtener el progreso' });
-  }
-});
-
-// Ruta protegida de ejemplo
-app.get('/protected', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Accediste a la ruta protegida con éxito',
-    userData: req.user
-  });
-});
-
-// -------------------
-// Endpoint Exclusivo para Administradores: Crear Módulos
-// -------------------
+// Crear módulo (ADMIN)
 app.post('/modules', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const { title, description, content, order } = req.body;
+    const { title, description, content, order, questions } = req.body;
     if (!title) {
       return res.status(400).json({ message: 'Falta el título del módulo' });
     }
-    const newModule = new Module({ title, description, content, order });
+    const newModule = new Module({ title, description, content, order, questions });
     await newModule.save();
     return res.status(201).json({ message: 'Módulo creado con éxito', module: newModule });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Error al crear el módulo' });
+    return res.status(500).json({ message: 'Error al crear el módulo', details: error });
   }
 });
-// Editar módulo existente
-app.put('/modules/:id', async (req, res) => {
+
+// Actualizar módulo (ADMIN)
+app.put('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const updatedModule = await Module.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.status(200).json(updatedModule);
   } catch (error) {
-    res.status(500).json({ error: 'Error actualizando módulo' });
+    res.status(500).json({ message: 'Error actualizando módulo', details: error });
   }
 });
 
-// Eliminar módulo existente
-app.delete('/modules/:id', async (req, res) => {
+// Eliminar módulo (ADMIN)
+app.delete('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     await Module.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Módulo eliminado correctamente' });
   } catch (error) {
-    res.status(500).json({ error: 'Error eliminando módulo' });
+    res.status(500).json({ message: 'Error eliminando módulo', details: error });
   }
 });
 
-// -------------------
-// Conexión a MongoDB Atlas
-// -------------------
-const mongoURI = process.env.MONGODB_URI;
-mongoose.connect(mongoURI, {
+// Listar módulos (usuario autenticado)
+app.get('/modules', authMiddleware, async (req, res) => {
+  try {
+    const modules = await Module.find({}).sort({ order: 1 });
+    res.json(modules);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener los módulos' });
+  }
+});
+
+// Conexión MongoDB Atlas
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-})
-.then(() => console.log('Conectado a MongoDB Atlas'))
-.catch(err => console.error('Error al conectar a MongoDB Atlas', err));
+}).then(() => console.log('Conectado a MongoDB Atlas'))
+  .catch(err => console.error('Error al conectar a MongoDB Atlas', err));
 
-// Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
