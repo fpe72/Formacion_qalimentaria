@@ -148,19 +148,26 @@ app.delete('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => 
   }
 });
 
-// Registrar progreso usuario
+// Registrar progreso usuario (solo si no lo ha completado antes)
 app.post('/progress', authMiddleware, async (req, res) => {
   try {
     const { moduleId } = req.body;
-    if (!moduleId) {
-      return res.status(400).json({ message: 'Falta el ID del módulo' });
-    }
     const userEmail = req.user.email;
+
+    // Verificar si ya existe progreso para este módulo y usuario
+    const progressExists = await Progress.findOne({ userEmail, module: moduleId });
+
+    if (progressExists) {
+      return res.status(400).json({ message: 'Ya has superado este módulo anteriormente.' });
+    }
+
+    // Si no existe, crear el nuevo progreso
     const progressRecord = new Progress({ userEmail, module: moduleId });
     await progressRecord.save();
+
     res.status(201).json({ message: 'Progreso registrado con éxito', progress: progressRecord });
   } catch (error) {
-    res.status(500).json({ message: 'Error al registrar el progreso' });
+    res.status(500).json({ message: 'Error al registrar el progreso', error });
   }
 });
 

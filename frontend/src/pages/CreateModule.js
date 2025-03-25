@@ -80,6 +80,26 @@ const CreateModule = () => {
     });
   };
 
+  const handleDelete = () => {
+    if (window.confirm('¿Seguro que quieres eliminar este módulo?')) {
+      fetch(`https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules/${selectedModuleId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(() => {
+        alert('Módulo eliminado exitosamente');
+        setTitle('');
+        setDescription('');
+        setContent('');
+        setOrder('');
+        setQuestions([]);
+        setSelectedModuleId('');
+        window.location.reload();
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Crear o Editar Módulo</h2>
@@ -138,9 +158,9 @@ const CreateModule = () => {
         />
 
         <div className="mt-4 p-4 border rounded bg-gray-50">
-          <h3 className="text-lg font-bold">Preguntas del módulo</h3>
+          <h3 className="text-lg font-bold mb-2">Preguntas del módulo</h3>
           {questions.map((q, idx) => (
-            <div key={idx} className="my-4 p-2 border-b">
+            <div key={idx} className="mb-4 p-2 border-b">
               <input
                 type="text"
                 className="p-2 border w-full"
@@ -176,9 +196,21 @@ const CreateModule = () => {
           </button>
         </div>
 
-        <button type="submit" className="bg-primary text-white py-2 px-4 rounded mt-4">
-          {selectedModuleId ? 'Actualizar módulo' : 'Crear módulo'}
-        </button>
+        <div className="mt-6 flex gap-4">
+          <button type="submit" className="bg-primary text-white py-2 px-4 rounded">
+            {selectedModuleId ? 'Actualizar módulo' : 'Crear módulo'}
+          </button>
+
+          {selectedModuleId && (
+            <button
+              type="button"
+              className="bg-red-500 text-white py-2 px-4 rounded"
+              onClick={handleDelete}
+            >
+              Eliminar módulo
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

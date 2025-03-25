@@ -9,7 +9,6 @@ function ProgressView() {
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        // Obtener el token guardado en localStorage (asegúrate de haber hecho login)
         const token = localStorage.getItem('token');
         if (!token) {
           setError('No se encontró un token. Por favor, inicia sesión.');
@@ -17,7 +16,6 @@ function ProgressView() {
           return;
         }
 
-        // Hacer la petición GET al endpoint /progress de tu backend
         const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -52,27 +50,34 @@ function ProgressView() {
   }
 
   return (
-    <div>
-      <h2>Progreso del Usuario</h2>
+    <div className="container mx-auto px-4 py-6">
+      <h2 className="text-2xl font-bold mb-4">Progreso del Usuario</h2>
+
       {progressRecords.length === 0 ? (
         <p>No se ha registrado progreso aún.</p>
       ) : (
-        <table border="1" cellPadding="5">
-          <thead>
+        <table className="w-full border-collapse border border-gray-300">
+          <thead className="bg-gray-100">
             <tr>
-              <th>ID del Progreso</th>
-              <th>Módulo</th>
-              <th>Fecha Completada</th>
+              <th className="border border-gray-300 px-4 py-2">ID del Progreso</th>
+              <th className="border border-gray-300 px-4 py-2">Módulo</th>
+              <th className="border border-gray-300 px-4 py-2">Fecha Completada</th>
             </tr>
           </thead>
           <tbody>
-            {progressRecords.map(record => (
-              <tr key={record._id}>
-                <td>{record._id}</td>
-                <td>{record.module.title || 'Sin título'}</td>
-                <td>{new Date(record.dateCompleted).toLocaleString()}</td>
-              </tr>
-            ))}
+            {progressRecords
+              .filter(record => record.module) // Ignora progresos cuyo módulo fue eliminado
+              .map(record => (
+                <tr key={record._id}>
+                  <td className="border border-gray-300 px-4 py-2">{record._id}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {record.module.title || 'Sin título'}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {new Date(record.dateCompleted).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       )}
