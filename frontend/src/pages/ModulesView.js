@@ -5,34 +5,37 @@ import AuthContext from '../context/AuthContext';
 function ModulesView() {
   const { auth } = useContext(AuthContext);
   const [modules, setModules] = useState([]);
+  const [completedModules, setCompletedModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchModules = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        
+        // Obtener módulos
+        const modulesResponse = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        if (!response.ok) {
-          setError('Error al obtener los módulos');
-          setLoading(false);
-          return;
-        }
-        const data = await response.json();
-        setModules(data);
+        const modulesData = await modulesResponse.json();
+        setModules(modulesData);
+
+        // Obtener progreso del usuario
+        const progressResponse = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const progressData = await progressResponse.json();
+        setCompletedModules(progressData.map(p => p.module._id));
+
         setLoading(false);
       } catch (err) {
-        console.error(err);
         setError('Error de conexión');
         setLoading(false);
       }
     };
 
-    fetchModules();
+    fetchData();
   }, []);
 
   if (loading) return <div className="text-center py-6">Cargando módulos...</div>;
@@ -53,7 +56,11 @@ function ModulesView() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {modules.map(module => (
-            <ModuleCard key={module._id} module={module} />
+            <ModuleCard
+              key={module._id}
+              module={module}
+              completed={completedModules.includes(module._id)} 
+            />
           ))}
         </div>
       )}
