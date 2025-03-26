@@ -10,6 +10,9 @@ const User = require('./models/User');
 const Module = require('./models/Module');
 const Progress = require('./models/Progress');
 
+// Importar rutas externas
+const examRoutes = require('./routes/exam');
+
 dotenv.config({ path: './.env' });
 
 const app = express();
@@ -112,7 +115,7 @@ app.get('/modules', authMiddleware, async (req, res) => {
   }
 });
 
-// Crear módulo (ADMIN) ahora con soporte para preguntas
+// Crear módulo (ADMIN)
 app.post('/modules', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { title, description, content, order, questions } = req.body;
@@ -128,7 +131,7 @@ app.post('/modules', authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-// Actualizar módulo (ADMIN) ahora con soporte para preguntas
+// Actualizar módulo (ADMIN)
 app.put('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const updatedModule = await Module.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -148,20 +151,17 @@ app.delete('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => 
   }
 });
 
-// Registrar progreso usuario (solo si no lo ha completado antes)
+// Registrar progreso usuario
 app.post('/progress', authMiddleware, async (req, res) => {
   try {
     const { moduleId } = req.body;
     const userEmail = req.user.email;
 
-    // Verificar si ya existe progreso para este módulo y usuario
     const progressExists = await Progress.findOne({ userEmail, module: moduleId });
-
     if (progressExists) {
       return res.status(400).json({ message: 'Ya has superado este módulo anteriormente.' });
     }
 
-    // Si no existe, crear el nuevo progreso
     const progressRecord = new Progress({ userEmail, module: moduleId });
     await progressRecord.save();
 
@@ -181,6 +181,9 @@ app.get('/progress', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Error al obtener el progreso' });
   }
 });
+
+// Rutas del examen
+app.use('/exam', examRoutes);
 
 // Conexión MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI, {
