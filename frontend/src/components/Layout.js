@@ -1,14 +1,24 @@
 // frontend/src/components/Layout.js
-import React from 'react';
+import React, { useContext } from 'react';
 import Navigation from './Navigation';
 import IdleTimer from './IdleTimer';
+import AuthContext from '../context/AuthContext';
 
 function Layout({ children }) {
+  const { auth } = useContext(AuthContext);
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header fijo */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
         <Navigation />
+        {auth?.user && (
+          <div className="text-right pr-4 pb-1">
+            <span className="text-gray-500 text-xs">
+              Sesión iniciada como: {auth.user.email}
+            </span>
+          </div>
+        )}
       </header>
 
       {/* Espaciador para compensar la altura del header */}
