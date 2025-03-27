@@ -10,13 +10,13 @@ const ModuleContent = () => {
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [quizPassed, setQuizPassed] = useState(false);
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
+  const [markedAsCompleted, setMarkedAsCompleted] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
 
       try {
-        // Obtener módulos
         const resModules = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -28,16 +28,14 @@ const ModuleContent = () => {
           return;
         }
 
-        // Obtener progreso
         const resProgress = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const progress = await resProgress.json();
         const completado = progress.some(p => p.module._id === mod._id);
         setAlreadyCompleted(completado);
-        setQuizPassed(completado); // También bloquea el cuestionario
+        setQuizPassed(completado);
 
-        // Cargar módulo y preguntas aleatorias
         setModule({
           ...mod,
           questions: mod.questions ? mod.questions.sort(() => 0.5 - Math.random()).slice(0, 2) : [],
@@ -82,6 +80,25 @@ const ModuleContent = () => {
     }
   };
 
+  const handleMarkAsCompleted = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ moduleId: module._id })
+      });
+      if (res.ok) {
+        setMarkedAsCompleted(true);
+      }
+    } catch (err) {
+      console.error("Error al marcar como completado:", err);
+    }
+  };
+
   if (loading) return <div className="text-center py-6">Cargando módulo...</div>;
   if (error) return <div className="text-center text-red-500 py-6">{error}</div>;
 
@@ -91,7 +108,24 @@ const ModuleContent = () => {
 
       <div className="prose mb-6" dangerouslySetInnerHTML={{ __html: module.content }} />
 
-      {alreadyCompleted ? (
+      {module.order === 0 && !alreadyCompleted && !markedAsCompleted && (
+        <div className="mt-6">
+          <button
+            className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+            onClick={handleMarkAsCompleted}
+          >
+            Marcar como completado
+          </button>
+        </div>
+      )}
+
+      {(alreadyCompleted || markedAsCompleted) && module.order === 0 && (
+        <div className="mt-6 p-4 bg-green-100 text-green-800 rounded text-center font-semibold">
+          ✅ Este módulo ha sido marcado como completado.
+        </div>
+      )}
+
+      {alreadyCompleted && module.order !== 0 ? (
         <div className="mt-6 p-4 bg-green-100 text-green-800 rounded text-center font-semibold">
           ✅ Ya has superado este módulo. Solo puedes consultarlo.
         </div>
