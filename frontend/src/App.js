@@ -11,6 +11,7 @@ import ProgressView from './pages/ProgressView';
 import CreateModule from './pages/CreateModule';
 import ModuleContent from './pages/ModuleContent';
 import FinalExam from './pages/FinalExam';
+import CreateFinalExam from './pages/CreateFinalExam';
 import { jwtDecode } from 'jwt-decode';
 
 function ProtectedFinalExamRoute({ children }) {
@@ -36,6 +37,19 @@ function ProtectedFinalExamRoute({ children }) {
   }
 }
 
+function ProtectedAdminRoute({ children }) {
+  const token = localStorage.getItem('token');
+  try {
+    const decoded = jwtDecode(token);
+    if (decoded?.role === 'admin') {
+      return children;
+    }
+  } catch (err) {
+    console.error("Error al decodificar el token:", err);
+  }
+  return <div className="text-center mt-10 text-red-600">Acceso solo para administradores.</div>;
+}
+
 function App() {
   return (
     <Router>
@@ -48,14 +62,8 @@ function App() {
           <Route path="/modules/:order" element={<ModuleContent />} />
           <Route path="/progress" element={<ProgressView />} />
           <Route path="/create-module" element={<CreateModule />} />
-          <Route
-            path="/final-exam"
-            element={
-              <ProtectedFinalExamRoute>
-                <FinalExam />
-              </ProtectedFinalExamRoute>
-            }
-          />
+          <Route path="/final-exam" element={<ProtectedFinalExamRoute><FinalExam /></ProtectedFinalExamRoute>} />
+          <Route path="/create-final-exam" element={<ProtectedAdminRoute><CreateFinalExam /></ProtectedAdminRoute>} />
         </Routes>
       </Layout>
     </Router>
