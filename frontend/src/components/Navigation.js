@@ -29,7 +29,10 @@ function Navigation() {
                 <Link to="/modules" className="text-gray-700 hover:text-primary">Módulos</Link>
                 <Link to="/progress" className="text-gray-700 hover:text-primary">Progreso</Link>
                 {isAdmin && (
-                  <Link to="/create-module" className="text-gray-700 hover:text-primary">Crear Módulo</Link>
+                  <>
+                    <Link to="/create-module" className="text-gray-700 hover:text-primary">Crear Módulo</Link>
+                    <Link to="/create-final-exam" className="text-gray-700 hover:text-primary">Gestionar Examen Final</Link>
+                  </>
                 )}
               </>
             )}
