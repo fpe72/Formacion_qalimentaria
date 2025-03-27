@@ -1,5 +1,5 @@
 // frontend/src/App.js
-import React, { useContext } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 
@@ -11,14 +11,23 @@ import ProgressView from './pages/ProgressView';
 import CreateModule from './pages/CreateModule';
 import ModuleContent from './pages/ModuleContent';
 import FinalExam from './pages/FinalExam';
-import AuthContext from './context/AuthContext';
+import { jwtDecode } from 'jwt-decode';
 
 function ProtectedFinalExamRoute({ children }) {
-  const { user } = useContext(AuthContext);
-  const progress = JSON.parse(localStorage.getItem('progress') || '[]');
+  const token = localStorage.getItem('token');
+  let isAdmin = false;
 
-  const isAdmin = user?.role === 'admin';
-  const allModulesCompleted = progress.length === 9; // Ajustar según cantidad real de módulos
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      isAdmin = decoded?.role === 'admin';
+    } catch (err) {
+      console.error("Error al decodificar el token:", err);
+    }
+  }
+
+  const progress = JSON.parse(localStorage.getItem('progress') || '[]');
+  const allModulesCompleted = progress.length === 9;
 
   if (isAdmin || allModulesCompleted) {
     return children;
