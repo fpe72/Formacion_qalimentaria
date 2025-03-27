@@ -33,7 +33,7 @@ function ProtectedFinalExamRoute({ children }) {
   if (isAdmin || allModulesCompleted) {
     return children;
   } else {
-    return <div className="text-center mt-10 text-red-600">Acceso denegado. Debes completar todos los módulos.</div>;
+    return <div className="text-center mt-10 text-green-600">Bienvenido al Examen Final. Aquí aparecerán las instrucciones del examen.</div>;
   }
 }
 
