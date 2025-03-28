@@ -1,2 +1,18 @@
-GET https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/final-exam/generate
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMxNTExODUsImV4cCI6MTc0MzE1NDc4NX0.PtmI7ltcRDiRMl3flupq_0EPTgn-i7q0HynHZaGWtjc
+POST https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/login
+Content-Type: application/json
+
+{
+  "email": "fernando.palacios@qalimentaria.es",
+  "password": "Fpe19720602$"
+}
+
+
+### Obtener contenido HTML de los módulos (requiere token Admin)
+GET https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules-content
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMxNjYwNTQsImV4cCI6MTc0MzE2OTY1NH0.-GeyN35KLG9vkbu17P1020laLhuTxgByShYNfZC31Go
+
+
+
+### Generar examen dinámico con GPT
+GET https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/final-exam/generate-dynamic
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMxNjYwNTQsImV4cCI6MTc0MzE2OTY1NH0.-GeyN35KLG9vkbu17P1020laLhuTxgByShYNfZC31Go
