@@ -62,7 +62,7 @@ const ModuleContent = () => {
       setQuizPassed(true);
 
       const token = localStorage.getItem('token');
-      fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/progress`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
