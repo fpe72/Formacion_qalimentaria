@@ -1,16 +1,19 @@
+// Cargar variables de entorno primero
+const dotenv = require('dotenv');
+dotenv.config({ path: './.env' });
+
 const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const OpenAI = require('openai');
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Importar modelos
 const User = require('./models/User');
 const Module = require('./models/Module');
 const Progress = require('./models/Progress');
-
-dotenv.config({ path: './.env' });
 
 const app = express();
 app.use(express.json());
@@ -112,7 +115,7 @@ app.get('/modules', authMiddleware, async (req, res) => {
   }
 });
 
-// Crear módulo (ADMIN) ahora con soporte para preguntas
+// Crear módulo (ADMIN)
 app.post('/modules', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { title, description, content, order, questions } = req.body;
@@ -128,7 +131,7 @@ app.post('/modules', authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-// Actualizar módulo (ADMIN) ahora con soporte para preguntas
+// Actualizar módulo (ADMIN)
 app.put('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const updatedModule = await Module.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -148,23 +151,17 @@ app.delete('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => 
   }
 });
 
-// Registrar progreso usuario (solo si no lo ha completado antes)
+// Registrar progreso usuario
 app.post('/progress', authMiddleware, async (req, res) => {
   try {
     const { moduleId } = req.body;
     const userEmail = req.user.email;
-
-    // Verificar si ya existe progreso para este módulo y usuario
     const progressExists = await Progress.findOne({ userEmail, module: moduleId });
-
     if (progressExists) {
       return res.status(400).json({ message: 'Ya has superado este módulo anteriormente.' });
     }
-
-    // Si no existe, crear el nuevo progreso
     const progressRecord = new Progress({ userEmail, module: moduleId });
     await progressRecord.save();
-
     res.status(201).json({ message: 'Progreso registrado con éxito', progress: progressRecord });
   } catch (error) {
     res.status(500).json({ message: 'Error al registrar el progreso', error });
@@ -182,31 +179,75 @@ app.get('/progress', authMiddleware, async (req, res) => {
   }
 });
 
-// Generar examen automáticamente desde módulos existentes
-app.get('/final-exam/generate', authMiddleware, adminMiddleware, async (req, res) => {
+// Ruta para obtener contenido HTML de módulos
+app.get('/modules-content', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const modules = await Module.find({ questions: { $exists: true, $ne: [] } });
-
-    // Recopilar todas las preguntas de los módulos
-    const allQuestions = modules.flatMap(mod => mod.questions);
-
-    // Mezclar preguntas aleatoriamente y seleccionar 25
-    const shuffledQuestions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 25);
-
-    res.json(shuffledQuestions);
+    const modules = await Module.find({}, 'title content order').sort({ order: 1 });
+    res.json(modules);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al generar el examen automáticamente.' });
+    console.error('Error en /modules-content:', error);
+    res.status(500).json({ message: 'Error al obtener contenido de módulos', error });
   }
 });
 
-// Conexión MongoDB Atlas
+// Ruta para generar examen dinámico con GPT
+app.get('/final-exam/generate-dynamic', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const modules = await Module.find({}, 'title content order').sort({ order: 1 });
+    const allQuestions = [];
+
+    for (const mod of modules) {
+      const prompt = `
+        Genera exactamente 3 preguntas tipo test (con 3 opciones, solo una correcta) basadas exclusivamente en este contenido formativo:
+
+        ${mod.content}
+
+        Devuelve las preguntas en formato JSON exactamente así:
+        [
+          {
+            "question": "Texto de la pregunta",
+            "options": ["Opción A", "Opción B", "Opción C"],
+            "answer": "Respuesta correcta exacta"
+          }
+        ]
+      `;
+
+      const response = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }],
+      });
+
+      const content = response.choices[0].message.content.trim();
+
+      try {
+        const moduleQuestions = JSON.parse(content);
+        allQuestions.push({
+          moduleTitle: mod.title,
+          questions: moduleQuestions,
+        });
+      } catch (parseError) {
+        console.error(`❌ Error al parsear JSON para módulo "${mod.title}":`, content, parseError);
+        return res.status(500).json({
+          error: `Error parseando respuesta GPT para módulo ${mod.title}`,
+          details: parseError.message,
+        });
+      }
+    }
+
+    res.json(allQuestions);
+  } catch (error) {
+    console.error('❌ Error general al generar preguntas dinámicas:', error);
+    res.status(500).json({ error: 'Error generando preguntas dinámicas', details: error.message });
+  }
+});
+
+// Conectar a MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('Conectado a MongoDB Atlas'))
-.catch(err => console.error('Error al conectar a MongoDB Atlas', err));
+  .then(() => console.log('Conectado a MongoDB Atlas'))
+  .catch(err => console.error('Error al conectar a MongoDB Atlas', err));
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);

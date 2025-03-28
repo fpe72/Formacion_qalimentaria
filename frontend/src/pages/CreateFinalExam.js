@@ -9,17 +9,17 @@ const CreateFinalExam = () => {
   const generateExamAutomatically = async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
-
+  
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/generate`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/generate-dynamic`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
+  
       if (response.ok) {
         const data = await response.json();
-        setQuestionsGenerated(data);
+        setQuestionsGenerated(data.flatMap(module => module.questions));
       } else {
         alert('Error al generar examen automáticamente.');
       }
@@ -27,9 +27,9 @@ const CreateFinalExam = () => {
       console.error(error);
       alert('Error al conectar con el servidor.');
     }
-
+  
     setLoading(false);
-  };
+  };  
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
