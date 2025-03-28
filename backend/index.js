@@ -173,7 +173,22 @@ app.get('/final-exam/generate-dynamic', authMiddleware, adminMiddleware, async (
     const modules = await Module.find({}, 'title content order').sort({ order: 1 });
     const allQuestions = [];
     for (const mod of modules) {
-      const prompt = `Genera exactamente 3 preguntas tipo test (con 3 opciones, solo una correcta) basadas exclusivamente en este contenido formativo:\n\n${mod.content}\n\nDevuelve las preguntas en formato JSON exactamente así:\n[\n  {\n    \"question\": \"Texto de la pregunta\",\n    \"options\": [\"Opción A\", \"Opción B\", \"Opción C\"],\n    \"answer\": \"Respuesta correcta exacta\"\n  }\n]`;
+      const prompt = `
+      Eres un experto en Seguridad Alimentaria. A partir del siguiente contenido formativo, genera exactamente 3 preguntas tipo test, imaginativas y variadas, con 3 opciones cada una y una única respuesta correcta. Las preguntas deben estar inspiradas exclusivamente en el texto proporcionado, sin inventar datos no presentes en él. Sé creativo y evita repetir estructuras o conceptos entre módulos.
+      
+      Contenido:
+      ${mod.content}
+      
+      Devuelve las preguntas en formato JSON exactamente así:
+      [
+        {
+          "question": "Texto de la pregunta",
+          "options": ["Opción A", "Opción B", "Opción C"],
+          "answer": "Respuesta correcta exacta"
+        }
+      ]
+      `;
+      
 
       const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
