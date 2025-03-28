@@ -1,19 +1,20 @@
-// Cargar variables de entorno primero
+// backend/index.js
+
 const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
 
-const mongoose = require('mongoose');
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const OpenAI = require('openai');
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Importar modelos
 const User = require('./models/User');
 const Module = require('./models/Module');
 const Progress = require('./models/Progress');
+const FinalExam = require('./models/FinalExam');
 
 const app = express();
 app.use(express.json());
@@ -22,11 +23,6 @@ app.options('*', cors());
 
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbackSecret';
-
-// Ruta raíz
-app.get('/', (req, res) => {
-  res.send('Backend de Formacion Qalimentaria');
-});
 
 // Middleware autenticación
 function authMiddleware(req, res, next) {
@@ -52,7 +48,12 @@ function adminMiddleware(req, res, next) {
   return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' });
 }
 
-// Registro usuario
+// Ruta raíz
+app.get('/', (req, res) => {
+  res.send('Backend de Formacion Qalimentaria');
+});
+
+// Registro
 app.post('/register', async (req, res) => {
   try {
     const { email, password, name, firstSurname, secondSurname, dni } = req.body;
@@ -77,140 +78,102 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Login usuario
+// Login
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Faltan datos' });
-    }
     const user = await User.findOne({ email });
-    if (!user) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ message: 'Credenciales inválidas' });
     }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Credenciales inválidas' });
-    }
-    const token = jwt.sign(
-      { email: user.email, name: user.name, role: user.role },
-      JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+    const token = jwt.sign({ email: user.email, name: user.name, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
     return res.status(200).json({ message: 'Login exitoso', token });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ message: 'Error en el servidor' });
   }
 });
 
-// Listar módulos
+// Módulos
 app.get('/modules', authMiddleware, async (req, res) => {
   try {
     const modules = await Module.find({}).sort({ order: 1 });
     res.json(modules);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: 'Error al obtener los módulos' });
   }
 });
 
-// Crear módulo (ADMIN)
 app.post('/modules', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { title, description, content, order, questions } = req.body;
-    if (!title) {
-      return res.status(400).json({ message: 'Falta el título del módulo' });
-    }
     const newModule = new Module({ title, description, content, order, questions });
     await newModule.save();
-    return res.status(201).json({ message: 'Módulo creado con éxito', module: newModule });
+    res.status(201).json({ message: 'Módulo creado con éxito', module: newModule });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error al crear el módulo' });
+    res.status(500).json({ message: 'Error al crear el módulo' });
   }
 });
 
-// Actualizar módulo (ADMIN)
 app.put('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const updatedModule = await Module.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json(updatedModule);
+    const updated = await Module.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
   } catch (error) {
-    res.status(500).json({ error: 'Error actualizando módulo', details: error });
+    res.status(500).json({ message: 'Error actualizando módulo' });
   }
 });
 
-// Eliminar módulo (ADMIN)
 app.delete('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     await Module.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Módulo eliminado correctamente' });
+    res.json({ message: 'Módulo eliminado correctamente' });
   } catch (error) {
-    res.status(500).json({ error: 'Error eliminando módulo', details: error });
+    res.status(500).json({ message: 'Error eliminando módulo' });
   }
 });
 
-// Registrar progreso usuario
+// Progreso
 app.post('/progress', authMiddleware, async (req, res) => {
   try {
     const { moduleId } = req.body;
     const userEmail = req.user.email;
-    const progressExists = await Progress.findOne({ userEmail, module: moduleId });
-    if (progressExists) {
-      return res.status(400).json({ message: 'Ya has superado este módulo anteriormente.' });
-    }
-    const progressRecord = new Progress({ userEmail, module: moduleId });
-    await progressRecord.save();
-    res.status(201).json({ message: 'Progreso registrado con éxito', progress: progressRecord });
+    const exists = await Progress.findOne({ userEmail, module: moduleId });
+    if (exists) return res.status(400).json({ message: 'Ya has superado este módulo anteriormente.' });
+    const progress = new Progress({ userEmail, module: moduleId });
+    await progress.save();
+    res.status(201).json({ message: 'Progreso registrado con éxito' });
   } catch (error) {
-    res.status(500).json({ message: 'Error al registrar el progreso', error });
+    res.status(500).json({ message: 'Error al registrar el progreso' });
   }
 });
 
-// Consultar progreso usuario
 app.get('/progress', authMiddleware, async (req, res) => {
   try {
     const userEmail = req.user.email;
-    const progressRecords = await Progress.find({ userEmail }).populate('module');
-    res.json(progressRecords);
+    const records = await Progress.find({ userEmail }).populate('module');
+    res.json(records);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener el progreso' });
   }
 });
 
-// Ruta para obtener contenido HTML de módulos
+// HTML de módulos
 app.get('/modules-content', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const modules = await Module.find({}, 'title content order').sort({ order: 1 });
     res.json(modules);
   } catch (error) {
-    console.error('Error en /modules-content:', error);
-    res.status(500).json({ message: 'Error al obtener contenido de módulos', error });
+    res.status(500).json({ message: 'Error al obtener contenido de módulos' });
   }
 });
 
-// Ruta para generar examen dinámico con GPT
+// Generar examen dinámico
 app.get('/final-exam/generate-dynamic', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const modules = await Module.find({}, 'title content order').sort({ order: 1 });
     const allQuestions = [];
-
     for (const mod of modules) {
-      const prompt = `
-        Genera exactamente 3 preguntas tipo test (con 3 opciones, solo una correcta) basadas exclusivamente en este contenido formativo:
-
-        ${mod.content}
-
-        Devuelve las preguntas en formato JSON exactamente así:
-        [
-          {
-            "question": "Texto de la pregunta",
-            "options": ["Opción A", "Opción B", "Opción C"],
-            "answer": "Respuesta correcta exacta"
-          }
-        ]
-      `;
+      const prompt = `Genera exactamente 3 preguntas tipo test (con 3 opciones, solo una correcta) basadas exclusivamente en este contenido formativo:\n\n${mod.content}\n\nDevuelve las preguntas en formato JSON exactamente así:\n[\n  {\n    \"question\": \"Texto de la pregunta\",\n    \"options\": [\"Opción A\", \"Opción B\", \"Opción C\"],\n    \"answer\": \"Respuesta correcta exacta\"\n  }\n]`;
 
       const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
@@ -218,35 +181,101 @@ app.get('/final-exam/generate-dynamic', authMiddleware, adminMiddleware, async (
       });
 
       const content = response.choices[0].message.content.trim();
-
-      try {
-        const moduleQuestions = JSON.parse(content);
-        allQuestions.push({
-          moduleTitle: mod.title,
-          questions: moduleQuestions,
-        });
-      } catch (parseError) {
-        console.error(`❌ Error al parsear JSON para módulo "${mod.title}":`, content, parseError);
-        return res.status(500).json({
-          error: `Error parseando respuesta GPT para módulo ${mod.title}`,
-          details: parseError.message,
-        });
-      }
+      const moduleQuestions = JSON.parse(content);
+      allQuestions.push({ moduleTitle: mod.title, questions: moduleQuestions });
     }
-
     res.json(allQuestions);
   } catch (error) {
-    console.error('❌ Error general al generar preguntas dinámicas:', error);
-    res.status(500).json({ error: 'Error generando preguntas dinámicas', details: error.message });
+    res.status(500).json({ message: 'Error generando preguntas dinámicas', error: error.message });
   }
 });
 
-// Conectar a MongoDB
+// Guardar examen final
+app.post('/final-exam/save', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { title, questions } = req.body;
+    const exam = new FinalExam({ title, questions });
+    await exam.save();
+    res.status(201).json({ message: 'Examen guardado correctamente', exam });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al guardar el examen', error });
+  }
+});
+
+// ✅ Primero, listar todos los exámenes
+app.get('/final-exam/list', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const exams = await FinalExam.find({}, 'title createdAt');
+    res.json(exams);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener exámenes', error: error.message });
+  }
+});
+
+// ✅ Después, obtener un examen por ID
+app.get('/final-exam/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const exam = await FinalExam.findById(req.params.id);
+    if (!exam) return res.status(404).json({ message: 'Examen no encontrado' });
+    res.json(exam);
+  } catch (error) {
+    console.error('❌ Error al buscar examen por ID:', error);
+    res.status(500).json({ message: 'Error al obtener el examen', error: error.message });
+  }
+});
+
+// Actualizar examen
+app.put('/final-exam/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const updatedExam = await FinalExam.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ message: 'Examen actualizado', exam: updatedExam });
+  } catch (error) {
+    res.status(500).json({ message: 'Error actualizando examen', error });
+  }
+});
+
+// Eliminar examen
+app.delete('/final-exam/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    await FinalExam.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Examen eliminado correctamente' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error eliminando examen', error });
+  }
+});
+
+// Ruta para actualizar un examen existente (ADMIN)
+app.patch('/final-exam/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const examId = req.params.id;
+    const { title, questions } = req.body;
+
+    // Validación básica
+    if (!title || !Array.isArray(questions)) {
+      return res.status(400).json({ message: 'Título o preguntas inválidas' });
+    }
+
+    const updatedExam = await FinalExam.findByIdAndUpdate(
+      examId,
+      { title, questions },
+      { new: true }
+    );
+
+    if (!updatedExam) {
+      return res.status(404).json({ message: 'Examen no encontrado' });
+    }
+
+    res.json({ message: '✅ Examen actualizado correctamente', exam: updatedExam });
+  } catch (error) {
+    console.error('❌ Error al actualizar examen:', error);
+    res.status(500).json({ message: 'Error al actualizar el examen', error: error.message });
+  }
+});
+
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-})
-  .then(() => console.log('Conectado a MongoDB Atlas'))
+}).then(() => console.log('Conectado a MongoDB Atlas'))
   .catch(err => console.error('Error al conectar a MongoDB Atlas', err));
 
 app.listen(PORT, () => {

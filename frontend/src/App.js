@@ -11,6 +11,8 @@ import CreateModule from './pages/CreateModule';
 import ModuleContent from './pages/ModuleContent';
 import FinalExam from './pages/FinalExam';
 import CreateFinalExam from './pages/CreateFinalExam';
+import FinalExamList from './pages/FinalExamList'; // ✅ Importa el componente
+import EditFinalExam from './pages/EditFinalExam';
 import { jwtDecode } from 'jwt-decode';
 
 // Ruta protegida mejorada para examen final
@@ -38,7 +40,6 @@ function ProtectedFinalExamRoute({ children }) {
         return;
       }
 
-      // Comprobación segura del progreso desde backend
       try {
         const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/progress`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -118,6 +119,22 @@ function App() {
               </ProtectedAdminRoute>
             } 
           />
+          <Route 
+            path="/exams" 
+            element={
+              <ProtectedAdminRoute>
+                <FinalExamList />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route 
+           path="/edit-final-exam/:id" 
+           element={
+           <ProtectedAdminRoute>
+           <EditFinalExam />
+           </ProtectedAdminRoute>
+         }   
+       />
         </Routes>
       </Layout>
     </Router>

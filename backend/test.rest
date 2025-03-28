@@ -15,4 +15,28 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hb
 
 ### Generar examen dinámico con GPT
 GET https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/final-exam/generate-dynamic
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMxNjYwNTQsImV4cCI6MTc0MzE2OTY1NH0.-GeyN35KLG9vkbu17P1020laLhuTxgByShYNfZC31Go
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMxOTc2NTEsImV4cCI6MTc0MzIwMTI1MX0.sl9buocNmp-6olfHIQcIiRa3B2nuOPixeo-ARGw4VXU
+
+### Guardar examen en la base de datos
+POST https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/final-exam/save
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMxNzU5NTIsImV4cCI6MTc0MzE3OTU1Mn0.ifWgxKmzvupTTjGPvCyW6vX86WZaTgdbC51PmovN4vU
+Content-Type: application/json
+
+{
+  "title": "Examen generado con OpenAI",
+  "questions": [
+    {
+      "question": "¿Qué es la seguridad alimentaria?",
+      "options": ["Una fiesta de comida", "Un conjunto de normas", "Un tipo de comida"],
+      "answer": "Un conjunto de normas"
+    }
+  ]
+}
+
+### Ver examen en el frontend
+GET https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/final-exam/list
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMxOTc2NTEsImV4cCI6MTc0MzIwMTI1MX0.sl9buocNmp-6olfHIQcIiRa3B2nuOPixeo-ARGw4VXU
+
+### Cargar examen por ID
+GET https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/final-exam/67e6c3144883d0cba750eb95
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMxOTc2NTEsImV4cCI6MTc0MzIwMTI1MX0.sl9buocNmp-6olfHIQcIiRa3B2nuOPixeo-ARGw4VXU

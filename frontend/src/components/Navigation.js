@@ -32,6 +32,7 @@ function Navigation() {
                   <>
                     <Link to="/create-module" className="text-gray-700 hover:text-primary">Crear Módulo</Link>
                     <Link to="/create-final-exam" className="text-gray-700 hover:text-primary">Gestionar Examen Final</Link>
+                    <Link to="/exams" className="text-gray-700 hover:text-primary">Ver Exámenes</Link>
                   </>
                 )}
               </>
