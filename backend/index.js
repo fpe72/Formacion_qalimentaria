@@ -182,6 +182,24 @@ app.get('/progress', authMiddleware, async (req, res) => {
   }
 });
 
+// Generar examen automáticamente desde módulos existentes
+app.get('/final-exam/generate', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const modules = await Module.find({ questions: { $exists: true, $ne: [] } });
+
+    // Recopilar todas las preguntas de los módulos
+    const allQuestions = modules.flatMap(mod => mod.questions);
+
+    // Mezclar preguntas aleatoriamente y seleccionar 25
+    const shuffledQuestions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 25);
+
+    res.json(shuffledQuestions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al generar el examen automáticamente.' });
+  }
+});
+
 // Conexión MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
