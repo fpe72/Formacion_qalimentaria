@@ -12,7 +12,7 @@ const CreateModule = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/modules`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     .then(res => res.json())
@@ -62,8 +62,8 @@ const CreateModule = () => {
 
     const method = selectedModuleId ? 'PUT' : 'POST';
     const url = selectedModuleId
-      ? `https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules/${selectedModuleId}`
-      : 'https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules';
+      ? `${process.env.REACT_APP_BACKEND_URL}/modules/${selectedModuleId}`
+      : `${process.env.REACT_APP_BACKEND_URL}/modules`;
 
     fetch(url, {
       method,
