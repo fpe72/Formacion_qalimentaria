@@ -1,70 +1,213 @@
-# Getting Started with Create React App
+📁 Estructura del proyecto
+Raíz del proyecto (Formacion_qalimentaria-main/):
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+.gitignore
 
-## Available Scripts
+README.md
 
-In the project directory, you can run:
+package.json, package-lock.json
 
-### `npm start`
+🔧 Backend (backend/)
+Archivo principal: index.js — Define las rutas y la lógica del servidor Express.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Modelos Mongoose:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+FinalExam.js: Exámenes finales (preguntas, título, etc.)
 
-### `npm test`
+Module.js: Módulos de formación
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Progress.js: Progreso del usuario
 
-### `npm run build`
+User.js: Usuarios registrados
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Pruebas: test.rest — contiene ejemplos de peticiones API para pruebas.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Dependencias: package.json y package-lock.json
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+🎨 Frontend (frontend/)
+Proyecto basado en React + Tailwind.
 
-### `npm run eject`
+public/index.html: Punto de entrada del HTML.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+tailwind.config.js y postcss.config.js: Configuración de estilos.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+package.json: Configuración y dependencias del frontend.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+✅ Tecnologías y configuración
+Framework principal: Express
 
-## Learn More
+Base de datos: MongoDB (via Mongoose)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Autenticación: JWT
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Seguridad de contraseñas: bcrypt
 
-### Code Splitting
+Middleware CORS y manejo de JSON
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Soporte para variables de entorno con dotenv
 
-### Analyzing the Bundle Size
+Integración con OpenAI API (ya importada pero aún no se ha visto su uso)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+🔐 Middlewares personalizados
+authMiddleware: Verifica que el token JWT sea válido y lo asigna a req.user.
 
-### Making a Progressive Web App
+adminMiddleware: Solo permite el acceso a usuarios con role === 'admin'.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+🚀 Rutas disponibles (hasta ahora vistas)
+GET / — Ruta básica para verificar que el backend está corriendo.
 
-### Advanced Configuration
+POST /register — Registro de usuario. Requiere todos los campos y verifica que el email no esté repetido.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+POST /login — Inicio de sesión. Verifica credenciales y devuelve un token JWT.
 
-### Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+🧠 FUNCIONALIDAD COMPLETA DEL BACKEND
+📦 Modelos utilizados:
+Importa los siguientes modelos de Mongoose:
 
-### `npm run build` fails to minify
+User: Usuarios del sistema.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Module: Módulos del curso.
+
+Progress: Progreso del usuario en los módulos.
+
+FinalExam: Examen final generado.
+
+🔐 Autenticación
+POST /register: Crea un nuevo usuario.
+
+POST /login: Devuelve un token JWT si las credenciales son correctas.
+
+📚 GESTIÓN DE MÓDULOS
+🔹 GET /modules
+Acceso restringido con authMiddleware
+
+Devuelve todos los módulos de formación.
+
+🔹 POST /modules (solo admin)
+Permite a un administrador subir módulos con HTML y título.
+
+Los módulos se almacenan en la colección Module.
+
+🔹 GET /modules/:id
+Devuelve un módulo específico por ID.
+
+📈 PROGRESO DEL USUARIO
+🔹 POST /progress
+Guarda el avance de un usuario sobre un módulo específico (userId, moduleId, progressPercentage).
+
+Si ya existe, lo actualiza; si no, lo crea.
+
+🔹 GET /progress/:moduleId
+Devuelve el progreso de un módulo específico para el usuario autenticado.
+
+🧪 EXAMEN FINAL
+🔹 POST /generate-final-exam (solo admin)
+Genera preguntas automáticamente usando la API de OpenAI a partir del contenido de los módulos.
+
+Crea un examen final (FinalExam) con title y questions.
+
+🔹 GET /final-exams
+Lista todos los exámenes finales existentes.
+
+🔹 GET /final-exam/:id
+Devuelve un examen específico por ID.
+
+🔹 PATCH /final-exam/:id
+Permite actualizar el título o las preguntas de un examen existente.
+
+🔹 DELETE /final-exam/:id
+Elimina un examen final por ID.
+
+🧠 RELACIONES ENTRE COMPONENTES
+Componente	Relación clave
+User	Guarda nombre, apellidos, email, password y dni.
+Module	Contiene el contenido de formación en HTML.
+Progress	Une a un userId con un moduleId y un progreso.
+FinalExam	Generado desde los módulos, contiene preguntas AI.
+🛠️ FUNCIONALIDADES DESTACADAS
+Usa OpenAI para generar preguntas de examen automáticamente desde los contenidos.
+
+Autenticación JWT con protección por rol para rutas críticas (adminMiddleware).
+
+Permite edición directa de preguntas y título de un examen.
+
+
+📁 ESTRUCTURA DEL FRONTEND
+Raíz frontend/
+package.json, tailwind.config.js, postcss.config.js: configuración general del entorno React + Tailwind.
+
+public/index.html: punto de entrada HTML.
+
+📁 src/ — Lógica principal de React
+🧩 Componentes compartidos (src/components/)
+Layout.js: plantilla principal con cabecera, pie y navegación.
+
+Navigation.js: menú de navegación dinámico.
+
+ModuleCard.js: tarjeta resumen para mostrar un módulo.
+
+ModuleDetail.jsx: vista de detalle de módulo con estilo propio (ModuleDetail.css).
+
+IdleTimer.js: probablemente controla la sesión inactiva (junto a un hook propio).
+
+🌍 Páginas del sistema (src/pages/)
+Página	Funcionalidad
+Login.js, Register.js	Autenticación
+Home.js	Inicio
+ModulesView.js	Lista todos los módulos
+ModuleContent.js	Muestra el contenido HTML del módulo
+ProgressView.js	Muestra el progreso del usuario
+FinalExam.js	Vista para realizar el examen final
+CreateFinalExam.js, EditFinalExam.js, EditExam.js	Crear/editar exámenes
+FinalExamList.js	Lista de exámenes disponibles
+CreateModule.js	Página para admins para subir módulos
+Protected.js	Protege rutas que requieren autenticación
+🧠 Contexto (src/context/)
+AuthContext.js: gestiona la autenticación global (token, usuario, login/logout).
+
+🧩 Hooks personalizados (src/hooks/)
+useIdleTimer.js: hook para controlar la inactividad y cerrar sesión automáticamente si el usuario está inactivo.
+
+🔄 FLUJO FUNCIONAL DEL FRONTEND
+🧑‍💼 Registro / Login
+Register.js y Login.js envían peticiones a /register y /login.
+
+El AuthContext guarda el token JWT.
+
+Rutas protegidas (Protected.js) usan ese contexto.
+
+📚 Visualización de módulos
+ModulesView.js muestra todos los módulos (GET /modules).
+
+Al hacer clic en uno, ModuleContent.js carga su contenido y guarda el progreso (POST /progress).
+
+📈 Progreso
+ProgressView.js muestra el avance en cada módulo (GET /progress/:moduleId).
+
+🧪 Examen final
+El admin crea un examen con CreateFinalExam.js (POST /generate-final-exam).
+
+Se listan todos en FinalExamList.js.
+
+El alumno accede a /final-exam y ve el examen activo en FinalExam.js.
+
+🛠 Edición de exámenes
+EditFinalExam.js y EditExam.js permiten modificar preguntas y títulos (PATCH /final-exam/:id).
+
+🔗 RELACIÓN FRONTEND - BACKEND
+Frontend	Backend
+Register.js	POST /register
+Login.js	POST /login
+ModulesView.js	GET /modules
+ModuleContent.js	GET /modules/:id, POST /progress
+ProgressView.js	GET /progress/:moduleId
+CreateFinalExam.js	POST /generate-final-exam
+FinalExamList.js	GET /final-exams
+FinalExam.js	GET /final-exam/:id
+EditFinalExam.js	PATCH /final-exam/:id
+EditExam.js	PATCH /final-exam/:id
+CreateModule.js	POST /modules
+✅ CONCLUSIÓN
+Este proyecto tiene una estructura clara y bien organizada tanto en backend como frontend. Está orientado a formación online, permitiendo subir módulos HTML, llevar el progreso de los alumnos y evaluar mediante exámenes generados por IA.
