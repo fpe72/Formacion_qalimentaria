@@ -34,7 +34,7 @@ function Register() {
     }
 
     try {
-      const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/register', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name, firstSurname, secondSurname, dni }),

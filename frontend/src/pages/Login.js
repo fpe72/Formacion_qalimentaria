@@ -15,7 +15,7 @@ function Login() {
     setMessage('');
 
     try {
-      const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/login', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

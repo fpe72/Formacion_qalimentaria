@@ -40,7 +40,7 @@ function ProtectedFinalExamRoute({ children }) {
 
       // Comprobación segura del progreso desde backend
       try {
-        const res = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/progress`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
