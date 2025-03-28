@@ -3,7 +3,33 @@ import React, { useState } from 'react';
 
 const CreateFinalExam = () => {
   const [showManualForm, setShowManualForm] = useState(false);
-  const [showAutoMessage, setShowAutoMessage] = useState(false);
+  const [questionsGenerated, setQuestionsGenerated] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const generateExamAutomatically = async () => {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/final-exam/generate', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setQuestionsGenerated(data);
+      } else {
+        alert('Error al generar examen automáticamente.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error al conectar con el servidor.');
+    }
+
+    setLoading(false);
+  };
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
@@ -16,7 +42,7 @@ const CreateFinalExam = () => {
         <button
           onClick={() => {
             setShowManualForm(true);
-            setShowAutoMessage(false);
+            setQuestionsGenerated([]);
           }}
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition"
         >
@@ -25,8 +51,8 @@ const CreateFinalExam = () => {
 
         <button
           onClick={() => {
-            setShowAutoMessage(true);
             setShowManualForm(false);
+            generateExamAutomatically();
           }}
           className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition"
         >
@@ -38,69 +64,29 @@ const CreateFinalExam = () => {
       {showManualForm && (
         <div className="bg-gray-100 shadow-md rounded p-6">
           <h3 className="text-xl font-semibold mb-4">Crear Examen Manualmente</h3>
-          
-          <div className="mb-4">
-            <label className="block text-gray-700">Pregunta:</label>
-            <input
-              type="text"
-              placeholder="Escribe la pregunta aquí..."
-              className="w-full p-2 border rounded"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700">Opción A:</label>
-            <input
-              type="text"
-              placeholder="Respuesta A..."
-              className="w-full p-2 border rounded"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700">Opción B:</label>
-            <input
-              type="text"
-              placeholder="Respuesta B..."
-              className="w-full p-2 border rounded"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700">Opción C:</label>
-            <input
-              type="text"
-              placeholder="Respuesta C..."
-              className="w-full p-2 border rounded"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700">Respuesta correcta:</label>
-            <select className="w-full p-2 border rounded">
-              <option>A</option>
-              <option>B</option>
-              <option>C</option>
-            </select>
-          </div>
-
-          <button
-            className="bg-primary hover:bg-secondary text-white py-2 px-4 rounded transition"
-            onClick={() => alert('Funcionalidad aún no implementada')}
-          >
-            Guardar pregunta
-          </button>
+          <p className="text-gray-500">(Formulario manual, funcionalidad no implementada)</p>
         </div>
       )}
 
-      {/* Mensaje Generación Automática (visual, sin funcionalidad aún) */}
-      {showAutoMessage && (
-        <div className="bg-gray-100 shadow-md rounded p-6 text-center">
-          <h3 className="text-xl font-semibold mb-2">Generar Examen Automáticamente</h3>
-          <p className="text-gray-600">
-            Al pulsar aquí, la aplicación generará automáticamente un examen con preguntas extraídas de los módulos existentes.
-            (Funcionalidad aún no implementada)
-          </p>
+      {/* Mostrar preguntas generadas automáticamente */}
+      {loading && <p className="text-center text-gray-600">Generando examen...</p>}
+
+      {!loading && questionsGenerated.length > 0 && (
+        <div className="bg-gray-100 shadow-md rounded p-6">
+          <h3 className="text-xl font-semibold mb-4">Preguntas generadas automáticamente:</h3>
+          <ol className="list-decimal list-inside space-y-4">
+            {questionsGenerated.map((q, index) => (
+              <li key={q._id}>
+                <p className="font-semibold">{q.question}</p>
+                <ul className="list-disc ml-6 text-sm">
+                  {q.options.map((opt, i) => (
+                    <li key={i}>{opt}</li>
+                  ))}
+                </ul>
+                <p className="text-sm text-green-600">Respuesta correcta: {q.answer}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       )}
     </div>
