@@ -14,3 +14,4 @@ backend/.env
 *.log
 .vscode/
 backend/.env
+backend/.env
