@@ -17,7 +17,7 @@ const ModuleContent = () => {
       const token = localStorage.getItem('token');
 
       try {
-        const resModules = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
+        const resModules = await fetch(`${process.env.REACT_APP_BACKEND_URL}/modules`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const allModules = await resModules.json();
@@ -28,7 +28,7 @@ const ModuleContent = () => {
           return;
         }
 
-        const resProgress = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
+        const resProgress = await fetch(`${process.env.REACT_APP_BACKEND_URL}/progress`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const progress = await resProgress.json();
@@ -83,7 +83,7 @@ const ModuleContent = () => {
   const handleMarkAsCompleted = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/progress`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

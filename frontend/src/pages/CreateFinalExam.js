@@ -11,7 +11,7 @@ const CreateFinalExam = () => {
     const token = localStorage.getItem('token');
 
     try {
-      const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/final-exam/generate', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/generate`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

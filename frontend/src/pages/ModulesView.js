@@ -21,7 +21,7 @@ function ModulesView() {
 
       try {
         // Obtener módulos
-        const modulesResponse = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules', {
+        const modulesResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/modules`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -36,7 +36,7 @@ function ModulesView() {
         setModules(validModules);
 
         // Obtener progreso del usuario
-        const progressResponse = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
+        const progressResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/progress`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

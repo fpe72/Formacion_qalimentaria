@@ -12,7 +12,7 @@ function Protected() {
     }
 
     // Hacer la petición al backend con la ruta en minúsculas
-    fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/protected', {
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/protected`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

@@ -23,7 +23,7 @@ function ProgressView() {
         const decoded = jwtDecode(token);
         setIsAdmin(decoded?.role === 'admin');
 
-        const response = await fetch('https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/progress', {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/progress`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
