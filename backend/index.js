@@ -220,10 +220,23 @@ app.post('/final-exam/save', authMiddleware, adminMiddleware, async (req, res) =
 // ✅ Primero, listar todos los exámenes
 app.get('/final-exam/list', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const exams = await FinalExam.find({}, 'title createdAt');
+    const exams = await FinalExam.find({}, 'title createdAt isActive');
+
     res.json(exams);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener exámenes', error: error.message });
+  }
+});
+
+// Obtener el examen activo
+app.get('/final-exam/active', authMiddleware, async (req, res) => {
+  try {
+    const activeExam = await FinalExam.findOne({ isActive: true });
+    if (!activeExam) return res.status(404).json({ message: 'No hay examen activo' });
+    res.status(200).json(activeExam);
+  } catch (error) {
+    console.error('Error obteniendo examen activo:', error);
+    res.status(500).json({ message: 'Error al obtener el examen activo' });
   }
 });
 
@@ -284,6 +297,20 @@ app.patch('/final-exam/:id', authMiddleware, adminMiddleware, async (req, res) =
   } catch (error) {
     console.error('❌ Error al actualizar examen:', error);
     res.status(500).json({ message: 'Error al actualizar el examen', error: error.message });
+  }
+});
+
+// Activar un examen específico
+app.patch('/final-exam/:id/activate', authMiddleware, adminMiddleware, async (req, res) => {
+  const { id } = req.params;
+  try {
+    await FinalExam.updateMany({}, { isActive: false });
+    const activatedExam = await FinalExam.findByIdAndUpdate(id, { isActive: true }, { new: true });
+    if (!activatedExam) return res.status(404).json({ message: 'Examen no encontrado' });
+    res.status(200).json({ message: 'Examen activado correctamente', exam: activatedExam });
+  } catch (error) {
+    console.error('Error activando el examen:', error);
+    res.status(500).json({ message: 'Error al activar el examen' });
   }
 });
 
