@@ -18,7 +18,17 @@ const EditFinalExam = () => {
         });
         if (res.ok) {
           const data = await res.json();
-          setExam(data);
+
+          // Asegurar que cada pregunta tenga correctAnswer (copiar answer si existe)
+          const normalizedQuestions = data.questions.map((q) => {
+            let corrected = { ...q };
+            if (!corrected.correctAnswer && q.answer) {
+              corrected.correctAnswer = q.answer;
+            }
+            return corrected;
+          });
+
+          setExam({ ...data, questions: normalizedQuestions });
           setTitle(data.title);
         } else {
           console.error('No se pudo cargar el examen');
@@ -36,6 +46,13 @@ const EditFinalExam = () => {
   const handleSaveChanges = async () => {
     const token = localStorage.getItem('token');
     try {
+      const preparedQuestions = exam.questions.map(q => ({
+        question: q.question,
+        options: q.options,
+        correctAnswer: q.correctAnswer,
+        answer: q.correctAnswer // mantener compatibilidad
+      }));
+
       const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/${id}`, {
         method: 'PATCH',
         headers: {
@@ -44,7 +61,7 @@ const EditFinalExam = () => {
         },
         body: JSON.stringify({
           title,
-          questions: exam.questions,
+          questions: preparedQuestions,
         }),
       });
 
@@ -87,6 +104,12 @@ const EditFinalExam = () => {
     }
   };
 
+  const handleDeleteQuestion = (index) => {
+    const updatedQuestions = [...exam.questions];
+    updatedQuestions.splice(index, 1);
+    setExam({ ...exam, questions: updatedQuestions });
+  };
+
   if (loading) return <p className="text-center">Cargando examen...</p>;
   if (!exam) return <p className="text-center text-red-600">Examen no encontrado</p>;
 
@@ -106,7 +129,14 @@ const EditFinalExam = () => {
 
       <h3 className="text-xl font-semibold mb-4">Preguntas:</h3>
       {exam.questions.map((q, index) => (
-        <div key={index} className="mb-6 bg-gray-100 p-4 rounded shadow">
+        <div key={index} className="mb-6 bg-gray-100 p-4 rounded shadow relative">
+          <button
+            onClick={() => handleDeleteQuestion(index)}
+            className="absolute top-2 right-2 text-red-600 hover:text-red-800"
+          >
+            🗑 Eliminar
+          </button>
+
           <label className="block font-semibold mb-2">Pregunta {index + 1}:</label>
           <input
             type="text"
@@ -133,16 +163,20 @@ const EditFinalExam = () => {
             />
           ))}
           <label className="block text-sm mb-1">Respuesta correcta:</label>
-          <input
-            type="text"
-            value={q.answer}
+          <select
+            value={q.correctAnswer || ''}
             onChange={e => {
               const newQuestions = [...exam.questions];
-              newQuestions[index].answer = e.target.value;
+              newQuestions[index].correctAnswer = e.target.value;
               setExam({ ...exam, questions: newQuestions });
             }}
             className="w-full border border-gray-300 rounded p-2"
-          />
+          >
+            <option value="" disabled>Selecciona la respuesta correcta</option>
+            {q.options.map((opt, i) => (
+              <option key={i} value={opt}>{opt}</option>
+            ))}
+          </select>
         </div>
       ))}
 

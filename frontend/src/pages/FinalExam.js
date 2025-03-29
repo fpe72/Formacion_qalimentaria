@@ -8,6 +8,7 @@ const FinalExam = () => {
   const [started, setStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [score, setScore] = useState(null);
 
   useEffect(() => {
     const fetchExam = async () => {
@@ -45,12 +46,26 @@ const FinalExam = () => {
     setAnswers(updated);
   };
 
+  const calculateScore = () => {
+    const correct = exam.questions.reduce((acc, q, idx) => {
+      return acc + (answers[idx] === q.correctAnswer ? 1 : 0);
+    }, 0);
+    setScore(correct);
+  };
+
   const nextQuestion = () => {
     if (currentQuestion < exam.questions.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
     } else {
-      alert('¡Examen completado! Evaluación pendiente.');
+      calculateScore();
     }
+  };
+
+  const resetExam = () => {
+    setStarted(false);
+    setCurrentQuestion(0);
+    setAnswers([]);
+    setScore(null);
   };
 
   if (loading) return <p className="text-center mt-10">Cargando examen...</p>;
@@ -87,6 +102,25 @@ const FinalExam = () => {
             Comenzar Examen
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (score !== null) {
+    const passed = score >= 18;
+    return (
+      <div className="container mx-auto p-6 max-w-2xl text-center">
+        <h2 className="text-3xl font-bold mb-6">Resultado del examen</h2>
+        <p className={`text-2xl font-semibold mb-4 ${passed ? 'text-green-600' : 'text-red-600'}`}>
+          {passed ? '✅ ¡Has aprobado!' : '❌ No has alcanzado el mínimo para aprobar.'}
+        </p>
+        <p className="mb-6">Has respondido correctamente <strong>{score}</strong> de <strong>{exam.questions.length}</strong> preguntas.</p>
+        <button
+          onClick={resetExam}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
+        >
+          Repetir Examen
+        </button>
       </div>
     );
   }

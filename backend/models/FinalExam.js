@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const questionSchema = new mongoose.Schema({
   question: String,
   options: [String],
-  correctAnswer: Number,
+  correctAnswer: String, // suponiendo que ahora es texto
 });
 
 const finalExamSchema = new mongoose.Schema({
@@ -14,6 +14,10 @@ const finalExamSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 
