@@ -1,15 +1,20 @@
+// backend/models/FinalExam.js
+
 const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema({
   question: String,
   options: [String],
-  answer: String,
+  correctAnswer: Number,
 });
 
 const finalExamSchema = new mongoose.Schema({
-  title: { type: String, default: 'Examen final' },
+  title: String,
   questions: [questionSchema],
-  createdAt: { type: Date, default: Date.now },
+  isActive: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model('FinalExam', finalExamSchema);
