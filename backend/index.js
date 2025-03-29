@@ -167,43 +167,61 @@ app.get('/modules-content', authMiddleware, adminMiddleware, async (req, res) =>
   }
 });
 
-// Generar examen dinámico
+// Generar examen dinámico (reforzado)
 app.get('/final-exam/generate-dynamic', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const modules = await Module.find({}, 'title content order').sort({ order: 1 });
     const allQuestions = [];
+
     for (const mod of modules) {
       const prompt = `
-      Eres un experto en Seguridad Alimentaria. A partir del siguiente contenido formativo, genera exactamente 3 preguntas tipo test, imaginativas y variadas, con 3 opciones cada una y una única respuesta correcta. Las preguntas deben estar inspiradas exclusivamente en el texto proporcionado, sin inventar datos no presentes en él. Sé creativo y evita repetir estructuras o conceptos entre módulos.
-      
-      Contenido:
-      ${mod.content}
-      
-      Devuelve las preguntas en formato JSON exactamente así:
-      [
-        {
-          "question": "Texto de la pregunta",
-          "options": ["Opción A", "Opción B", "Opción C"],
-          "answer": "Respuesta correcta exacta"
+Eres un experto en Seguridad Alimentaria. A partir del siguiente contenido formativo, genera exactamente 3 preguntas tipo test, imaginativas y variadas, con 3 opciones cada una y una única respuesta correcta. Las preguntas deben estar inspiradas exclusivamente en el texto proporcionado, sin inventar datos no presentes en él. Sé creativo y evita repetir estructuras o conceptos entre módulos.
+
+Contenido:
+${mod.content}
+
+Devuelve las preguntas en formato JSON exactamente así:
+[
+  {
+    "question": "Texto de la pregunta",
+    "options": ["Opción A", "Opción B", "Opción C"],
+    "answer": "Respuesta correcta exacta"
+  }
+]
+`;
+
+      try {
+        const response = await openai.chat.completions.create({
+          model: 'gpt-3.5-turbo',
+          messages: [{ role: 'user', content: prompt }],
+        });
+
+        const content = response.choices[0].message.content.trim();
+
+        // Log para depurar la respuesta cruda
+        console.log(`📦 Respuesta cruda del módulo "${mod.title}":`, content);
+
+        // Intentamos parsear
+        const moduleQuestions = JSON.parse(content);
+
+        if (!Array.isArray(moduleQuestions)) {
+          throw new Error('La respuesta no es un array');
         }
-      ]
-      `;
-      
 
-      const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: prompt }],
-      });
-
-      const content = response.choices[0].message.content.trim();
-      const moduleQuestions = JSON.parse(content);
-      allQuestions.push({ moduleTitle: mod.title, questions: moduleQuestions });
+        allQuestions.push({ moduleTitle: mod.title, questions: moduleQuestions });
+      } catch (err) {
+        console.error(`❌ Error generando preguntas para el módulo "${mod.title}":`, err.message);
+        allQuestions.push({ moduleTitle: mod.title, questions: [], error: err.message });
+      }
     }
-    res.json(allQuestions);
+
+    res.status(200).json(allQuestions);
   } catch (error) {
+    console.error('❌ Error general en /generate-dynamic:', error);
     res.status(500).json({ message: 'Error generando preguntas dinámicas', error: error.message });
   }
 });
+
 
 // Guardar examen final
 app.post('/final-exam/save', authMiddleware, adminMiddleware, async (req, res) => {
