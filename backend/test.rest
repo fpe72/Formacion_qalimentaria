@@ -51,27 +51,7 @@ GET http://localhost:5000/final-exam/active
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMyMDQ3ODEsImV4cCI6MTc0MzIwODM4MX0.AiGqwJF7_HTXE_5H0hJ-MVBUlkCJpJJFBoTHTW6pBXo
 Content-Type: application/json
 
+### Obtener el examen activo
+GET http://localhost:5000/final-exam/active
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMzNzAwOTQsImV4cCI6MTc0MzM3MzY5NH0.uqqqKbBgqWBa7MrvKhXnGXUQYbx0nfnBwdP1hDyz2DI
 
-
-### Actualizar un examen con correctAnswer (texto)
-PATCH http://localhost:5000/final-exam/67e749c561c503e15d8ad922
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMyMTM0NzIsImV4cCI6MTc0MzIxNzA3Mn0.aVcPOw6ft5hW_FTWgW-F619e4smfFm7uNieJQ14w1qE
-Content-Type: application/json
-
-{
-  "title": "Examen test API",
-  "questions": [
-    {
-      "question": "¿Cuál es la capital de Francia?",
-      "options": ["Madrid", "París", "Berlín"],
-      "correctAnswer": "París",
-      "answer": "París"
-    },
-    {
-      "question": "¿Cuántos continentes hay?",
-      "options": ["5", "6", "7"],
-      "correctAnswer": "7",
-      "answer": "7"
-    }
-  ]
-}
