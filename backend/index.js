@@ -11,10 +11,15 @@ const bcrypt = require('bcrypt');
 const OpenAI = require('openai');
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// Modelos del proyecto
 const User = require('./models/User');
 const Module = require('./models/Module');
 const Progress = require('./models/Progress');
 const FinalExam = require('./models/FinalExam');
+
+// MOD: Importamos Attempt, que debe referir a 'FinalExam' en su examId
+// (asegúrate de que en Attempt.js tengas ref: 'FinalExam')
+const Attempt = require('./models/Attempt');
 
 const app = express();
 app.use(express.json());
@@ -29,8 +34,10 @@ function authMiddleware(req, res, next) {
   if (req.method === 'OPTIONS') return next();
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ message: 'No token provided' });
+
   const token = authHeader.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'Token inválido' });
+
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
@@ -53,7 +60,7 @@ app.get('/', (req, res) => {
   res.send('Backend de Formacion Qalimentaria');
 });
 
-// Registro
+// ===================== REGISTRO =====================
 app.post('/register', async (req, res) => {
   try {
     const { email, password, name, firstSurname, secondSurname, dni } = req.body;
@@ -64,10 +71,13 @@ app.post('/register', async (req, res) => {
     if (userExists) {
       return res.status(400).json({ message: 'El usuario ya está registrado' });
     }
+
+    // Validar que la contraseña sea alfanumérica
     const passwordRegex = /^[A-Za-z0-9]+$/;
     if (!passwordRegex.test(password)) {
       return res.status(400).json({ message: 'La contraseña debe contener solo caracteres alfanuméricos.' });
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ email, password: hashedPassword, name, firstSurname, secondSurname, dni });
     await newUser.save();
@@ -78,7 +88,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Login
+// ===================== LOGIN =====================
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -86,14 +96,18 @@ app.post('/login', async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ message: 'Credenciales inválidas' });
     }
-    const token = jwt.sign({ email: user.email, name: user.name, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { email: user.email, name: user.name, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
     return res.status(200).json({ message: 'Login exitoso', token });
   } catch (error) {
     return res.status(500).json({ message: 'Error en el servidor' });
   }
 });
 
-// Módulos
+// ===================== MÓDULOS =====================
 app.get('/modules', authMiddleware, async (req, res) => {
   try {
     const modules = await Module.find({}).sort({ order: 1 });
@@ -132,7 +146,7 @@ app.delete('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => 
   }
 });
 
-// Progreso
+// ===================== PROGRESO =====================
 app.post('/progress', authMiddleware, async (req, res) => {
   try {
     const { moduleId } = req.body;
@@ -157,7 +171,7 @@ app.get('/progress', authMiddleware, async (req, res) => {
   }
 });
 
-// HTML de módulos
+// ===================== HTML de módulos =====================
 app.get('/modules-content', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const modules = await Module.find({}, 'title content order').sort({ order: 1 });
@@ -167,7 +181,7 @@ app.get('/modules-content', authMiddleware, adminMiddleware, async (req, res) =>
   }
 });
 
-// Generar examen dinámico (reforzado)
+// ===================== EXAMEN FINAL DINÁMICO (OpenAI) =====================
 app.get('/final-exam/generate-dynamic', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const modules = await Module.find({}, 'title content order').sort({ order: 1 });
@@ -189,7 +203,6 @@ Devuelve las preguntas en formato JSON exactamente así:
   }
 ]
 `;
-
       try {
         const response = await openai.chat.completions.create({
           model: 'gpt-3.5-turbo',
@@ -197,13 +210,9 @@ Devuelve las preguntas en formato JSON exactamente así:
         });
 
         const content = response.choices[0].message.content.trim();
-
-        // Log para depurar la respuesta cruda
         console.log(`📦 Respuesta cruda del módulo "${mod.title}":`, content);
 
-        // Intentamos parsear
         const moduleQuestions = JSON.parse(content);
-
         if (!Array.isArray(moduleQuestions)) {
           throw new Error('La respuesta no es un array');
         }
@@ -222,8 +231,7 @@ Devuelve las preguntas en formato JSON exactamente así:
   }
 });
 
-
-// Guardar examen final
+// ===================== GUARDAR EXAMEN FINAL =====================
 app.post('/final-exam/save', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { title, questions } = req.body;
@@ -235,11 +243,10 @@ app.post('/final-exam/save', authMiddleware, adminMiddleware, async (req, res) =
   }
 });
 
-// ✅ Primero, listar todos los exámenes
+// Listar exámenes
 app.get('/final-exam/list', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const exams = await FinalExam.find({}, 'title createdAt isActive');
-
     res.json(exams);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener exámenes', error: error.message });
@@ -258,7 +265,7 @@ app.get('/final-exam/active', authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Después, obtener un examen por ID
+// Obtener examen por ID
 app.get('/final-exam/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const exam = await FinalExam.findById(req.params.id);
@@ -290,13 +297,12 @@ app.delete('/final-exam/:id', authMiddleware, adminMiddleware, async (req, res) 
   }
 });
 
-// Ruta para actualizar un examen existente (ADMIN)
+// Actualizar examen parcial
 app.patch('/final-exam/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const examId = req.params.id;
     const { title, questions } = req.body;
 
-    // Validación básica
     if (!title || !Array.isArray(questions)) {
       return res.status(400).json({ message: 'Título o preguntas inválidas' });
     }
@@ -332,11 +338,72 @@ app.patch('/final-exam/:id/activate', authMiddleware, adminMiddleware, async (re
   }
 });
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log('Conectado a MongoDB Atlas'))
-  .catch(err => console.error('Error al conectar a MongoDB Atlas', err));
+// ===================== NUEVO: Rutas Attempt =====================
+app.post('/final-exam/start-attempt', authMiddleware, async (req, res) => {
+  try {
+    // Obtenemos email del token
+    const email = req.user.email;
+    const { examId } = req.body;
+
+    // Buscar usuario por email para obtener su _id
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    if (!examId) {
+      return res.status(400).json({ error: 'Falta examId' });
+    }
+
+    // Creamos Attempt con userId = user._id
+    const attempt = new Attempt({
+      userId: user._id,
+      examId,
+      status: 'in-progress',
+      startTime: new Date(),
+    });
+    await attempt.save();
+
+    res.json({ attemptId: attempt._id, message: 'Intento iniciado' });
+  } catch (error) {
+    console.error('❌ Error al iniciar intento:', error);
+    res.status(500).json({ error: 'No se pudo iniciar el intento.' });
+  }
+});
+
+app.post('/final-exam/end-attempt', authMiddleware, async (req, res) => {
+  try {
+    const { attemptId, score } = req.body;
+    if (!attemptId) {
+      return res.status(400).json({ error: 'Falta attemptId.' });
+    }
+
+    const attempt = await Attempt.findById(attemptId);
+    if (!attempt) {
+      return res.status(404).json({ error: 'Intento no encontrado.' });
+    }
+
+    attempt.status = 'finished';
+    attempt.score = score || 0;
+    attempt.endTime = new Date();
+    await attempt.save();
+
+    res.json({ message: 'Intento finalizado', attempt });
+  } catch (error) {
+    console.error('❌ Error al finalizar intento:', error);
+    res.status(500).json({ error: 'No se pudo finalizar el intento.' });
+  }
+});
+// ===================== FIN Rutas Attempt =====================
+
+// Conexión a MongoDB
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('Conectado a MongoDB Atlas'))
+  .catch((err) => console.error('Error al conectar a MongoDB Atlas', err));
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
