@@ -341,27 +341,36 @@ app.patch('/final-exam/:id/activate', authMiddleware, adminMiddleware, async (re
 // ===================== NUEVO: Rutas Attempt =====================
 app.post('/final-exam/start-attempt', authMiddleware, async (req, res) => {
   try {
-    // Obtenemos email del token
     const email = req.user.email;
     const { examId } = req.body;
 
-    // Buscar usuario por email para obtener su _id
+    // Validaciones
+    if (!examId) return res.status(400).json({ error: 'Falta examId' });
+
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    // 🚫 Revisamos si el usuario ya aprobó este examen
+    const alreadyPassed = await Attempt.findOne({
+      userId: user._id,
+      examId,
+      passed: true,
+    });
+
+    if (alreadyPassed) {
+      return res.status(403).json({
+        error: 'Ya has aprobado este examen. No puedes volver a realizarlo.',
+      });
     }
 
-    if (!examId) {
-      return res.status(400).json({ error: 'Falta examId' });
-    }
-
-    // Creamos Attempt con userId = user._id
+    // ✅ Si no ha aprobado antes, permitimos iniciar el intento
     const attempt = new Attempt({
       userId: user._id,
       examId,
       status: 'in-progress',
       startTime: new Date(),
     });
+
     await attempt.save();
 
     res.json({ attemptId: attempt._id, message: 'Intento iniciado' });
@@ -370,6 +379,7 @@ app.post('/final-exam/start-attempt', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'No se pudo iniciar el intento.' });
   }
 });
+
 
 app.post('/final-exam/end-attempt', authMiddleware, async (req, res) => {
   try {
@@ -401,6 +411,33 @@ app.post('/final-exam/end-attempt', authMiddleware, async (req, res) => {
   }
 });
 // ===================== FIN Rutas Attempt =====================
+
+
+// ===================== ESTADO DEL EXAMEN PARA USUARIO ACTUAL =====================
+app.get('/final-exam/:id/status', authMiddleware, async (req, res) => {
+  try {
+    const { id: examId } = req.params;
+    const email = req.user.email;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const attempt = await Attempt.findOne({ userId: user._id, examId }).sort({ endTime: -1 });
+
+    if (!attempt) {
+      return res.json({ status: 'not_attempted' }); // nunca hizo el examen
+    }
+
+    if (attempt.passed) {
+      return res.json({ status: 'passed' }); // aprobado
+    } else {
+      return res.json({ status: 'failed' }); // intentó pero no aprobó
+    }
+  } catch (error) {
+    console.error('❌ Error consultando estado del examen:', error);
+    res.status(500).json({ error: 'Error consultando estado del examen' });
+  }
+});
 
 // Conexión a MongoDB
 mongoose
