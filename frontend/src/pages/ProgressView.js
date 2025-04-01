@@ -1,14 +1,19 @@
-// src/pages/ProgressView.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+// Ojo: la importación de jwt-decode es un poco distinta. Normalmente es:
+// import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';  // si así te funciona, déjalo
 
 function ProgressView() {
   const [progressRecords, setProgressRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+
   const navigate = useNavigate();
+
+  // NUEVO: controlar si ya aprobó el examen
+  const [examPassed, setExamPassed] = useState(false);
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -23,10 +28,9 @@ function ProgressView() {
         const decoded = jwtDecode(token);
         setIsAdmin(decoded?.role === 'admin');
 
+        // Llamada para obtener los progresos de módulos
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/progress`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!response.ok) {
@@ -45,9 +49,37 @@ function ProgressView() {
       }
     };
 
+    // NUEVO: Comprobar si el examen ya fue aprobado con /final-exam/my-latest-attempt
+    const checkExamStatus = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return; // si no hay token, salimos
+
+        const attemptRes = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/final-exam/my-latest-attempt`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!attemptRes.ok) {
+          // Si 404 o similar, no pasa nada
+          console.warn('No se pudo comprobar el estado del examen.');
+          return;
+        }
+        const attemptData = await attemptRes.json();
+        console.log("attemptData:", attemptData);
+        // Si attemptData.attempt existe y attemptData.attempt.passed = true => ya aprobó
+        if (attemptData.attempt?.passed) {
+          setExamPassed(true);
+        }
+      } catch (err) {
+        console.error('Error revisando estado de examen:', err);
+      }
+    };
+
     fetchProgress();
+    checkExamStatus();
   }, []);
 
+  // Chequeamos si completó todos los módulos
   const allModulesCompleted = progressRecords.length === 9;
 
   if (loading) {
@@ -80,14 +112,19 @@ function ProgressView() {
                 .map(record => (
                   <tr key={record._id}>
                     <td className="border border-gray-300 px-4 py-2">{record._id}</td>
-                    <td className="border border-gray-300 px-4 py-2">{record.module.title || 'Sin título'}</td>
-                    <td className="border border-gray-300 px-4 py-2">{new Date(record.dateCompleted).toLocaleString()}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {record.module.title || 'Sin título'}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {new Date(record.dateCompleted).toLocaleString()}
+                    </td>
                   </tr>
                 ))}
             </tbody>
           </table>
 
-          {(isAdmin || allModulesCompleted) && (
+          {/* NUEVO: ocultamos el botón si examPassed = true */}
+          {(isAdmin || allModulesCompleted) && !examPassed && (
             <div className="mt-8 text-center">
               <button
                 onClick={() => navigate('/final-exam')}
@@ -95,6 +132,12 @@ function ProgressView() {
               >
                 Ir al Examen Final
               </button>
+            </div>
+          )}
+
+          {examPassed && (
+            <div className="mt-8 text-center text-green-600 font-bold">
+              ✅ Ya has aprobado el examen final
             </div>
           )}
         </>

@@ -1,4 +1,5 @@
 // backend/models/Attempt.js
+
 const mongoose = require('mongoose');
 
 const attemptSchema = new mongoose.Schema({
@@ -9,7 +10,7 @@ const attemptSchema = new mongoose.Schema({
   },
   examId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'FinalExam', // asumiendo que la colección es 'finalexams'
+    ref: 'FinalExam',
     required: true
   },
   status: {
@@ -20,6 +21,10 @@ const attemptSchema = new mongoose.Schema({
   score: {
     type: Number,
     default: 0
+  },
+  passed: {
+    type: Boolean,
+    default: false
   },
   startTime: {
     type: Date,

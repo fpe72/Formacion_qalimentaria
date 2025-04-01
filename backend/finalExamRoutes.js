@@ -1,78 +1,81 @@
 // backend/finalExamRoutes.js
 const express = require('express');
 const router = express.Router();
+const FinalExam = require('./models/FinalExam');
+const Attempt = require('./models/Attempt');
+const User = require('./models/User');
+const authMiddleware = require('./middleware/auth'); // Ajusta si está en otra ruta
 
-// Importar tus modelos
-const FinalExam = require('./models/FinalExam'); 
-const Attempt = require('./models/Attempt'); 
-// ... si necesitas también tu modelo de usuario, etc.
-
-// 1. GET /final-exam/active => obtener el examen activo
-router.get('/active', async (req, res) => {
+// GET /final-exam/active
+router.get('/active', authMiddleware, async (req, res) => {
   try {
     const exam = await FinalExam.findOne({ isActive: true });
-    if (!exam) {
-      return res.status(404).json({ error: 'No hay examen activo.' });
-    }
-    return res.json(exam);
+    if (!exam) return res.status(404).json({ error: 'No hay examen activo.' });
+    res.json(exam);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Error al obtener examen activo.' });
+    res.status(500).json({ error: 'Error al obtener el examen activo.' });
   }
 });
 
-// 2. POST /final-exam/start-attempt => crear un Attempt
-router.post('/start-attempt', async (req, res) => {
+// POST /final-exam/start-attempt
+router.post('/start-attempt', authMiddleware, async (req, res) => {
   try {
-    // Si tienes auth, extrae userId de req.user._id
-    // Por ahora, simulemos algo:
-    const userId = 'FAKE_USER_ID';
     const { examId } = req.body;
+    if (!examId) return res.status(400).json({ error: 'Falta examId.' });
 
-    if (!examId) {
-      return res.status(400).json({ error: 'Falta examId en el body.' });
-    }
-
-    // Creamos Attempt en DB
     const attempt = new Attempt({
-      userId,
+      userId: req.user._id, // ✅ ID real del usuario autenticado
       examId,
       status: 'in-progress',
       startTime: new Date(),
     });
     await attempt.save();
 
-    return res.json({ attemptId: attempt._id, message: 'Intento iniciado' });
+    res.json({ attemptId: attempt._id });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'No se pudo iniciar el intento.' });
+    res.status(500).json({ error: 'No se pudo iniciar el intento.' });
   }
 });
 
-// 3. POST /final-exam/end-attempt => finalizar Attempt
-router.post('/end-attempt', async (req, res) => {
+// POST /final-exam/end-attempt
+router.post('/end-attempt', authMiddleware, async (req, res) => {
   try {
-    const { attemptId, score } = req.body;
-    if (!attemptId) {
-      return res.status(400).json({ error: 'Falta attemptId.' });
+    let { attemptId, score, totalQuestions } = req.body;
+
+    score = Number(score);
+    totalQuestions = Number(totalQuestions);
+
+    if (!attemptId || isNaN(score) || isNaN(totalQuestions)) {
+      return res.status(400).json({ error: 'Datos inválidos' });
     }
 
     const attempt = await Attempt.findById(attemptId);
-    if (!attempt) {
-      return res.status(404).json({ error: 'Intento no encontrado.' });
-    }
+    if (!attempt) return res.status(404).json({ error: 'Intento no encontrado.' });
 
+    const passingScore = Math.round(totalQuestions * 0.75);
     attempt.status = 'finished';
-    attempt.score = score || 0;
+    attempt.score = score;
+    attempt.passed = score >= passingScore;
     attempt.endTime = new Date();
-    await attempt.save();
 
-    return res.json({ message: 'Intento finalizado', attempt });
+    await attempt.save();
+    res.json({ message: 'Intento finalizado', attempt });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'No se pudo finalizar el intento.' });
+    res.status(500).json({ error: 'No se pudo finalizar el intento.' });
   }
 });
 
-// Exportamos el router
+// GET /final-exam/my-latest-attempt
+router.get('/my-latest-attempt', authMiddleware, async (req, res) => {
+  try {
+    const latestAttempt = await Attempt.findOne({ userId: req.user._id })
+      .sort({ endTime: -1 })
+      .populate('examId', 'title');
+
+    res.json({ attempt: latestAttempt || null });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener intento' });
+  }
+});
+
 module.exports = router;
