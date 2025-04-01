@@ -373,9 +373,10 @@ app.post('/final-exam/start-attempt', authMiddleware, async (req, res) => {
 
 app.post('/final-exam/end-attempt', authMiddleware, async (req, res) => {
   try {
-    const { attemptId, score } = req.body;
-    if (!attemptId) {
-      return res.status(400).json({ error: 'Falta attemptId.' });
+    const { attemptId, score, totalQuestions } = req.body;
+
+    if (!attemptId || typeof score === 'undefined' || typeof totalQuestions === 'undefined') {
+      return res.status(400).json({ error: 'Faltan datos: attemptId, score o totalQuestions.' });
     }
 
     const attempt = await Attempt.findById(attemptId);
@@ -383,12 +384,17 @@ app.post('/final-exam/end-attempt', authMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'Intento no encontrado.' });
     }
 
+    const passingScore = Math.round(Number(totalQuestions) * 0.75);
+    const passed = Number(score) >= passingScore;
+
     attempt.status = 'finished';
-    attempt.score = score || 0;
+    attempt.score = Number(score);
+    attempt.passed = passed;
     attempt.endTime = new Date();
+
     await attempt.save();
 
-    res.json({ message: 'Intento finalizado', attempt });
+    res.json({ message: 'Intento finalizado', passed, attempt });
   } catch (error) {
     console.error('❌ Error al finalizar intento:', error);
     res.status(500).json({ error: 'No se pudo finalizar el intento.' });
