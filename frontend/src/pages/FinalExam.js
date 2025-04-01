@@ -10,7 +10,23 @@ const FinalExam = () => {
   const [answers, setAnswers] = useState([]);
   const [score, setScore] = useState(null);
   const [attemptId, setAttemptId] = useState(null);
-  const [examPassed, setExamPassed] = useState(false);
+  const [examPassed, setExamPassed] = useState(false); // ✅ NUEVO
+
+  // ✅ FUNCIÓN para comprobar si el usuario ya aprobó
+  const checkAttemptStatus = async (examId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/${examId}/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.status === 'passed') {
+        setExamPassed(true);
+      }
+    } catch (err) {
+      console.error('Error consultando estado del examen:', err);
+    }
+  };
 
   useEffect(() => {
     const fetchExam = async () => {
@@ -25,6 +41,9 @@ const FinalExam = () => {
         if (!response.ok) throw new Error('No se pudo obtener el examen activo.');
         const data = await response.json();
         setExam(data);
+
+        // ✅ Verificamos si ya aprobó
+        await checkAttemptStatus(data._id);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -32,23 +51,7 @@ const FinalExam = () => {
       }
     };
 
-    const checkAttempt = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/my-latest-attempt`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (data.attempt?.passed) {
-          setExamPassed(true);
-        }
-      } catch (err) {
-        console.error('Error revisando intento previo:', err);
-      }
-    };
-
     fetchExam();
-    checkAttempt();
   }, []);
 
   const startAttempt = async () => {
@@ -136,11 +139,18 @@ const FinalExam = () => {
   if (loading) return <p className="text-center mt-10">Cargando examen...</p>;
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
 
+  // ✅ Si aprobó y aún no ha empezado
   if (!started && examPassed) {
     return (
       <div className="text-center mt-10">
         <h2 className="text-2xl font-bold text-green-700">✅ Ya has aprobado el examen final</h2>
         <p className="mt-4">No es necesario repetirlo.</p>
+        <button
+          className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg"
+          disabled
+        >
+          Descargar diploma (próximamente)
+        </button>
       </div>
     );
   }
@@ -167,6 +177,12 @@ const FinalExam = () => {
           <>
             <p className="text-green-600 text-2xl font-semibold">✅ ¡Has aprobado!</p>
             <p className="mt-4">No necesitas repetir el examen.</p>
+            <button
+              className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg"
+              disabled
+            >
+              Descargar diploma (próximamente)
+            </button>
           </>
         ) : (
           <>
