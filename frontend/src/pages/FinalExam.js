@@ -355,7 +355,19 @@ const FinalExam = () => {
   const current = exam.questions[currentQuestion];
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">Pregunta {currentQuestion + 1}</h2>
+      <h2 className="text-xl font-bold mb-2">
+      Pregunta {currentQuestion + 1} de {exam.questions.length}
+      </h2>
+      <p className="text-base text-gray-600 mb-4">
+       Progreso: <strong>{currentQuestion + 1}</strong> / {exam.questions.length}
+    </p>
+    <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
+  <div
+    className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+    style={{ width: `${((currentQuestion + 1) / exam.questions.length) * 100}%` }}
+   ></div>
+  </div>
+
       {examTimeLeft !== null && (
        <div className="text-right text-red-600 font-semibold mb-4">
          ⏱ Tiempo restante: {Math.floor(examTimeLeft / 60)}:{String(examTimeLeft % 60).padStart(2, '0')}
