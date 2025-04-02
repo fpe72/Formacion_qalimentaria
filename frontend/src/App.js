@@ -14,6 +14,8 @@ import CreateFinalExam from './pages/CreateFinalExam';
 import FinalExamList from './pages/FinalExamList'; // ✅ Importa el componente
 import EditFinalExam from './pages/EditFinalExam';
 import { jwtDecode } from 'jwt-decode';
+import CreateCompany from './pages/CreateCompany';
+
 
 // Ruta protegida mejorada para examen final
 function ProtectedFinalExamRoute({ children }) {
@@ -103,6 +105,7 @@ function App() {
           <Route path="/modules/:order" element={<ModuleContent />} />
           <Route path="/progress" element={<ProgressView />} />
           <Route path="/create-module" element={<CreateModule />} />
+          <Route path="/admin/create-company" element={<CreateCompany />} />
           <Route 
             path="/final-exam" 
             element={

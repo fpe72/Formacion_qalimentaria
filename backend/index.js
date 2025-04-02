@@ -16,6 +16,9 @@ const User = require('./models/User');
 const Module = require('./models/Module');
 const Progress = require('./models/Progress');
 const FinalExam = require('./models/FinalExam');
+const companyRoutes = require('./companyRoutes');
+const Company = require('./models/Company');
+
 
 // MOD: Importamos Attempt, que debe referir a 'FinalExam' en su examId
 // (asegúrate de que en Attempt.js tengas ref: 'FinalExam')
@@ -25,6 +28,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.options('*', cors());
+app.use('/companies', companyRoutes);
 
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbackSecret';
@@ -63,25 +67,46 @@ app.get('/', (req, res) => {
 // ===================== REGISTRO =====================
 app.post('/register', async (req, res) => {
   try {
-    const { email, password, name, firstSurname, secondSurname, dni } = req.body;
-    if (!email || !password || !name || !firstSurname || !secondSurname || !dni) {
+    const { email, password, name, firstSurname, secondSurname, dni, companyName } = req.body;
+
+    // Validación de campos básicos
+    if (!email || !password || !name || !firstSurname || !secondSurname || !dni || !companyName) {
       return res.status(400).json({ message: 'Faltan datos' });
     }
+
+    // Validar existencia de empresa
+    const company = await Company.findOne({ name: companyName.trim() });
+    if (!company) {
+      return res.status(400).json({ message: 'Empresa no registrada. Contacta con el administrador.' });
+    }
+
+    // Validar existencia de usuario
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'El usuario ya está registrado' });
     }
 
-    // Validar que la contraseña sea alfanumérica
+    // Validar formato de contraseña
     const passwordRegex = /^[A-Za-z0-9]+$/;
     if (!passwordRegex.test(password)) {
       return res.status(400).json({ message: 'La contraseña debe contener solo caracteres alfanuméricos.' });
     }
 
+    // Crear usuario
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, password: hashedPassword, name, firstSurname, secondSurname, dni });
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      name,
+      firstSurname,
+      secondSurname,
+      dni,
+      company: company._id
+    });
+
     await newUser.save();
     return res.status(201).json({ message: 'Usuario registrado con éxito' });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Error en el servidor' });
