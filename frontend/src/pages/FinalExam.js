@@ -65,7 +65,28 @@ const FinalExam = () => {
         },
         body: JSON.stringify({ examId: exam._id })
       });
+  
       const data = await response.json();
+  
+      if (!response.ok) {
+        // ✅ Detectamos el mensaje personalizado del backend
+        if (data.error === 'Has alcanzado el número máximo de intentos. Debes repetir la formación.') {
+          const confirmReset = window.confirm(
+            '❌ Has agotado tus 2 intentos.\n¿Deseas reiniciar la formación para volver a empezar?'
+          );
+          if (confirmReset) {
+            await resetUserProgress();
+          }
+          return;
+        }
+         else if (data.error === 'Ya has aprobado este examen. No puedes volver a realizarlo.') {
+          alert('✅ Ya has aprobado el examen. No puedes repetirlo.');
+        } else {
+          alert(`Error al iniciar intento: ${data.error || 'desconocido'}`);
+        }
+        return;
+      }
+  
       setAttemptId(data.attemptId);
       setStarted(true);
     } catch (err) {
@@ -74,6 +95,26 @@ const FinalExam = () => {
     }
   };
 
+  const resetUserProgress = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/reset-user-progress`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      if (!res.ok) throw new Error('Error reiniciando formación');
+      alert('✅ Formación reiniciada correctamente. Puedes empezar de nuevo.');
+      window.location.reload(); // recarga la página
+    } catch (err) {
+      console.error('Error reiniciando formación:', err);
+      alert('❌ Hubo un error al intentar reiniciar la formación.');
+    }
+  };
+  
+  
   const handleAnswer = (selectedIndex) => {
     const updated = [...answers];
     updated[currentQuestion] = selectedIndex;
@@ -157,14 +198,26 @@ const FinalExam = () => {
 
   if (!started) {
     return (
-      <div className="text-center mt-10">
-        <h2 className="text-2xl font-bold">Bienvenido al examen final</h2>
-        <button onClick={startAttempt} className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg">
+      <div className="text-center mt-10 max-w-xl mx-auto space-y-4">
+        <h2 className="text-2xl font-bold text-gray-800">📝 Instrucciones antes de comenzar el examen</h2>
+        <ul className="text-left list-disc list-inside text-gray-700 text-base">
+          <li>El examen contiene <strong>{exam.questions.length}</strong> preguntas tipo test.</li>
+          <li>Debes acertar al menos el <strong>75%</strong> para aprobar.</li>
+          <li>Solo dispones de <strong>2 intentos</strong>.</li>
+          <li>Si suspendes el primer intento, tendrás <strong>1 minuto</strong> para realizar el segundo (solo para pruebas).</li>
+          <li>Si actualizas la página durante el examen, se perderá tu progreso.</li>
+          <li>Una vez aprobado, no podrás repetir el examen.</li>
+        </ul>
+        <button
+          onClick={startAttempt}
+          className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg"
+        >
           Comenzar examen
         </button>
       </div>
     );
   }
+  
 
   if (score !== null) {
     const questionCount = exam.questions.length;
@@ -187,6 +240,9 @@ const FinalExam = () => {
         ) : (
           <>
             <p className="text-red-600 text-2xl font-semibold">❌ No has aprobado.</p>
+            <p className="mt-2 text-gray-700">
+            Tienes <strong>1 minuto</strong> para repetir el examen. Si no lo haces a tiempo, tendrás que repetir toda la formación.
+            </p>
             <button onClick={resetExam} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded">Repetir Examen</button>
           </>
         )}
