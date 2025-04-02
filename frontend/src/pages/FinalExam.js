@@ -13,6 +13,8 @@ const FinalExam = () => {
   const [examPassed, setExamPassed] = useState(false);
   const [retryDeadline, setRetryDeadline] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [examTimeLeft, setExamTimeLeft] = useState(null); // tiempo restante mientras se realiza el examen
+
 
   const checkAttemptStatus = async (examId) => {
     try {
@@ -89,6 +91,25 @@ const FinalExam = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, [retryDeadline]);
+
+  useEffect(() => {
+    if (!started || examTimeLeft === null) return;
+  
+    if (examTimeLeft <= 0) {
+      finishExam();
+      return;
+    }
+  
+    const interval = setInterval(() => {
+      setExamTimeLeft((prev) => prev - 1);
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [started, examTimeLeft]);
+  
+  
 
   const startAttempt = async () => {
     try {
@@ -265,47 +286,61 @@ const FinalExam = () => {
   
         {/* BOTÓN PARA COMENZAR */}
         <button
-          onClick={async () => {
-            if (retryDeadline && new Date() > retryDeadline) {
-              const confirmReset = window.confirm('⏱ El tiempo para repetir el examen ha expirado.\n¿Deseas reiniciar la formación ahora?');
-              if (confirmReset) {
-                await resetUserProgress();
-              }
-              return;
-            }
-            startAttempt();
-          }}
-          className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition"
-        >
-          Comenzar examen
-        </button>
+  onClick={async () => {
+    if (retryDeadline && new Date() > retryDeadline) {
+      const confirmReset = window.confirm('⏱ El tiempo para repetir el examen ha expirado.\n¿Deseas reiniciar la formación ahora?');
+      if (confirmReset) {
+        await resetUserProgress();
+      }
+      return;
+    }
+
+    // ⏱ INICIAR TEMPORIZADOR
+    const totalSeconds = (exam.questions.length + 3) * 60;
+    setExamTimeLeft(totalSeconds);
+
+    startAttempt();
+    }}
+    className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition"
+    >
+    Comenzar examen
+    </button>
+
       </div>
     );
   }
-  
+
+  const finishExam = () => {
+    calculateScoreManually();
+  };
   
 
   if (score !== null) {
     const questionCount = exam.questions.length;
     const passingScore = Math.round(questionCount * 0.75);
     const passed = score >= passingScore;
-
+    const percentage = Math.round((score / questionCount) * 100);
+  
     return (
-      <div className="text-center mt-10">
+      <div className="text-center mt-10 space-y-4">
         {passed ? (
           <>
             <p className="text-green-600 text-2xl font-semibold">✅ ¡Has aprobado!</p>
-            <p className="mt-4">No necesitas repetir el examen.</p>
-            <button
-              className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg"
-              disabled
-            >
+            <p className="text-gray-800 text-lg">
+              Has acertado <strong>{score}</strong> de <strong>{questionCount}</strong> preguntas.
+            </p>
+            <p className="text-gray-800 text-lg">Resultado: <strong>{percentage}%</strong></p>
+            <button className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg" disabled>
               Descargar diploma (próximamente)
             </button>
           </>
         ) : (
           <>
             <p className="text-red-600 text-2xl font-semibold">❌ No has aprobado.</p>
+            <p className="text-gray-800 text-lg">
+              Has acertado <strong>{score}</strong> de <strong>{questionCount}</strong> preguntas.
+            </p>
+            <p className="text-gray-800 text-lg">Resultado: <strong>{percentage}%</strong></p>
             <p className="mt-2 text-gray-700">
               Tienes <strong>1 minuto</strong> para repetir el examen. Si no lo haces a tiempo, tendrás que repetir toda la formación.
             </p>
@@ -315,11 +350,18 @@ const FinalExam = () => {
       </div>
     );
   }
+  
 
   const current = exam.questions[currentQuestion];
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h2 className="text-xl font-bold mb-4">Pregunta {currentQuestion + 1}</h2>
+      {examTimeLeft !== null && (
+       <div className="text-right text-red-600 font-semibold mb-4">
+         ⏱ Tiempo restante: {Math.floor(examTimeLeft / 60)}:{String(examTimeLeft % 60).padStart(2, '0')}
+          </div>
+      )}
+
       <p className="mb-4">{current.question}</p>
       <ul>
         {current.options.map((option, index) => (
