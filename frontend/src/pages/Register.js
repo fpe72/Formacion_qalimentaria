@@ -9,6 +9,7 @@ function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -42,7 +43,8 @@ function Register() {
 
       const data = await response.json();
       if (response.ok) {
-        setMessage('Usuario registrado con éxito');
+        setSuccess(true);
+        setMessage("Nuevo usuario correctamente registrado");
         // Limpiar campos
         setEmail('');
         setName('');
@@ -141,8 +143,11 @@ function Register() {
             </div>
           </div>
           {message && (
-            <p className="text-red-500 mt-4">{message}</p>
-          )}
+  <p style={{ color: success ? "green" : "red" }}>
+    {message}
+  </p>
+)}
+
           <button 
             type="submit" 
             className="w-full bg-primary text-white py-2 mt-6 rounded hover:bg-secondary transition duration-300"
