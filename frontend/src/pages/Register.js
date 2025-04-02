@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -11,24 +12,24 @@ function Register() {
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage('');
+    setSuccess(false);
 
-    // Validar que las contraseñas coincidan
     if (password !== confirmPassword) {
       setMessage('Las contraseñas no coinciden');
       return;
     }
 
-    // Validar que la contraseña solo tenga caracteres alfanuméricos
     const passwordRegex = /^[A-Za-z0-9]+$/;
     if (!passwordRegex.test(password)) {
       setMessage('La contraseña debe contener solo caracteres alfanuméricos.');
       return;
     }
 
-    // Verificar que todos los campos estén completos
     if (!email || !name || !firstSurname || !secondSurname || !dni || !password) {
       setMessage('Todos los campos son obligatorios.');
       return;
@@ -45,7 +46,6 @@ function Register() {
       if (response.ok) {
         setSuccess(true);
         setMessage("Nuevo usuario correctamente registrado");
-        // Limpiar campos
         setEmail('');
         setName('');
         setFirstSurname('');
@@ -53,10 +53,16 @@ function Register() {
         setDni('');
         setPassword('');
         setConfirmPassword('');
+
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
+        setSuccess(false);
         setMessage(data.message || 'Error en el registro');
       }
     } catch (error) {
+      setSuccess(false);
       setMessage('Error de conexión');
     }
   };
@@ -142,11 +148,12 @@ function Register() {
               />
             </div>
           </div>
+
           {message && (
-  <p style={{ color: success ? "green" : "red" }}>
-    {message}
-  </p>
-)}
+            <p className="mt-4 text-sm" style={{ color: success ? "green" : "red" }}>
+              {message}
+            </p>
+          )}
 
           <button 
             type="submit" 
