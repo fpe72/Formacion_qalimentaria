@@ -233,24 +233,38 @@ const FinalExam = () => {
   }
 
   if (!started) {
+    const tiempoTotalMinutos = exam.questions.length + 3;
+  
     return (
-      <div className="text-center mt-10 max-w-xl mx-auto space-y-4">
-        <h2 className="text-2xl font-bold text-gray-800">📝 Instrucciones antes de comenzar el examen</h2>
-        <ul className="text-left list-disc list-inside text-gray-700 text-base">
-          <li>El examen contiene <strong>{exam.questions.length}</strong> preguntas tipo test.</li>
-          <li>Debes acertar al menos el <strong>75%</strong> para aprobar.</li>
-          <li>Solo dispones de <strong>2 intentos</strong>.</li>
-          <li>Si suspendes el primer intento, tendrás <strong>1 minuto</strong> para realizar el segundo (solo para pruebas).</li>
-          <li>Si actualizas la página durante el examen, se perderá tu progreso.</li>
-          <li>Una vez aprobado, no podrás repetir el examen.</li>
-        </ul>
+      <div className="text-center mt-10 max-w-2xl mx-auto space-y-6">
+  
+        {/* BLOQUE DE INSTRUCCIONES MEJORADO */}
+        <div className="p-6 border-2 border-gray-300 rounded-xl bg-white shadow-md">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">📝 Instrucciones antes de comenzar el examen</h2>
+          <ul className="text-left list-disc list-inside text-gray-700 text-lg space-y-2">
+            <li>📌 El examen contiene <strong>{exam.questions.length}</strong> preguntas tipo test.</li>
+            <li>✅ Debes acertar al menos el <strong>75%</strong> para aprobar.</li>
+            <li>🎯 Solo dispones de <strong>2 intentos</strong>.</li>
+            <li>⏳ Si suspendes el primer intento, tendrás <strong>1 minuto</strong> para repetirlo (modo prueba).</li>
+            <li>⚠️ Si actualizas la página durante el examen, perderás tu progreso.</li>
+            <li>🎓 Una vez aprobado, no podrás repetir el examen.</li>
+          </ul>
+        </div>
+  
+        {/* TIEMPO TOTAL DISPONIBLE */}
+        <div className="p-5 border-2 border-blue-500 rounded-lg bg-blue-50 text-blue-900 font-semibold text-xl">
+          ⏱️ Tiempo total disponible para realizar el examen: <strong>{tiempoTotalMinutos} minutos</strong>
+        </div>
+  
+        {/* TIEMPO RESTANTE PARA REPETIR */}
         {retryDeadline && (
-          <p className="text-sm text-red-600">
+          <p className="text-base text-red-600">
             ⏳ Tiempo restante para repetir el examen: <strong>{Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}</strong> minutos
           </p>
         )}
-
-<button
+  
+        {/* BOTÓN PARA COMENZAR */}
+        <button
           onClick={async () => {
             if (retryDeadline && new Date() > retryDeadline) {
               const confirmReset = window.confirm('⏱ El tiempo para repetir el examen ha expirado.\n¿Deseas reiniciar la formación ahora?');
@@ -261,14 +275,15 @@ const FinalExam = () => {
             }
             startAttempt();
           }}
-          
-          className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg"
+          className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-700 transition"
         >
           Comenzar examen
         </button>
       </div>
     );
   }
+  
+  
 
   if (score !== null) {
     const questionCount = exam.questions.length;
