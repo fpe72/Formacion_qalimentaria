@@ -10,9 +10,10 @@ const FinalExam = () => {
   const [answers, setAnswers] = useState([]);
   const [score, setScore] = useState(null);
   const [attemptId, setAttemptId] = useState(null);
-  const [examPassed, setExamPassed] = useState(false); // ✅ NUEVO
+  const [examPassed, setExamPassed] = useState(false);
+  const [retryDeadline, setRetryDeadline] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(null);
 
-  // ✅ FUNCIÓN para comprobar si el usuario ya aprobó
   const checkAttemptStatus = async (examId) => {
     try {
       const token = localStorage.getItem('token');
@@ -42,7 +43,6 @@ const FinalExam = () => {
         const data = await response.json();
         setExam(data);
 
-        // ✅ Verificamos si ya aprobó
         await checkAttemptStatus(data._id);
       } catch (err) {
         setError(err.message);
@@ -53,6 +53,15 @@ const FinalExam = () => {
 
     fetchExam();
   }, []);
+
+  useEffect(() => {
+    if (!retryDeadline) return;
+    const interval = setInterval(() => {
+      const diff = Math.max(0, Math.floor((new Date(retryDeadline) - new Date()) / 1000));
+      setTimeLeft(diff);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [retryDeadline]);
 
   const startAttempt = async () => {
     try {
@@ -65,28 +74,29 @@ const FinalExam = () => {
         },
         body: JSON.stringify({ examId: exam._id })
       });
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
-        // ✅ Detectamos el mensaje personalizado del backend
         if (data.error === 'Has alcanzado el número máximo de intentos. Debes repetir la formación.') {
-          const confirmReset = window.confirm(
-            '❌ Has agotado tus 2 intentos.\n¿Deseas reiniciar la formación para volver a empezar?'
-          );
+          const confirmReset = window.confirm('❌ Has agotado tus 2 intentos.\n¿Deseas reiniciar la formación para volver a empezar?');
           if (confirmReset) {
             await resetUserProgress();
           }
-          return;
-        }
-         else if (data.error === 'Ya has aprobado este examen. No puedes volver a realizarlo.') {
+        } else if (data.error === 'Ya has aprobado este examen. No puedes volver a realizarlo.') {
           alert('✅ Ya has aprobado el examen. No puedes repetirlo.');
+        } else if (data.error === 'Ha pasado el plazo de 72 horas desde tu primer intento fallido. Debes repetir la formación.') {
+          alert('❌ Se te ha pasado el tiempo para repetir. Debes reiniciar la formación.');
+        } else if (data.error?.includes('Tienes hasta')) {
+          const deadline = new Date(data.retryDeadline);
+          setRetryDeadline(deadline);
+          alert(data.error);
         } else {
           alert(`Error al iniciar intento: ${data.error || 'desconocido'}`);
         }
         return;
       }
-  
+
       setAttemptId(data.attemptId);
       setStarted(true);
     } catch (err) {
@@ -104,17 +114,16 @@ const FinalExam = () => {
           Authorization: `Bearer ${token}`
         }
       });
-  
+
       if (!res.ok) throw new Error('Error reiniciando formación');
       alert('✅ Formación reiniciada correctamente. Puedes empezar de nuevo.');
-      window.location.reload(); // recarga la página
+      window.location.reload();
     } catch (err) {
       console.error('Error reiniciando formación:', err);
       alert('❌ Hubo un error al intentar reiniciar la formación.');
     }
   };
-  
-  
+
   const handleAnswer = (selectedIndex) => {
     const updated = [...answers];
     updated[currentQuestion] = selectedIndex;
@@ -180,7 +189,6 @@ const FinalExam = () => {
   if (loading) return <p className="text-center mt-10">Cargando examen...</p>;
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
 
-  // ✅ Si aprobó y aún no ha empezado
   if (!started && examPassed) {
     return (
       <div className="text-center mt-10">
@@ -208,8 +216,24 @@ const FinalExam = () => {
           <li>Si actualizas la página durante el examen, se perderá tu progreso.</li>
           <li>Una vez aprobado, no podrás repetir el examen.</li>
         </ul>
-        <button
-          onClick={startAttempt}
+        {retryDeadline && (
+          <p className="text-sm text-red-600">
+            ⏳ Tiempo restante para repetir el examen: <strong>{Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}</strong> minutos
+          </p>
+        )}
+
+<button
+          onClick={async () => {
+            if (retryDeadline && new Date() > retryDeadline) {
+              const confirmReset = window.confirm('⏱ El tiempo para repetir el examen ha expirado.\n¿Deseas reiniciar la formación ahora?');
+              if (confirmReset) {
+                await resetUserProgress();
+              }
+              return;
+            }
+            startAttempt();
+          }}
+          
           className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg"
         >
           Comenzar examen
@@ -217,7 +241,6 @@ const FinalExam = () => {
       </div>
     );
   }
-  
 
   if (score !== null) {
     const questionCount = exam.questions.length;
@@ -241,7 +264,7 @@ const FinalExam = () => {
           <>
             <p className="text-red-600 text-2xl font-semibold">❌ No has aprobado.</p>
             <p className="mt-2 text-gray-700">
-            Tienes <strong>1 minuto</strong> para repetir el examen. Si no lo haces a tiempo, tendrás que repetir toda la formación.
+              Tienes <strong>1 minuto</strong> para repetir el examen. Si no lo haces a tiempo, tendrás que repetir toda la formación.
             </p>
             <button onClick={resetExam} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded">Repetir Examen</button>
           </>
