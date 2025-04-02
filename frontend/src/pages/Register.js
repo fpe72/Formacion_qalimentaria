@@ -11,6 +11,8 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
+  const [company, setCompany] = useState('');
+
 
   const navigate = useNavigate();
 
@@ -34,12 +36,17 @@ function Register() {
       setMessage('Todos los campos son obligatorios.');
       return;
     }
-
+    if (!company) {
+      setMessage('El nombre de la empresa es obligatorio');
+      setSuccess(false);
+      return;
+    }
+    
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name, firstSurname, secondSurname, dni }),
+        body: JSON.stringify({ email, password, name, firstSurname, secondSurname, dni, companyName: company }),
       });
 
       const data = await response.json();
@@ -115,6 +122,17 @@ function Register() {
                 required 
               />
             </div>
+            <div className="mt-4">
+             <label className="block text-gray-700 mb-2">Nombre de la empresa:</label>
+              <input 
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
+              required 
+              />
+            </div>
+
           </div>
           <div className="mt-4">
             <label className="block text-gray-700 mb-2">Email:</label>
