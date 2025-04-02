@@ -339,31 +339,57 @@ app.patch('/final-exam/:id/activate', authMiddleware, adminMiddleware, async (re
 });
 
 // ===================== NUEVO: Rutas Attempt =====================
+// Reemplaza el POST /final-exam/start-attempt por este:
 app.post('/final-exam/start-attempt', authMiddleware, async (req, res) => {
   try {
     const email = req.user.email;
     const { examId } = req.body;
 
-    // Validaciones
     if (!examId) return res.status(400).json({ error: 'Falta examId' });
 
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
-    // 🚫 Revisamos si el usuario ya aprobó este examen
-    const alreadyPassed = await Attempt.findOne({
+    // ✅ Si ya aprobó: bloquear
+    const approvedAttempt = await Attempt.findOne({
       userId: user._id,
       examId,
       passed: true,
     });
-
-    if (alreadyPassed) {
+    if (approvedAttempt) {
       return res.status(403).json({
         error: 'Ya has aprobado este examen. No puedes volver a realizarlo.',
       });
     }
 
-    // ✅ Si no ha aprobado antes, permitimos iniciar el intento
+    // ✅ Obtener intentos fallidos anteriores
+    const failedAttempts = await Attempt.find({
+      userId: user._id,
+      examId,
+      passed: false,
+    }).sort({ endTime: 1 });
+
+    // ❌ Si tiene 2 o más fallos → repetir formación
+    if (failedAttempts.length >= 2) {
+      return res.status(403).json({
+        error: 'Has alcanzado el número máximo de intentos. Debes repetir la formación.',
+      });
+    }
+
+    // ❌ Si falló una vez y han pasado más de 72h → repetir formación
+    if (failedAttempts.length === 1) {
+      const firstAttemptTime = new Date(failedAttempts[0].endTime);
+      const now = new Date();
+      const minutesSinceFail = (now - firstAttemptTime) / (1000 * 60);
+            if (minutesSinceFail > 1) {
+
+        return res.status(403).json({
+          error: 'Ha pasado el plazo de 72 horas desde tu primer intento fallido. Debes repetir la formación.',
+        });
+      }
+    }
+
+    // ✅ Si todo bien, crear nuevo intento
     const attempt = new Attempt({
       userId: user._id,
       examId,
@@ -380,36 +406,6 @@ app.post('/final-exam/start-attempt', authMiddleware, async (req, res) => {
   }
 });
 
-
-app.post('/final-exam/end-attempt', authMiddleware, async (req, res) => {
-  try {
-    const { attemptId, score, totalQuestions } = req.body;
-
-    if (!attemptId || typeof score === 'undefined' || typeof totalQuestions === 'undefined') {
-      return res.status(400).json({ error: 'Faltan datos: attemptId, score o totalQuestions.' });
-    }
-
-    const attempt = await Attempt.findById(attemptId);
-    if (!attempt) {
-      return res.status(404).json({ error: 'Intento no encontrado.' });
-    }
-
-    const passingScore = Math.round(Number(totalQuestions) * 0.75);
-    const passed = Number(score) >= passingScore;
-
-    attempt.status = 'finished';
-    attempt.score = Number(score);
-    attempt.passed = passed;
-    attempt.endTime = new Date();
-
-    await attempt.save();
-
-    res.json({ message: 'Intento finalizado', passed, attempt });
-  } catch (error) {
-    console.error('❌ Error al finalizar intento:', error);
-    res.status(500).json({ error: 'No se pudo finalizar el intento.' });
-  }
-});
 // ===================== FIN Rutas Attempt =====================
 
 
@@ -436,6 +432,23 @@ app.get('/final-exam/:id/status', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('❌ Error consultando estado del examen:', error);
     res.status(500).json({ error: 'Error consultando estado del examen' });
+  }
+});
+
+// ===================== REPETIR FORMACION =====================
+app.post('/reset-user-progress', authMiddleware, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    await Progress.deleteMany({ userEmail: email });
+    await Attempt.deleteMany({ userId: user._id });
+
+    res.status(200).json({ message: 'Formación reiniciada correctamente' });
+  } catch (error) {
+    console.error('❌ Error al resetear progreso:', error);
+    res.status(500).json({ error: 'Error al resetear la formación' });
   }
 });
 
