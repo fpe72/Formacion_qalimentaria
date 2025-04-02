@@ -376,17 +376,21 @@ app.post('/final-exam/start-attempt', authMiddleware, async (req, res) => {
       });
     }
 
-    // ❌ Si falló una vez y han pasado más de 72h → repetir formación
+    // ⏱ Si solo falló una vez → validar si está dentro del plazo
     if (failedAttempts.length === 1) {
       const firstAttemptTime = new Date(failedAttempts[0].endTime);
       const now = new Date();
-      const minutesSinceFail = (now - firstAttemptTime) / (1000 * 60);
-            if (minutesSinceFail > 1) {
+      const retryDeadline = new Date(firstAttemptTime.getTime() + 1 * 60 * 1000); // 1 minuto
 
+      const timeLeftMs = retryDeadline - now;
+
+      if (timeLeftMs <= 0) {
         return res.status(403).json({
           error: 'Ha pasado el plazo de 72 horas desde tu primer intento fallido. Debes repetir la formación.',
         });
       }
+
+      // ✅ Si está dentro del tiempo → se permite crear el segundo intento (no retornamos nada aquí)
     }
 
     // ✅ Si todo bien, crear nuevo intento
@@ -405,6 +409,7 @@ app.post('/final-exam/start-attempt', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'No se pudo iniciar el intento.' });
   }
 });
+
 
 // ===================== FIN Rutas Attempt =====================
 
