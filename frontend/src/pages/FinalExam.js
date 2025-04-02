@@ -29,6 +29,30 @@ const FinalExam = () => {
     }
   };
 
+  const fetchRetryDeadline = async (examId) => {
+    const savedDeadline = localStorage.getItem('retryDeadline');
+    if (savedDeadline) {
+      setRetryDeadline(new Date(savedDeadline));
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/${examId}/last-failed-attempt`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (res.ok) {
+        const data = await res.json();
+        const deadline = new Date(new Date(data.endTime).getTime() + 1 * 60 * 1000); // 72h → usar 1min para pruebas
+        setRetryDeadline(deadline);
+        localStorage.setItem('retryDeadline', deadline.toISOString());
+      }
+    } catch (err) {
+      console.error('Error obteniendo deadline:', err);
+    }
+  };
+  
   useEffect(() => {
     const fetchExam = async () => {
       try {
@@ -44,6 +68,9 @@ const FinalExam = () => {
         setExam(data);
 
         await checkAttemptStatus(data._id);
+        await fetchRetryDeadline(data._id);
+   
+        
       } catch (err) {
         setError(err.message);
       } finally {
@@ -117,6 +144,7 @@ const FinalExam = () => {
 
       if (!res.ok) throw new Error('Error reiniciando formación');
       alert('✅ Formación reiniciada correctamente. Puedes empezar de nuevo.');
+      localStorage.removeItem('retryDeadline');
       window.location.reload();
     } catch (err) {
       console.error('Error reiniciando formación:', err);
