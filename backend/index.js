@@ -457,6 +457,55 @@ app.post('/reset-user-progress', authMiddleware, async (req, res) => {
   }
 });
 
+// Obtener el último intento fallido del usuario para ese examen
+app.get('/final-exam/:id/last-failed-attempt', authMiddleware, async (req, res) => {
+  try {
+    const examId = req.params.id;
+    const email = req.user.email;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const failedAttempt = await Attempt.findOne({
+      userId: user._id,
+      examId,
+      passed: false,
+    }).sort({ endTime: -1 });
+
+    if (!failedAttempt) {
+      return res.status(404).json({ error: 'No hay intento fallido registrado' });
+    }
+
+    return res.json({ endTime: failedAttempt.endTime });
+  } catch (error) {
+    console.error('❌ Error obteniendo intento fallido:', error);
+    return res.status(500).json({ error: 'Error al obtener el intento fallido' });
+  }
+});
+
+// Ruta de test para marcar todos los módulos como completados
+app.post('/progress/fake-complete-all', authMiddleware, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const modules = await Module.find();
+    const completions = modules.map((m) => ({
+      userEmail: email,
+      module: m._id,
+      dateCompleted: new Date()
+    }));
+
+    await Progress.insertMany(completions);
+
+    res.json({ message: '✅ Progreso simulado con éxito', count: completions.length });
+  } catch (err) {
+    console.error('❌ Error al simular progreso:', err);
+    res.status(500).json({ error: 'No se pudo simular el progreso' });
+  }
+});
+
 // Conexión a MongoDB
 mongoose
   .connect(process.env.MONGODB_URI, {

@@ -55,4 +55,15 @@ Content-Type: application/json
 GET http://localhost:5000/final-exam/active
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMzNzAwOTQsImV4cCI6MTc0MzM3MzY5NH0.uqqqKbBgqWBa7MrvKhXnGXUQYbx0nfnBwdP1hDyz2DI
 
+### Obtener token para pruebas user03
+POST https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/login
+Content-Type: application/json
 
+{
+  "email": "user03@user03.es",
+  "password": "33333333"
+}
+
+### Simular formación completa para usuario autenticado
+POST http://localhost:5000/progress/fake-complete-all
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXIwM0B1c2VyMDMuZXMiLCJuYW1lIjoidXNlcjAzIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDM2MDY5MzcsImV4cCI6MTc0MzYxMDUzN30.Wppa3wP4jdajEJouyl-p-L78B-9_hPdUjGO-Yze7UPA
