@@ -5,6 +5,7 @@ const FinalExam = require('./models/FinalExam');
 const Attempt = require('./models/Attempt');
 const User = require('./models/User');
 const authMiddleware = require('./middleware/auth'); // Ajusta si está en otra ruta
+const PDFDocument = require('pdfkit');
 
 // GET /final-exam/active
 router.get('/active', authMiddleware, async (req, res) => {
@@ -59,6 +60,47 @@ router.get('/my-latest-attempt', authMiddleware, async (req, res) => {
     res.json({ attempt: latestAttempt || null });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener intento' });
+  }
+});
+
+// GET /final-exam/diploma/:attemptId
+router.get('/diploma/:attemptId', authMiddleware, async (req, res) => {
+  try {
+    const { attemptId } = req.params;
+    const attempt = await Attempt.findById(attemptId).populate('userId');
+
+    if (!attempt || !attempt.passed) {
+      return res.status(403).json({ error: 'Examen no aprobado o intento no válido.' });
+    }
+
+    const user = attempt.userId;
+
+    // Configurar headers de PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="diploma.pdf"');
+
+    // Crear documento PDF
+    const doc = new PDFDocument();
+    doc.pipe(res);
+
+    doc.fontSize(24).text('DIPLOMA DE APROVECHAMIENTO', { align: 'center' });
+    doc.moveDown(2);
+
+    doc.fontSize(16).text(`Otorgado a: ${user.name} ${user.firstSurname} ${user.secondSurname}`, { align: 'center' });
+    doc.moveDown();
+    doc.text(`Por haber superado satisfactoriamente la formación.`, { align: 'center' });
+    doc.moveDown();
+    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, { align: 'center' });
+
+    doc.end();
+
+    // Marcar que ya se ha emitido el diploma
+    attempt.diplomaIssued = true;
+    await attempt.save();
+
+  } catch (error) {
+    console.error("Error generando el diploma:", error);
+    res.status(500).json({ error: 'No se pudo generar el diploma.' });
   }
 });
 
