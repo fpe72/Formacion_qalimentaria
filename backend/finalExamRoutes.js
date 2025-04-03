@@ -23,15 +23,33 @@ router.post('/start-attempt', authMiddleware, async (req, res) => {
     const { examId } = req.body;
     if (!examId) return res.status(400).json({ error: 'Falta examId.' });
 
-    const attempt = new Attempt({
-      userId: req.user._id, // ✅ ID real del usuario autenticado
-      examId,
-      status: 'in-progress',
-      startTime: new Date(),
-    });
-    await attempt.save();
 
-    res.json({ attemptId: attempt._id });
+
+    // 1. Buscar intentos anteriores fallidos
+      const failedAttempts = await Attempt.find({
+        userId: req.user._id,
+        examId,
+        passed: false,
+        status: 'finished',
+      }).sort({ endTime: -1 });
+
+      if (failedAttempts.length >= 2) {
+        return res.status(403).json({ error: 'Has agotado tus 2 intentos. Debes repetir la formación.' });
+      }
+
+     // 2. Crear nuevo intento
+      const attempt = new Attempt({
+        userId: req.user._id,
+        examId,
+        status: 'in-progress',
+        startTime: new Date(),
+      });
+
+await attempt.save();
+res.json({ attemptId: attempt._id });
+
+
+
   } catch (error) {
     console.error("❌ Error al iniciar intento:", error); // Añadido
     res.status(500).json({ error: 'No se pudo iniciar el intento.' });
