@@ -1,5 +1,3 @@
-// backend/models/Attempt.js
-
 const mongoose = require('mongoose');
 
 const attemptSchema = new mongoose.Schema({
@@ -30,7 +28,11 @@ const attemptSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  endTime: Date
+  endTime: Date,
+  diplomaIssued: {               // Campo NUEVO propuesto
+    type: Boolean,
+    default: false
+  }
 });
 
 module.exports = mongoose.model('Attempt', attemptSchema);
