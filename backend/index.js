@@ -30,6 +30,9 @@ app.use(cors());
 app.options('*', cors());
 app.use('/companies', companyRoutes);
 
+const finalExamRoutes = require('./finalExamRoutes');
+app.use('/final-exam', finalExamRoutes);
+
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbackSecret';
 
@@ -122,10 +125,11 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Credenciales inválidas' });
     }
     const token = jwt.sign(
-      { email: user.email, name: user.name, role: user.role },
+      { _id: user._id, email: user.email, name: user.name, role: user.role },
       JWT_SECRET,
       { expiresIn: '1h' }
     );
+    
     return res.status(200).json({ message: 'Login exitoso', token });
   } catch (error) {
     return res.status(500).json({ message: 'Error en el servidor' });

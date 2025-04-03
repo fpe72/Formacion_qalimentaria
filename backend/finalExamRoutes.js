@@ -33,6 +33,7 @@ router.post('/start-attempt', authMiddleware, async (req, res) => {
 
     res.json({ attemptId: attempt._id });
   } catch (error) {
+    console.error("❌ Error al iniciar intento:", error); // Añadido
     res.status(500).json({ error: 'No se pudo iniciar el intento.' });
   }
 });
@@ -41,6 +42,9 @@ router.post('/start-attempt', authMiddleware, async (req, res) => {
 router.post('/end-attempt', authMiddleware, async (req, res) => {
   try {
     let { attemptId, score, totalQuestions } = req.body;
+
+    // Añadido para depuración
+    console.log("Datos recibidos del frontend:", { attemptId, score, totalQuestions });
 
     score = Number(score);
     totalQuestions = Number(totalQuestions);
