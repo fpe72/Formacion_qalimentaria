@@ -173,6 +173,39 @@ const FinalExam = () => {
     }
   };
 
+  const downloadDiploma = async () => {
+    try {
+      const token = localStorage.getItem('token');
+  
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/final-exam/diploma/${attemptId}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (!response.ok) throw new Error('Error al generar el diploma.');
+  
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+  
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'diploma.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error(error);
+      alert('No se pudo descargar el diploma.');
+    }
+  };
+  
+
+
   const handleAnswer = (selectedIndex) => {
     const updated = [...answers];
     updated[currentQuestion] = selectedIndex;
@@ -243,12 +276,15 @@ const FinalExam = () => {
       <div className="text-center mt-10">
         <h2 className="text-2xl font-bold text-green-700">✅ Ya has aprobado el examen final</h2>
         <p className="mt-4">No es necesario repetirlo.</p>
-        <button
-          className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg"
-          disabled
+
+
+
+         <button
+        onClick={downloadDiploma}
+        className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
         >
-          Descargar diploma (próximamente)
-        </button>
+        Descargar diploma
+       </button>
       </div>
     );
   }
@@ -286,7 +322,7 @@ const FinalExam = () => {
   
         {/* BOTÓN PARA COMENZAR */}
         <button
-  onClick={async () => {
+          onClick={async () => {
     if (retryDeadline && new Date() > retryDeadline) {
       const confirmReset = window.confirm('⏱ El tiempo para repetir el examen ha expirado.\n¿Deseas reiniciar la formación ahora?');
       if (confirmReset) {
@@ -330,9 +366,18 @@ const FinalExam = () => {
               Has acertado <strong>{score}</strong> de <strong>{questionCount}</strong> preguntas.
             </p>
             <p className="text-gray-800 text-lg">Resultado: <strong>{percentage}%</strong></p>
-            <button className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg" disabled>
-              Descargar diploma (próximamente)
+           
+           
+            <button
+            onClick={downloadDiploma}
+            className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+            >
+            Descargar diploma
             </button>
+
+
+
+
           </>
         ) : (
           <>
