@@ -8,6 +8,7 @@ function ModulesView() {
   const [completedModules, setCompletedModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [hasPassedFinalExam, setHasPassedFinalExam] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +48,20 @@ function ModulesView() {
         const progressData = await progressResponse.json();
         setCompletedModules(progressData.map(p => p.module?._id));
 
+        // Verificar si ha aprobado el examen final
+        try {
+          const finalRes = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/my-latest-attempt`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const finalData = await finalRes.json();
+          if (finalData.attempt && finalData.attempt.passed) {
+            setHasPassedFinalExam(true);
+          }
+        } catch (err) {
+          console.error('Error al verificar el examen final:', err);
+        }
+
         setLoading(false);
       } catch (err) {
         console.error('Error al cargar módulos:', err);
@@ -73,6 +88,18 @@ function ModulesView() {
           <h2 className="text-2xl font-bold text-primary">
             Bienvenido, {auth.user.name}
           </h2>
+        </div>
+      )}
+
+      {/* Botón para descargar diploma si ya aprobó */}
+      {hasPassedFinalExam && (
+        <div className="text-center mb-6">
+          <a
+            href="/final-exam"
+            className="inline-block px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+          >
+            🎓 Descargar diploma
+          </a>
         </div>
       )}
 

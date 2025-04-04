@@ -1,5 +1,7 @@
 // frontend/src/pages/FinalExam.js
 import React, { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
+
 
 const FinalExam = () => {
   const [exam, setExam] = useState(null);
@@ -82,6 +84,29 @@ const FinalExam = () => {
 
     fetchExam();
   }, []);
+
+  useEffect(() => {
+    const fetchLatestAttempt = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/final-exam/my-latest-attempt`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+  
+        if (res.data.attempt && res.data.attempt.passed) {
+          setAttemptId(res.data.attempt._id);       // esto ya lo usas para generar el diploma
+          setExamPassed(true);                      // fuerza la vista del botón
+        }
+      } catch (err) {
+        console.error("No se pudo obtener el último intento aprobado:", err);
+      }
+    };
+  
+    fetchLatestAttempt();
+  }, []);
+  
 
   useEffect(() => {
     if (!retryDeadline) return;
