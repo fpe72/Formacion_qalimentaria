@@ -4,8 +4,13 @@ const router = express.Router();
 const FinalExam = require('./models/FinalExam');
 const Attempt = require('./models/Attempt');
 const User = require('./models/User');
+const Company = require('./models/Company');
 const authMiddleware = require('./middleware/auth'); // Ajusta si está en otra ruta
 const PDFDocument = require('pdfkit');
+
+const moment = require("moment");
+const fs = require("fs");
+const path = require("path")
 
 // GET /final-exam/active
 router.get('/active', authMiddleware, async (req, res) => {
@@ -64,43 +69,117 @@ router.get('/my-latest-attempt', authMiddleware, async (req, res) => {
 });
 
 // GET /final-exam/diploma/:attemptId
-router.get('/diploma/:attemptId', authMiddleware, async (req, res) => {
+router.get("/diploma/:attemptId", authMiddleware, async (req, res) => {
   try {
-    const { attemptId } = req.params;
-    const attempt = await Attempt.findById(attemptId).populate('userId');
+    const attempt = await Attempt.findById(req.params.attemptId).populate("userId examId");
 
     if (!attempt || !attempt.passed) {
-      return res.status(403).json({ error: 'Examen no aprobado o intento no válido.' });
+      return res.status(403).json({ message: "Este intento no ha sido aprobado." });
     }
 
     const user = attempt.userId;
+    const company = await Company.findById(user.company);
 
-    // Configurar headers de PDF
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="diploma.pdf"');
+    const doc = new PDFDocument({ size: "A4", layout: "landscape" });
 
-    // Crear documento PDF
-    const doc = new PDFDocument();
-    doc.pipe(res);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=diploma.pdf");
 
-    doc.fontSize(24).text('DIPLOMA DE APROVECHAMIENTO', { align: 'center' });
-    doc.moveDown(2);
+    // Colores corporativos
+    const colorTurquesa = "#0f9aa9";
+    const colorVerde = "#76b82a";
+    const colorGris = "#6f7c7c";
 
-    doc.fontSize(16).text(`Otorgado a: ${user.name} ${user.firstSurname} ${user.secondSurname}`, { align: 'center' });
-    doc.moveDown();
-    doc.text(`Por haber superado satisfactoriamente la formación.`, { align: 'center' });
-    doc.moveDown();
-    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, { align: 'center' });
+    // Fondo blanco
+    doc.rect(0, 0, doc.page.width, doc.page.height).fill("#ffffff");
+
+    // Marca de agua (texto muy claro)
+    doc
+      .fontSize(60)
+      .fillColor("#eeeeee")
+      .rotate(-30, { origin: [300, 200] })
+      .text("CERTIFICADO Q-ALIMENTARIA", 100, 200, { opacity: 0.2 });
+
+    doc.rotate(0); // restaurar rotación
+
+    // Logo
+    doc.image(path.join(__dirname, "assets/logo.png"), 40, 40, { width: 100 });
+
+    // Título principal
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(28)
+      .fillColor(colorTurquesa)
+      .text("DIPLOMA", { align: "center", lineGap: 10 });
+
+    // Nombre completo
+    doc
+      .moveDown(0.5)
+      .font("Helvetica-Bold")
+      .fontSize(34)
+      .fillColor("#000000")
+      .text(`${user.name} ${user.firstSurname} ${user.secondSurname}`, { align: "center" });
+
+    // DNI
+    doc
+      .moveDown(0.2)
+      .font("Helvetica")
+      .fontSize(16)
+      .text(`DNI: ${user.dni}`, { align: "center" });
+
+    // Texto descriptivo
+    doc
+      .moveDown(0.5)
+      .fontSize(16)
+      .fillColor("#000000")
+      .text(`Por haber completado la formación de Seguridad Alimentaria`, { align: "center" });
+
+    // Curso
+    doc
+      .moveDown(0.2)
+      .font("Helvetica-Bold")
+      .fontSize(20)
+      .fillColor(colorTurquesa)
+      .text("BUENAS PRÁCTICAS EN LA SEGURIDAD ALIMENTARIA", { align: "center" });
+
+    // Empresa
+    doc
+      .moveDown(0.5)
+      .font("Helvetica")
+      .fontSize(14)
+      .fillColor(colorGris)
+      .text(`Empresa: ${company.name}`, { align: "center" });
+
+    // Firma
+    doc.image(path.join(__dirname, "assets/firma-eva.png"), 500, 320, { width: 150 });
+
+    doc
+      .font("Helvetica")
+      .fontSize(12)
+      .fillColor("#000000")
+      .text("Eva María Martín Cruz", 500, 380)
+      .text("Gerente de Q-Alimentaria", 500, 395)
+      .text("Agrónoma y Licenciada en Tecnología de los Alimentos", 500, 410);
+
+    // Fecha
+    const fecha = moment(attempt.endTime || new Date()).format("D [de] MMMM [de] YYYY");
+    doc
+      .fontSize(12)
+      .fillColor("#000000")
+      .text(`Fecha de emisión: ${fecha}`, 40, 400);
+
+    // Número de serie
+    const serial = attempt._id.toString().slice(-6).toUpperCase();
+    doc
+      .fontSize(10)
+      .fillColor("#555555")
+      .text(`N.º de serie: ${serial}`, 40, 415);
 
     doc.end();
-
-    // Marcar que ya se ha emitido el diploma
-    attempt.diplomaIssued = true;
-    await attempt.save();
-
-  } catch (error) {
-    console.error("Error generando el diploma:", error);
-    res.status(500).json({ error: 'No se pudo generar el diploma.' });
+    doc.pipe(res);
+  } catch (err) {
+    console.error("Error generando diploma:", err);
+    res.status(500).json({ message: "Error generando diploma" });
   }
 });
 
