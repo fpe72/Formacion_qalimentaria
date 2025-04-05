@@ -200,32 +200,38 @@ const FinalExam = () => {
 
   const downloadDiploma = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
   
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/final-exam/diploma/${attemptId}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
   
-      if (!response.ok) throw new Error('Error al generar el diploma.');
+      if (!response.ok) throw new Error("Error al generar el diploma.");
   
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
   
-      const link = document.createElement('a');
+      // 🔐 Forzamos el tipo MIME manualmente para evitar errores
+      const secureBlob = new Blob([blob], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(secureBlob);
+  
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', 'diploma.pdf');
+      link.setAttribute("download", "diploma.pdf");
       document.body.appendChild(link);
       link.click();
       link.remove();
+  
+      // Limpieza opcional
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
-      alert('No se pudo descargar el diploma.');
+      alert("No se pudo descargar el diploma.");
     }
   };
   
