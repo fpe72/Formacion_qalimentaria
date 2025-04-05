@@ -80,68 +80,62 @@ router.get("/diploma/:attemptId", authMiddleware, async (req, res) => {
 
     const user = attempt.userId;
 
-    // Buscar si ya existe un diploma para este usuario
-    let diploma = await Diploma.findOne({ userId: user._id });
+    // Buscar diploma existente
+let diploma = await Diploma.findOne({ userId: user._id });
 
-    if (diploma) {
-      // Ya existe → devolver PDF existente
-      const pdfBuffer = require("fs").readFileSync(diploma.pdfPath);
-      res.setHeader("Content-Type", "application/pdf");
-      return res.send(pdfBuffer);
-    }
+if (!diploma) {
+  // Generar número de serie y URL de verificación
+  const serial = `QA-${user.dni}-${Date.now()}`;
+  const verificationURL = `https://tuweb.com/verificar/${serial}`;
 
-    // Generar nuevo número de serie único
-    const serial = `QA-${user.dni}-${Date.now()}`;
+  // Crear el diploma en base de datos
+  diploma = new Diploma({
+    userId: user._id,
+    examId: attempt.examId._id,
+    name: `${user.name} ${user.firstSurname} ${user.secondSurname}`,
+    dni: user.dni,
+    company: user.companyName || "Sin empresa",
+    date: new Date().toLocaleDateString(),
+    serial,
+    verificationURL
+  });
 
-   // Preparar URL de verificación
-const verificationURL = `https://tuweb.com/verificar/${serial}`;
+  await diploma.save();
+}
 
-// Generar código QR con esa URL
-const qrImagePath = path.join(__dirname, "templates", `qr_${user._id}.png`);
-await QRCode.toFile(qrImagePath, verificationURL, {
-  color: {
-    dark: '#000000',
-    light: '#ffffff',
-  },
-});
 
-// Crear PDF con datos y QR
+    // Generar QR como base64
+    const qrBase64 = await QRCode.toDataURL(diploma.verificationURL);
+
+    console.log("📦 Longitud del QR base64:", qrBase64.length);
+    console.log("📦 Fragmento inicial:", qrBase64.slice(0, 100));
+
+
+    // Preparar datos para el diploma
     const pdfBuffer = await generateDiplomaPDF({
-      name: `${user.name} ${user.firstSurname} ${user.secondSurname}`,
-      dni: user.dni,
-      company: user.companyName || "Sin empresa",
-      date: new Date().toLocaleDateString(),
-      serial,
-      verificationURL,
+      name: diploma.name,
+      dni: diploma.dni,
+      company: diploma.company,
+      date: diploma.date,
+      serial: diploma.serial,
+      verificationURL: diploma.verificationURL,
       logoSrc: "logo.png",
       firmaSrc: "firma eva.png",
-      qrSrc: qrImagePath // <- aquí va el QR real generado
+      qrSrc: qrBase64
     });
 
     if (!pdfBuffer) return res.status(500).json({ message: "Error generando el diploma" });
 
-    // Guardar el PDF localmente
-    const fs = require("fs");
-    const outputPath = path.join(__dirname, "templates", `diploma_${user._id}.pdf`);
-    fs.writeFileSync(outputPath, pdfBuffer);
-
-    // Guardar el diploma en la base de datos
-    diploma = new Diploma({
-      userId: user._id,
-      examId: attempt.examId._id,
-      serial,
-      pdfPath: outputPath
-    });
-    await diploma.save();
-
-    // Devolver el PDF generado
     res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=diploma.pdf");
+    console.log("📄 Tamaño del PDF en memoria:", pdfBuffer?.length);
     res.send(pdfBuffer);
 
   } catch (error) {
-    console.error("❌ Error generando/consultando diploma:", error);
-    res.status(500).json({ message: "Error generando/consultando diploma" });
+    console.error("❌ Error generando diploma:", error);
+    res.status(500).json({ message: "Error interno generando diploma" });
   }
 });
+
 
 module.exports = router;
