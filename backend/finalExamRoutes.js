@@ -11,6 +11,7 @@ const generateDiplomaPDF = require("./utils/generateDiploma"); // al principio d
 const moment = require("moment");
 const fs = require("fs");
 const path = require("path")
+const Diploma = require('./models/Diploma'); // al principio del archivo
 
 // GET /final-exam/active
 router.get('/active', authMiddleware, async (req, res) => {
@@ -71,68 +72,64 @@ router.get('/my-latest-attempt', authMiddleware, async (req, res) => {
 // GET /final-exam/diploma/:attemptId
 router.get("/diploma/:attemptId", authMiddleware, async (req, res) => {
   try {
-    console.log("🟢 Entrando en /diploma/:attemptId", req.params.attemptId);
     const attempt = await Attempt.findById(req.params.attemptId).populate("userId examId");
-    if (!attempt) {
-      console.error("❌ Intento no encontrado");
-      return res.status(404).json({ message: "Intento no encontrado" });
-    }
-    
-    if (!attempt.passed) {
-      console.warn("⚠️ Intento no aprobado");
-      return res.status(403).json({ message: "Intento no aprobado" });
-    }
-    
 
-
-    if (!attempt || !attempt.passed) {
-      return res.status(403).json({ message: "Este intento no ha sido aprobado." });
-    }
+    if (!attempt) return res.status(404).json({ message: "Intento no encontrado" });
+    if (!attempt.passed) return res.status(403).json({ message: "Intento no aprobado" });
 
     const user = attempt.userId;
-    const company = await Company.findById(user.company);
 
-    const serial = attempt._id.toString().slice(-6).toUpperCase();
-    const date = moment(attempt.endTime || new Date()).format("D [de] MMMM [de] YYYY");
-    const verificationURL = `https://certificados.q-alimentaria.com/${serial}`;
-    const qrCodeURL = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(verificationURL)}&size=150x150`;
+    // Buscar si ya existe un diploma para este usuario
+    let diploma = await Diploma.findOne({ userId: user._id });
 
-    // Leer imágenes como base64
-    const logoBuffer = fs.readFileSync(path.join(__dirname, "assets/logo.png"));
-    const firmaBuffer = fs.readFileSync(path.join(__dirname, "assets/firma-eva.png"));
+    if (diploma) {
+      // Ya existe → devolver PDF existente
+      const pdfBuffer = require("fs").readFileSync(diploma.pdfPath);
+      res.setHeader("Content-Type", "application/pdf");
+      return res.send(pdfBuffer);
+    }
 
-    const data = {
+    // Generar nuevo número de serie único
+    const serial = `QA-${user.dni}-${Date.now()}`;
+
+    // Crear PDF
+    const generateDiplomaPDF = require("./utils/generateDiploma");
+    const pdfBuffer = await generateDiplomaPDF({
       name: `${user.name} ${user.firstSurname} ${user.secondSurname}`,
       dni: user.dni,
-      company: company.name,
-      date: date,
-      serial: `QA-${serial}`,
-      verificationURL,
-      logoSrc: `data:image/png;base64,${logoBuffer.toString('base64')}`,
-      firmaSrc: `data:image/png;base64,${firmaBuffer.toString('base64')}`,
-      qrSrc: qrCodeURL
-    };
+      company: user.companyName || "Sin empresa",
+      date: new Date().toLocaleDateString(),
+      serial,
+      verificationURL: `https://tuweb.com/verificar/${serial}`,
+      logoSrc: "logo.png",
+      firmaSrc: "firma eva.png",
+      qrSrc: "qr temporal.png"
+    });
 
-    console.log("📦 Datos que se pasan a generateDiplomaPDF:", data);
+    if (!pdfBuffer) return res.status(500).json({ message: "Error generando el diploma" });
 
-    const pdfBuffer = await generateDiplomaPDF(data);
+    // Guardar el PDF localmente
+    const path = require("path");
+    const fs = require("fs");
+    const outputPath = path.join(__dirname, "templates", `diploma_${user._id}.pdf`);
+    fs.writeFileSync(outputPath, pdfBuffer);
 
-    if (!pdfBuffer || !Buffer.isBuffer(pdfBuffer)) {
-      console.error("❌ PDF buffer inválido o vacío");
-      return res.status(500).json({ message: "Error generando PDF (buffer vacío)" });
-    }
-    
+    // Guardar el diploma en la base de datos
+    diploma = new Diploma({
+      userId: user._id,
+      examId: attempt.examId._id,
+      serial,
+      pdfPath: outputPath
+    });
+    await diploma.save();
 
-    if (!pdfBuffer || !Buffer.isBuffer(pdfBuffer)) {
-      return res.status(500).json({ message: "Error generando PDF (buffer vacío)" });
-    }
-
+    // Devolver el PDF generado
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=diploma.pdf");
     res.send(pdfBuffer);
-  } catch (err) {
-    console.error("❌ Error inesperado generando diploma:", err);
-    res.status(500).json({ message: "Error generando diploma" });
+
+  } catch (error) {
+    console.error("❌ Error generando/consultando diploma:", error);
+    res.status(500).json({ message: "Error generando/consultando diploma" });
   }
 });
 
