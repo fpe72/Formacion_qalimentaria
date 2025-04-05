@@ -129,7 +129,7 @@ if (!diploma) {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "inline; filename=diploma.pdf");
     console.log("📄 Tamaño del PDF en memoria:", pdfBuffer?.length);
-    res.send(pdfBuffer);
+    res.end(pdfBuffer);
 
   } catch (error) {
     console.error("❌ Error generando diploma:", error);

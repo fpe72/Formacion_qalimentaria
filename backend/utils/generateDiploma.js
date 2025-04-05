@@ -38,6 +38,9 @@ async function generateDiplomaPDF({ name, dni, company, date, serial, verificati
     
     await browser.close();
 
+    fs.writeFileSync("debug_output.pdf", pdfBuffer);
+    console.log("📥 PDF guardado como debug_output.pdf");
+
     // 3. Devolver el buffer del PDF
     return pdfBuffer;
   } catch (error) {
