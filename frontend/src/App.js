@@ -15,6 +15,7 @@ import FinalExamList from './pages/FinalExamList'; // ✅ Importa el componente
 import EditFinalExam from './pages/EditFinalExam';
 import { jwtDecode } from 'jwt-decode';
 import CreateCompany from './pages/CreateCompany';
+import LegalPage from './pages/LegalPage'; // ✅ NUEVA IMPORTACIÓN
 
 
 // Ruta protegida mejorada para examen final
@@ -106,6 +107,7 @@ function App() {
           <Route path="/progress" element={<ProgressView />} />
           <Route path="/create-module" element={<CreateModule />} />
           <Route path="/admin/create-company" element={<CreateCompany />} />
+          <Route path="/legal/:file" element={<LegalPage />} />
           <Route 
             path="/final-exam" 
             element={

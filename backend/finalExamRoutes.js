@@ -138,4 +138,24 @@ if (!diploma) {
 });
 
 
+// Nueva ruta para servir HTMLs legales
+router.get("/api/legal/:filename", (req, res) => {
+  const { filename } = req.params;
+
+  // Solo permitimos servir estos archivos
+  const allowedFiles = [
+    "aviso-legal.html",
+    "politica-privacidad.html",
+    "politica-cookies.html"
+  ];
+
+  if (!allowedFiles.includes(filename)) {
+    return res.status(404).send("Documento legal no encontrado.");
+  }
+
+  const filePath = path.join(__dirname, "../templates/legal", filename);
+  res.sendFile(filePath);
+});
+
+
 module.exports = router;

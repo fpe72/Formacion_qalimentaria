@@ -33,8 +33,11 @@ function Layout({ children }) {
       </main>
 
       {/* Footer fijo */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-gray-200 text-center py-4">
-        &copy; {new Date().getFullYear()} Q-Alimentaria. Todos los derechos reservados.
+      <footer className="fixed bottom-0 left-0 right-0 bg-gray-200 text-center py-4 text-sm text-gray-600">
+        &copy; {new Date().getFullYear()} Q-Alimentaria. Todos los derechos reservados. |
+        <a href="/legal/aviso-legal" className="text-blue-600 hover:underline ml-2">Aviso legal</a> |
+        <a href="/legal/politica-privacidad" className="text-blue-600 hover:underline ml-2">Política de privacidad</a> |
+        <a href="/legal/politica-cookies" className="text-blue-600 hover:underline ml-2">Política de cookies</a>
       </footer>
 
       {/* Espaciador para compensar el footer fijo */}
