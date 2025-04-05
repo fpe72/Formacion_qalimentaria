@@ -12,6 +12,7 @@ const moment = require("moment");
 const fs = require("fs");
 const path = require("path")
 const Diploma = require('./models/Diploma'); // al principio del archivo
+const QRCode = require("qrcode"); // al principio del archivo
 
 // GET /final-exam/active
 router.get('/active', authMiddleware, async (req, res) => {
@@ -92,24 +93,34 @@ router.get("/diploma/:attemptId", authMiddleware, async (req, res) => {
     // Generar nuevo número de serie único
     const serial = `QA-${user.dni}-${Date.now()}`;
 
-    // Crear PDF
-    const generateDiplomaPDF = require("./utils/generateDiploma");
+   // Preparar URL de verificación
+const verificationURL = `https://tuweb.com/verificar/${serial}`;
+
+// Generar código QR con esa URL
+const qrImagePath = path.join(__dirname, "templates", `qr_${user._id}.png`);
+await QRCode.toFile(qrImagePath, verificationURL, {
+  color: {
+    dark: '#000000',
+    light: '#ffffff',
+  },
+});
+
+// Crear PDF con datos y QR
     const pdfBuffer = await generateDiplomaPDF({
       name: `${user.name} ${user.firstSurname} ${user.secondSurname}`,
       dni: user.dni,
       company: user.companyName || "Sin empresa",
       date: new Date().toLocaleDateString(),
       serial,
-      verificationURL: `https://tuweb.com/verificar/${serial}`,
+      verificationURL,
       logoSrc: "logo.png",
       firmaSrc: "firma eva.png",
-      qrSrc: "qr temporal.png"
+      qrSrc: qrImagePath // <- aquí va el QR real generado
     });
 
     if (!pdfBuffer) return res.status(500).json({ message: "Error generando el diploma" });
 
     // Guardar el PDF localmente
-    const path = require("path");
     const fs = require("fs");
     const outputPath = path.join(__dirname, "templates", `diploma_${user._id}.pdf`);
     fs.writeFileSync(outputPath, pdfBuffer);
