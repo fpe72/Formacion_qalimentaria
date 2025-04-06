@@ -409,7 +409,7 @@ app.post('/final-exam/start-attempt', authMiddleware, async (req, res) => {
     if (failedAttempts.length === 1) {
       const firstAttemptTime = new Date(failedAttempts[0].endTime);
       const now = new Date();
-      const retryDeadline = new Date(firstAttemptTime.getTime() + 1 * 60 * 1000); // 1 minuto
+      const retryDeadline = new Date(firstAttemptTime.getTime() + 72 * 60 * 60 * 1000); // 72 horas
 
       const timeLeftMs = retryDeadline - now;
 

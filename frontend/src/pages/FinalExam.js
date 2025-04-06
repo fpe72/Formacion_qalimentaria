@@ -48,7 +48,7 @@ const FinalExam = () => {
   
       if (res.ok) {
         const data = await res.json();
-        const deadline = new Date(new Date(data.endTime).getTime() + 1 * 60 * 1000); // 72h → usar 1min para pruebas
+        const deadline = new Date(new Date(data.endTime).getTime() + 72 * 60 * 60 * 1000); // 72h 
         setRetryDeadline(deadline);
         localStorage.setItem('retryDeadline', deadline.toISOString());
       }
@@ -333,7 +333,7 @@ const FinalExam = () => {
             <li>📌 El examen contiene <strong>{exam.questions.length}</strong> preguntas tipo test.</li>
             <li>✅ Debes acertar al menos el <strong>75%</strong> para aprobar.</li>
             <li>🎯 Solo dispones de <strong>2 intentos</strong>.</li>
-            <li>⏳ Si suspendes el primer intento, tendrás <strong>1 minuto</strong> para repetirlo (modo prueba).</li>
+            <li>⏳ Si suspendes el primer intento,<strong> dispones de 72 horas</strong> para realizar el segundo intento. Si no lo haces en ese plazo, deberás repetir toda la formación.</li>
             <li>⚠️ Si actualizas la página durante el examen, perderás tu progreso.</li>
             <li>🎓 Una vez aprobado, no podrás repetir el examen.</li>
           </ul>
@@ -418,7 +418,7 @@ const FinalExam = () => {
             </p>
             <p className="text-gray-800 text-lg">Resultado: <strong>{percentage}%</strong></p>
             <p className="mt-2 text-gray-700">
-              Tienes <strong>1 minuto</strong> para repetir el examen. Si no lo haces a tiempo, tendrás que repetir toda la formación.
+              Tienes <strong>72 horas (3 días)</strong> para repetir el examen. Si no lo haces a tiempo, tendrás que repetir toda la formación.
             </p>
             <button onClick={resetExam} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded">Repetir Examen</button>
           </>
