@@ -299,6 +299,15 @@ const FinalExam = () => {
     setAttemptId(null);
   };
 
+  const formatTime = (seconds) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+  
+    const pad = (num) => String(num).padStart(2, '0');
+    return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+  };
+  
   if (loading) return <p className="text-center mt-10">Cargando examen...</p>;
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
 
@@ -346,10 +355,11 @@ const FinalExam = () => {
   
         {/* TIEMPO RESTANTE PARA REPETIR */}
         {retryDeadline && (
-          <p className="text-base text-red-600">
-            ⏳ Tiempo restante para repetir el examen: <strong>{Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}</strong> minutos
-          </p>
-        )}
+        <p className="text-base text-red-600">
+          ⏳ Tiempo restante para repetir el examen: <strong>{formatTime(timeLeft)}</strong> (HH:MM:SS)
+        </p>
+      )}
+
   
         {/* BOTÓN PARA COMENZAR */}
         <button
