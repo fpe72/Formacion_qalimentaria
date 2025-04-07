@@ -1,0 +1,11 @@
+[build]
+  command = "echo 'Docker build will handle this'"
+  publish = "dist"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
