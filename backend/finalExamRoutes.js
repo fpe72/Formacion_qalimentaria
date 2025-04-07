@@ -182,4 +182,31 @@ router.post('/diploma/upload', upload.single('pdf'), (req, res) => {
   res.status(200).json({ message: 'Archivo recibido correctamente', filename });
 });
 
+// Ruta GET para descargar el diploma y eliminarlo después
+router.get('/diploma/download/:filename', async (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join('/tmp', filename);
+
+  // Verificar si el archivo existe
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'El archivo no existe o ya fue eliminado.' });
+  }
+
+  res.download(filePath, 'diploma.pdf', (err) => {
+    if (err) {
+      console.error('❌ Error al enviar el archivo:', err);
+      return res.status(500).json({ error: 'Error al descargar el archivo.' });
+    }
+
+    // Eliminar el archivo después de enviarlo
+    fs.unlink(filePath, (unlinkErr) => {
+      if (unlinkErr) {
+        console.error('⚠️ Error al borrar el archivo:', unlinkErr);
+      } else {
+        console.log(`🧹 Archivo eliminado: ${filename}`);
+      }
+    });
+  });
+});
+
 module.exports = router;
