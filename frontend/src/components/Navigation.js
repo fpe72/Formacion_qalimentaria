@@ -57,6 +57,27 @@ function Navigation() {
               Cerrar Sesión
             </button>
           )}
+        
+        </div>
+
+        {/* Versión móvil del menú de autenticación */}
+        <div className="flex flex-col md:hidden items-center space-y-2 mt-4">
+          {!isLoggedIn ? (
+            <>
+              <Link to="/login" className="px-4 py-2 bg-blue-500 text-white rounded w-full max-w-xs text-center">Login</Link>
+              <Link to="/register" className="px-4 py-2 bg-green-500 text-white rounded w-full max-w-xs text-center">Register</Link>
+            </>
+          ) : (
+            <>
+              {isAdmin && <Link to="/admin" className="text-gray-700 text-center w-full">Panel admin</Link>}
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-500 text-white rounded w-full max-w-xs"
+              >
+                Cerrar Sesión
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>
