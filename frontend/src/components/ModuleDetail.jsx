@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 // Importa tu logo. Ajusta la ruta según tu estructura real.
-import logo from '/workspaces/Formacion_qalimentaria/frontend/src/assets/images/logo.png';
+import logo from '../assets/images/logo.png';
 import './ModuleDetail.css';
 
 // Datos simulados para el ejemplo
