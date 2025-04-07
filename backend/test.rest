@@ -60,10 +60,10 @@ POST https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/login
 Content-Type: application/json
 
 {
-  "email": "user02@user02.es",
-  "password": "22222222"
+  "email": "test02@test02.es",
+  "password": "2222"
 }
 
 ### Simular formación completa para usuario autenticado
 POST http://localhost:5000/progress/fake-complete-all
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2YzYmJhNWEyNWFhODkxZGRhODcyNzciLCJlbWFpbCI6InVzZXIwMkB1c2VyMDIuZXMiLCJuYW1lIjoidXNlcjAyIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDQwMjY1ODIsImV4cCI6MTc0NDAzMDE4Mn0.qlbnXvdwA1e1D_oCtaAOYXS97aR2KZEdOPJ9s8ky88g
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Y0MjNhMGQ5ZGE3MjBlOWQxNTE1NDYiLCJlbWFpbCI6InRlc3QwMkB0ZXN0MDIuZXMiLCJuYW1lIjoidGVzdDAyIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDQwNTMyMTksImV4cCI6MTc0NDA1NjgxOX0.NCMXJTieUvvnJOaE93cXLdbp_dZzfRQ0k5zxKoRwL-0
