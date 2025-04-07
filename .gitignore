@@ -1,17 +1,16 @@
-# Evita subir dependencias y entornos locales
+# Dependencias del sistema
 node_modules/
-.env
 
-# Archivos del frontend
+# Carpetas de build del frontend
+build/
 frontend/build/
-frontend/.env
 
-# Archivos del backend
+# Archivos de entorno (nunca deben subirse)
+.env
+frontend/.env
 backend/.env
 
 # Archivos del sistema/editor
 .DS_Store
-*.log
 .vscode/
-backend/.env
-backend/.env
+*.log
