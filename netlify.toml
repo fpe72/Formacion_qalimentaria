@@ -1,5 +1,0 @@
-[build]
-  command = "echo 'Docker will handle this build'"
-  publish = "."
-
-# No necesitas funciones ni redirects en un backend puro
