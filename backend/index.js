@@ -25,6 +25,9 @@ const Company = require('./models/Company');
 const Attempt = require('./models/Attempt');
 const PORT = process.env.PORT || 5000;
 
+app.get("/", (req, res) => {
+  res.send("✅ Backend de Formación Qalimentaria activo.");
+});
 
 const app = express();
 app.use(express.json());
