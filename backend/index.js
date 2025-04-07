@@ -23,6 +23,8 @@ const Company = require('./models/Company');
 // MOD: Importamos Attempt, que debe referir a 'FinalExam' en su examId
 // (asegúrate de que en Attempt.js tengas ref: 'FinalExam')
 const Attempt = require('./models/Attempt');
+const PORT = process.env.PORT || 5000;
+
 
 const app = express();
 app.use(express.json());
