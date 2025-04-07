@@ -170,7 +170,7 @@ AuthContext.js: gestiona la autenticación global (token, usuario, login/logout)
 🧩 Hooks personalizados (src/hooks/)
 useIdleTimer.js: hook para controlar la inactividad y cerrar sesión automáticamente si el usuario está inactivo.
 
-🔄 FLUJO FUNCIONAL DEL FRONTEND
+🔄 FLUJOS FUNCIONAL DEL FRONTEND
 🧑‍💼 Registro / Login
 Register.js y Login.js envían peticiones a /register y /login.
 
