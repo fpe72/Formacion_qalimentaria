@@ -157,5 +157,29 @@ router.get("/api/legal/:filename", (req, res) => {
   res.sendFile(filePath);
 });
 
+const multer = require('multer');
+
+// Configurar almacenamiento temporal en /tmp (Render permite escribir ahí)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, '/tmp');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `diploma-${uniqueSuffix}.pdf`);
+  }
+});
+
+const upload = multer({ storage });
+
+// Ruta POST /diploma/upload
+router.post('/diploma/upload', upload.single('pdf'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No se ha subido ningún archivo' });
+  }
+
+  const filename = req.file.filename;
+  res.status(200).json({ message: 'Archivo recibido correctamente', filename });
+});
 
 module.exports = router;
