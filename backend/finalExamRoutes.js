@@ -209,4 +209,29 @@ router.get('/diploma/download/:filename', async (req, res) => {
   });
 });
 
+router.post('/diploma/generate', async (req, res) => {
+  try {
+    const { name, dni, company, date, serial, verificationURL } = req.body;
+
+    if (!name || !dni || !company || !date || !serial || !verificationURL) {
+      return res.status(400).json({ error: 'Faltan datos para generar el diploma.' });
+    }
+
+    // Llama a la función que ya tienes en backend/utils/generateDiploma.js
+    const filename = await generateDiplomaPDF({
+      name,
+      dni,
+      company,
+      date,
+      serial,
+      verificationURL
+    });
+
+    return res.status(200).json({ filename });
+  } catch (error) {
+    console.error("❌ Error generando diploma:", error);
+    return res.status(500).json({ error: 'Error al generar el diploma.' });
+  }
+});
+
 module.exports = router;
