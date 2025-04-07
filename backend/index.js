@@ -18,29 +18,27 @@ const Progress = require('./models/Progress');
 const FinalExam = require('./models/FinalExam');
 const companyRoutes = require('./companyRoutes');
 const Company = require('./models/Company');
-
-
-// MOD: Importamos Attempt, que debe referir a 'FinalExam' en su examId
-// (asegúrate de que en Attempt.js tengas ref: 'FinalExam')
 const Attempt = require('./models/Attempt');
-const PORT = process.env.PORT || 5000;
 
-app.get("/", (req, res) => {
-  res.send("✅ Backend de Formación Qalimentaria activo.");
-});
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.options('*', cors());
-app.use('/companies', companyRoutes);
 
+// ✅ Ruta para mantener el backend vivo con UptimeRobot
+app.get("/", (req, res) => {
+  res.send("✅ Backend de Formación Qalimentaria activo.");
+});
+
+// Rutas del proyecto
+app.use('/companies', companyRoutes);
 const finalExamRoutes = require('./finalExamRoutes');
 app.use('/final-exam', finalExamRoutes);
 
-
-
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbackSecret';
+
 
 // Middleware autenticación
 function authMiddleware(req, res, next) {
