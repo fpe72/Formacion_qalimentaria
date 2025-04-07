@@ -282,17 +282,6 @@ app.get('/final-exam/list', authMiddleware, adminMiddleware, async (req, res) =>
   }
 });
 
-// Obtener el examen activo
-app.get('/final-exam/active', authMiddleware, async (req, res) => {
-  try {
-    const activeExam = await FinalExam.findOne({ isActive: true });
-    if (!activeExam) return res.status(404).json({ message: 'No hay examen activo' });
-    res.status(200).json(activeExam);
-  } catch (error) {
-    console.error('Error obteniendo examen activo:', error);
-    res.status(500).json({ message: 'Error al obtener el examen activo' });
-  }
-});
 
 // Obtener examen por ID
 app.get('/final-exam/:id', authMiddleware, adminMiddleware, async (req, res) => {
