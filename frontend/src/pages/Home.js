@@ -23,9 +23,14 @@ function Home() {
           Regístrate Ahora
         </Link>
       )}
-      {auth.token && (
+     {auth.token && auth.user?.role === 'admin' && (
+        <div className="text-blue-700 bg-blue-100 p-4 rounded-lg mb-6 text-center shadow font-semibold">
+          Estás en modo administrador. Usa el menú para acceder a las funciones de gestión.
+        </div>
+      )}
+      {auth.token && auth.user?.role === 'student' && (
         <div className="text-white text-xl font-semibold">
-          ¡Ya estas dentro de la formación, accede a los módulos formativos!
+          ¡Ya estás dentro de la formación, accede a los módulos formativos!
         </div>
       )}
     </div>

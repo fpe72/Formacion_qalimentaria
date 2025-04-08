@@ -3,8 +3,18 @@ import { useNavigate } from 'react-router-dom';
 // Ojo: la importación de jwt-decode es un poco distinta. Normalmente es:
 // import jwtDecode from 'jwt-decode';
 import { jwtDecode } from 'jwt-decode';  // si así te funciona, déjalo
+import { useContext } from 'react';
+import AuthContext from '../context/AuthContext';
 
 function ProgressView() {
+  const { auth } = useContext(AuthContext);
+  if (auth.user?.role === 'admin') {
+    return (
+      <div className="text-center text-red-500 p-6">
+        Tu rol de administrador no requiere acceso a esta sección de formación.
+      </div>
+    );
+  } 
   const [progressRecords, setProgressRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

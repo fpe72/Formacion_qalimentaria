@@ -29,7 +29,12 @@ function Login() {
         setAuth({ token: data.token, user: decoded });
         setMessage('Login exitoso');
         // Redirigir a la vista de módulos
-        navigate('/modules');
+        if (decoded.role === 'admin') {
+          navigate('/home');
+        } else {
+          navigate('/modules');
+        }
+        
       } else {
         setMessage(data.message || 'Error en el login');
       }

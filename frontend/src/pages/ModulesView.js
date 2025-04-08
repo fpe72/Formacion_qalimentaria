@@ -4,6 +4,14 @@ import AuthContext from '../context/AuthContext';
 
 function ModulesView() {
   const { auth } = useContext(AuthContext);
+  if (auth.user?.role === 'admin') {
+    return (
+      <div className="text-center text-red-500 p-6">
+        Tu rol de administrador no requiere acceso a esta sección de formación.
+      </div>
+    );
+  }
+
   const [modules, setModules] = useState([]);
   const [completedModules, setCompletedModules] = useState([]);
   const [loading, setLoading] = useState(true);
