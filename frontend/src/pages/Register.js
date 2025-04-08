@@ -26,11 +26,12 @@ function Register() {
       return;
     }
 
-    const passwordRegex = /^[A-Za-z0-9]+$/;
+    const passwordRegex = /^[A-Za-z0-9]{6,8}$/;
     if (!passwordRegex.test(password)) {
-      setMessage('La contraseña debe contener solo caracteres alfanuméricos.');
+      setMessage('La contraseña debe tener entre 6 y 8 caracteres y solo contener letras y números.');
       return;
     }
+
 
     if (!email || !name || !firstSurname || !secondSurname || !dni || !password) {
       setMessage('Todos los campos son obligatorios.');
