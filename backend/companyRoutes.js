@@ -39,5 +39,23 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Error al obtener empresas' });
   }
 });
+// Cambiar estado activo/inactivo de una empresa (solo admin)
+router.patch('/:id/toggle', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const company = await Company.findById(req.params.id);
+
+    if (!company) {
+      return res.status(404).json({ message: 'Empresa no encontrada' });
+    }
+
+    company.active = !company.active;
+    await company.save();
+
+    res.json({ message: 'Estado actualizado correctamente', company });
+  } catch (error) {
+    console.error('Error al actualizar empresa:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
 
 module.exports = router;

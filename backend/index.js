@@ -26,6 +26,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.options('*', cors());
+app.use('/companies', companyRoutes);
+
 
 // ✅ Ruta para mantener el backend vivo con UptimeRobot
 app.get("/", (req, res) => {

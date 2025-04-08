@@ -34,7 +34,12 @@ const CreateFinalExam = () => {
     try {
       const token = localStorage.getItem('token');
 
-      const formattedQuestions = questionsGenerated;
+      const formattedQuestions = questionsGenerated.map((q) => ({
+        question: q.question,
+        options: q.options,
+        correctAnswer: q.answer // ⚠️ aquí trasladamos la respuesta correcta
+      }));
+      
 
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/save`, {
         method: 'POST',
