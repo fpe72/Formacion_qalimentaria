@@ -15,10 +15,15 @@ const CreateFinalExam = () => {
     setQuestionsGenerated([]);
   
     let progressValue = 0;
+    const maxProgress = 100;
+    const stepTime = 300; // 30 segundos para llegar al 100%
     const interval = setInterval(() => {
-      progressValue += 4;
-      setProgress((prev) => Math.min(progressValue, 95));
-    }, 200);
+      progressValue += 1;
+      if (progressValue >= maxProgress) {
+        clearInterval(interval);
+      }
+      setProgress(progressValue);
+    }, stepTime);
   
     try {
       const token = localStorage.getItem('token');
@@ -40,11 +45,11 @@ const CreateFinalExam = () => {
       alert('❌ Error de conexión al generar examen');
     } finally {
       clearInterval(interval);
-      setProgress(100);
-      setTimeout(() => setLoading(false), 500); // un pequeño respiro visual
+      setProgress(100); // asegurar que llega al 100%
+      setTimeout(() => setLoading(false), 500); // pequeño delay para ver el 100%
     }
-  };  
-
+  };
+  
   const handleSaveExam = async () => {
     try {
       const token = localStorage.getItem('token');
