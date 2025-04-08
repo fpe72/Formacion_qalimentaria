@@ -67,3 +67,16 @@ Content-Type: application/json
 ### Simular formación completa para usuario autenticado
 POST http://localhost:5000/progress/fake-complete-all
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2YzYmJhNWEyNWFhODkxZGRhODcyNzciLCJlbWFpbCI6InVzZXIwMkB1c2VyMDIuZXMiLCJuYW1lIjoidXNlcjAyIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDQwMjY1ODIsImV4cCI6MTc0NDAzMDE4Mn0.qlbnXvdwA1e1D_oCtaAOYXS97aR2KZEdOPJ9s8ky88g
+
+
+
+### Subir diploma PDF al backend
+POST https://formacion-backend-docker.onrender.com/final-exam/diploma/upload
+Content-Type: multipart/form-data; boundary=---011000010111000001101001
+
+-----011000010111000001101001
+Content-Disposition: form-data; name="pdf"; filename="diploma_test.pdf"
+Content-Type: application/pdf
+
+< ./testPDF/diploma_test.pdf
+-----011000010111000001101001--
