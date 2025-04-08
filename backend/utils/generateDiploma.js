@@ -21,25 +21,21 @@ async function generateDiplomaPDF({ name, dni, company, date, serial, verificati
     const fs = require("fs");
       fs.writeFileSync("debug_diploma.html", html);
       console.log("🧪 HTML renderizado guardado como debug_diploma.html");
-
-
+      
     // 2. Generar el PDF en memoria con Puppeteer
-    const browser = await puppeteer.launch({ headless: "new" });
-    const page = await browser.newPage();
+      const browser = await puppeteer.launch({
+        headless: "new", // o true
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+      const page = await browser.newPage();
 
-    await page.setContent(html, { waitUntil: "load", timeout: 0 });
+      await page.setContent(html, { waitUntil: "load", timeout: 0 });
 
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 },
-      preferCSSPageSize: true
-    });
-    
-    await browser.close();
+      const pdfBuffer = await page.pdf({
+        format: "A4",
+        printBackground: true,
+      });
 
-    fs.writeFileSync("debug_output.pdf", pdfBuffer);
-    console.log("📥 PDF guardado como debug_output.pdf");
 
     // 3. Devolver el buffer del PDF
     return pdfBuffer;
