@@ -1,33 +1,48 @@
 // frontend/src/pages/CreateFinalExam.js
 import React, { useState } from 'react';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+
 
 const CreateFinalExam = () => {
   const [questionsGenerated, setQuestionsGenerated] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const generateExamAutomatically = async () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
+    setProgress(0);
+    setQuestionsGenerated([]);
+  
+    let progressValue = 0;
+    const interval = setInterval(() => {
+      progressValue += 4;
+      setProgress((prev) => Math.min(progressValue, 95));
+    }, 200);
   
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/generate-dynamic`, {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/generate-dynamic`, {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
   
-      if (response.ok) {
-        const data = await response.json();
+      const data = await res.json();
+  
+      if (res.ok) {
         setQuestionsGenerated(data.flatMap(module => module.questions));
       } else {
-        alert('Error al generar examen automáticamente.');
+        alert('❌ Error al generar el examen');
       }
     } catch (error) {
-      console.error(error);
-      alert('Error al conectar con el servidor.');
+      console.error('Error al generar examen:', error);
+      alert('❌ Error de conexión al generar examen');
+    } finally {
+      clearInterval(interval);
+      setProgress(100);
+      setTimeout(() => setLoading(false), 500); // un pequeño respiro visual
     }
-  
-    setLoading(false);
   };  
 
   const handleSaveExam = async () => {
@@ -83,23 +98,39 @@ const CreateFinalExam = () => {
       </div>
 
       {/* Mostrar preguntas generadas automáticamente */}
-      {loading && <p className="text-center text-gray-600">Generando examen...</p>}
+      {loading && (
+  <div className="w-32 mx-auto my-8">
+    <CircularProgressbar
+      value={progress}
+      text={`${progress}%`}
+      styles={buildStyles({
+        pathColor: '#22c55e', // verde
+        textColor: '#22c55e',
+        trailColor: '#d1fae5',
+        textSize: '16px',
+      })}
+    />
+    <p className="text-center mt-2 text-green-600 font-medium">Generando examen...</p>
+  </div>
+)}
 
       {!loading && questionsGenerated.length > 0 && (
         <div className="bg-gray-100 shadow-md rounded p-6">
           <h3 className="text-xl font-semibold mb-4">Preguntas generadas automáticamente:</h3>
           <ol className="list-decimal list-inside space-y-4">
-            {questionsGenerated.map((q, index) => (
-              <li key={index}>
-                <p className="font-semibold">{q.question}</p>
-                <ul className="list-disc ml-6 text-sm">
-                  {q.options.map((opt, i) => (
-                    <li key={i}>{opt}</li>
-                  ))}
-                </ul>
-                <p className="text-sm text-green-600">Respuesta correcta: {q.answer}</p>
-              </li>
-            ))}
+          {Array.isArray(questionsGenerated) && questionsGenerated.length > 0 && (
+              questionsGenerated.map((q, index) => (
+                <li key={index}>
+                  <p className="font-semibold">{q.question}</p>
+                  <ul className="list-disc ml-6 text-sm">
+                    {q.options.map((opt, i) => (
+                      <li key={i}>{opt}</li>
+                    ))}
+                  </ul>
+                  <p className="text-sm text-green-600">Respuesta correcta: {q.answer}</p>
+                </li>
+              ))
+            )}
           </ol>
 
           {/* Botón para guardar examen */}
