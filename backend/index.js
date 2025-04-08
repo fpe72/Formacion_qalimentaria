@@ -94,10 +94,13 @@ app.post('/register', async (req, res) => {
     }
 
     // Validar formato de contraseña
-    const passwordRegex = /^[A-Za-z0-9]+$/;
+    const passwordRegex = /^[a-zA-Z0-9]{6,8}$/;
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({ message: 'La contraseña debe contener solo caracteres alfanuméricos.' });
+      return res.status(400).json({
+        error: "La contraseña debe tener entre 6 y 8 caracteres y solo puede contener letras y números.",
+      });
     }
+
 
     // Crear usuario
     const hashedPassword = await bcrypt.hash(password, 10);
