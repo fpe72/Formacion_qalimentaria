@@ -184,6 +184,53 @@ app.delete('/modules/:id', authMiddleware, adminMiddleware, async (req, res) => 
   }
 });
 
+// ===================== GENERAR PREGUNTA DESDE CONTENIDO HTML DEL MÓDULO =====================
+app.post('/modules/generate-question', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { content } = req.body;
+
+    if (!content || content.trim() === '') {
+      return res.status(400).json({ message: 'Contenido del módulo vacío.' });
+    }
+
+    const prompt = `
+Eres un experto en formación alimentaria. A partir del siguiente contenido HTML, genera una sola pregunta tipo test con tres opciones, y marca cuál es la correcta. No inventes información, usa solo el contenido proporcionado.
+
+Contenido HTML:
+${content}
+
+Devuelve el resultado exactamente en este formato JSON:
+{
+  "question": "Texto de la pregunta",
+  "options": ["Opción A", "Opción B", "Opción C"],
+  "answer": "Respuesta correcta"
+}
+`;
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const raw = response.choices[0].message.content.trim();
+    const parsed = JSON.parse(raw);
+
+    if (
+      !parsed.question ||
+      !Array.isArray(parsed.options) ||
+      parsed.options.length !== 3 ||
+      !parsed.answer
+    ) {
+      return res.status(400).json({ message: 'Formato de pregunta inválido' });
+    }
+
+    return res.status(200).json(parsed);
+  } catch (error) {
+    console.error('❌ Error generando pregunta del módulo:', error);
+    return res.status(500).json({ message: 'Error al generar la pregunta', error: error.message });
+  }
+});
+
 // ===================== PROGRESO =====================
 app.post('/progress', authMiddleware, async (req, res) => {
   try {
