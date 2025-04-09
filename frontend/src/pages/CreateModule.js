@@ -57,6 +57,13 @@ const CreateModule = () => {
     setQuestions([...questions, { question: '', options: ['', '', ''], answer: '' }]);
   };
 
+  const removeQuestion = (index) => {
+    const updated = [...questions];
+    updated.splice(index, 1);
+    setQuestions(updated);
+  };
+  
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -189,37 +196,46 @@ const generateQuestionFromContent = async () => {
         <div className="mt-4 p-4 border rounded bg-gray-50">
           <h3 className="text-lg font-bold mb-2">Preguntas del módulo</h3>
           {questions.map((q, idx) => (
-            <div key={idx} className="mb-4 p-2 border-b">
-              <input
-                type="text"
-                className="p-2 border w-full"
-                placeholder={`Pregunta ${idx + 1}`}
-                value={q.question}
-                onChange={(e) => handleQuestionChange(idx, 'question', e.target.value)}
-              />
-              {q.options.map((opt, oIdx) => (
+              <div key={idx} className="mb-4 p-2 border-b">
                 <input
-                  key={oIdx}
                   type="text"
-                  className="p-2 border w-full mt-2"
-                  placeholder={`Opción ${oIdx + 1}`}
-                  value={opt}
-                  onChange={(e) => {
-                    const newOpts = [...q.options];
-                    newOpts[oIdx] = e.target.value;
-                    handleQuestionChange(idx, 'options', newOpts);
-                  }}
+                  className="p-2 border w-full"
+                  placeholder={`Pregunta ${idx + 1}`}
+                  value={q.question}
+                  onChange={(e) => handleQuestionChange(idx, 'question', e.target.value)}
                 />
-              ))}
-              <input
-                type="text"
-                className="p-2 border w-full mt-2 bg-green-50"
-                placeholder="Respuesta correcta"
-                value={q.answer}
-                onChange={(e) => handleQuestionChange(idx, 'answer', e.target.value)}
-              />
-            </div>
-          ))}
+                {q.options.map((opt, oIdx) => (
+                  <input
+                    key={oIdx}
+                    type="text"
+                    className="p-2 border w-full mt-2"
+                    placeholder={`Opción ${oIdx + 1}`}
+                    value={opt}
+                    onChange={(e) => {
+                      const newOpts = [...q.options];
+                      newOpts[oIdx] = e.target.value;
+                      handleQuestionChange(idx, 'options', newOpts);
+                    }}
+                  />
+                ))}
+                <input
+                  type="text"
+                  className="p-2 border w-full mt-2 bg-green-50"
+                  placeholder="Respuesta correcta"
+                  value={q.answer}
+                  onChange={(e) => handleQuestionChange(idx, 'answer', e.target.value)}
+                />
+                {/* ✅ Botón de eliminar correctamente ubicado dentro del map */}
+                <button
+                  type="button"
+                  className="mt-2 bg-red-500 text-white py-1 px-3 rounded"
+                  onClick={() => removeQuestion(idx)}
+                >
+                  🗑 Eliminar
+                </button>
+              </div>
+            ))}
+  
           <button type="button" className="bg-secondary text-white py-2 px-4 rounded" onClick={addNewQuestion}>
             + Añadir Pregunta
           </button>
