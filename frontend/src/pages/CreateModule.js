@@ -80,6 +80,35 @@ const CreateModule = () => {
     });
   };
 
+const generateQuestionFromContent = async () => {
+  if (!content) {
+    alert('Por favor, introduce primero el contenido HTML del módulo.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/modules/generate-question`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ content })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data?.question) {
+      setQuestions([...questions, data]);
+    } else {
+      alert('No se pudo generar la pregunta. Revisa el contenido HTML.');
+    }
+  } catch (error) {
+    console.error('Error generando pregunta:', error);
+    alert('Ocurrió un error al generar la pregunta.');
+  }
+};
+
   const handleDelete = () => {
     if (window.confirm('¿Seguro que quieres eliminar este módulo?')) {
       fetch(`https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules/${selectedModuleId}`, {
@@ -194,6 +223,15 @@ const CreateModule = () => {
           <button type="button" className="bg-secondary text-white py-2 px-4 rounded" onClick={addNewQuestion}>
             + Añadir Pregunta
           </button>
+
+          <button
+              type="button"
+              className="bg-blue-500 text-white py-2 px-4 rounded ml-4"
+              onClick={generateQuestionFromContent}
+            >
+              🧠 Generar pregunta automáticamente
+          </button>
+
         </div>
 
         <div className="mt-6 flex gap-4">
