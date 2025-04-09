@@ -38,7 +38,7 @@ const ModuleContent = () => {
 
         setModule({
           ...mod,
-          questions: mod.questions ? mod.questions.sort(() => 0.5 - Math.random()).slice(0, 2) : [],
+          questions: mod.questions ? mod.questions.sort(() => 0.5 - Math.random()) : [],
         });
         setLoading(false);
       } catch (err) {
