@@ -1,15 +1,19 @@
 // backend/index.js
-
 const dotenv = require('dotenv');
+const express = require('express');
+const app = express();
 dotenv.config({ path: './.env' });
 
-const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const OpenAI = require('openai');
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const companyCodesRoutes = require("./routes/companyCodes");
+
+// Resto de tus imports...
 
 // Modelos del proyecto
 const User = require('./models/User');
@@ -19,14 +23,15 @@ const FinalExam = require('./models/FinalExam');
 const companyRoutes = require('./companyRoutes');
 const Company = require('./models/Company');
 const Attempt = require('./models/Attempt');
+const CompanyCode = require('./models/CompanyCode');
 
 const PORT = process.env.PORT || 5000;
 
-const app = express();
 app.use(express.json());
 app.use(cors());
 app.options('*', cors());
 app.use('/companies', companyRoutes);
+app.use("/api/company-codes", companyCodesRoutes);
 
 
 // ✅ Ruta para mantener el backend vivo con UptimeRobot
@@ -76,17 +81,29 @@ app.get('/', (req, res) => {
 // ===================== REGISTRO =====================
 app.post('/register', async (req, res) => {
   try {
-    const { email, password, name, firstSurname, secondSurname, dni, companyName } = req.body;
+    const { email, password, name, firstSurname, secondSurname, dni, companyCode } = req.body;
 
     // Validación de campos básicos
-    if (!email || !password || !name || !firstSurname || !secondSurname || !dni || !companyName) {
+    if (!email || !password || !name || !firstSurname || !secondSurname || !dni || !companyCode) {
       return res.status(400).json({ message: 'Faltan datos' });
     }
 
-    // Validar existencia de empresa
-    const company = await Company.findOne({ name: companyName.trim() });
-    if (!company) {
-      return res.status(400).json({ message: 'Empresa no registrada. Contacta con el administrador.' });
+    // Verificar que el código de empresa existe y es válido
+    const codeData = await CompanyCode.findOne({ code: companyCode }).populate('company');
+    if (!codeData) {
+      return res.status(400).json({ message: 'Código de empresa inválido' });
+    }
+
+    if (!codeData.active) {
+      return res.status(400).json({ message: 'Código inactivo. Contacta con tu empresa' });
+    }
+
+    if (new Date(codeData.expiresAt) < new Date()) {
+      return res.status(400).json({ message: 'Código caducado' });
+    }
+
+    if (codeData.usedUsers >= codeData.maxUsers) {
+      return res.status(400).json({ message: 'Cupo máximo de usuarios alcanzado para este código' });
     }
 
     // Validar existencia de usuario
@@ -103,7 +120,6 @@ app.post('/register', async (req, res) => {
       });
     }
 
-
     // Crear usuario
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
@@ -113,14 +129,24 @@ app.post('/register', async (req, res) => {
       firstSurname,
       secondSurname,
       dni,
-      company: company._id
+      company: codeData.company._id
     });
 
     await newUser.save();
+
+    // Añadir usuario al código y actualizar cupo
+    codeData.users.push({
+      name: `${name} ${firstSurname} ${secondSurname}`,
+      email,
+      dni
+    });
+    codeData.usedUsers += 1;
+    await codeData.save();
+
     return res.status(201).json({ message: 'Usuario registrado con éxito' });
 
   } catch (error) {
-    console.error(error);
+    console.error("❌ Error en /register:", error);
     return res.status(500).json({ message: 'Error en el servidor' });
   }
 });
