@@ -75,5 +75,29 @@ router.patch('/:id/toggle', authMiddleware, adminMiddleware, async (req, res) =>
   }
 });
 
+// Actualizar datos de empresa (solo admin)
+router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { address, phone, cif, email } = req.body;
+
+    const updatedCompany = await Company.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: { address, phone, cif, email }
+      },
+      { new: true }
+    );
+
+    if (!updatedCompany) {
+      return res.status(404).json({ message: 'Empresa no encontrada' });
+    }
+
+    res.json(updatedCompany);
+  } catch (error) {
+    console.error('Error al actualizar empresa:', error);
+    res.status(500).json({ message: 'Error al actualizar empresa' });
+  }
+});
+
 
 module.exports = router;

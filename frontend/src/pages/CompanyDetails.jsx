@@ -9,6 +9,12 @@ function CompanyDetails() {
   const [formationType, setFormationType] = useState("basica");
   const [maxUsers, setMaxUsers] = useState("10");
   const [expiresAt, setExpiresAt] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [cif, setCif] = useState("");
+  const [email, setEmail] = useState("");
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -20,7 +26,14 @@ function CompanyDetails() {
       },
     })
       .then((res) => res.json())
-      .then((data) => setCompany(data))
+      .then((data) => {
+        setCompany(data);
+        setAddress(data.address || "");
+        setPhone(data.phone || "");
+        setCif(data.cif || "");
+        setEmail(data.email || "");
+      })
+      
       .catch((err) => console.error("Error cargando empresa", err));
 
     // Cargar códigos de empresa
@@ -74,6 +87,32 @@ function CompanyDetails() {
       alert("❌ Error al crear código");
     }
   };
+  // ⬇️ ESTA FUNCIÓN DEBE IR AQUÍ, FUERA DE `handleCreate`
+const handleSave = () => {
+  const token = localStorage.getItem("token");
+
+  fetch(`${process.env.REACT_APP_BACKEND_URL}/companies/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ address, phone, cif, email }),
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Error guardando");
+      return res.json();
+    })
+    .then((updated) => {
+      setCompany(updated);
+      setEditing(false);
+      alert("Empresa actualizada correctamente");
+    })
+    .catch((err) => {
+      console.error("Error actualizando empresa", err);
+      alert("Hubo un error al guardar los cambios");
+    });
+};
 
   if (loading) return <p className="p-4">Cargando...</p>;
 
@@ -186,7 +225,58 @@ function CompanyDetails() {
         >
           ← Volver a empresas
         </Link>
+
       </div>
+      <h2 className="text-xl font-semibold mt-6 mb-2">Datos de contacto</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block font-medium">Dirección:</label>
+            {editing ? (
+              <input className="input" value={address} onChange={(e) => setAddress(e.target.value)} />
+            ) : (
+              <p>{address}</p>
+            )}
+          </div>
+          <div>
+            <label className="block font-medium">Teléfono:</label>
+            {editing ? (
+              <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            ) : (
+              <p>{phone}</p>
+            )}
+          </div>
+          <div>
+            <label className="block font-medium">CIF:</label>
+            {editing ? (
+              <input className="input" value={cif} onChange={(e) => setCif(e.target.value)} />
+            ) : (
+              <p>{cif}</p>
+            )}
+          </div>
+          <div>
+            <label className="block font-medium">Email:</label>
+            {editing ? (
+              <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
+            ) : (
+              <p>{email}</p>
+            )}
+          </div>
+        </div>
+
+<div className="mt-4">
+  {!editing ? (
+    <button onClick={() => setEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded">
+      Editar empresa
+    </button>
+  ) : (
+    <button onClick={handleSave} className="bg-green-600 text-white px-4 py-2 rounded">
+      Guardar cambios
+    </button>
+  )}
+</div>
+
+
+
 
       <div className="bg-gray-50 p-4 border rounded mb-6">
         <h3 className="text-lg font-semibold mb-2">Crear nuevo código de empresa</h3>
