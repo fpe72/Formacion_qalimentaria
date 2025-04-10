@@ -6,6 +6,9 @@ function CompanyDetails() {
   const [company, setCompany] = useState(null);
   const [codes, setCodes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [formationType, setFormationType] = useState("basica");
+  const [maxUsers, setMaxUsers] = useState("10");
+  const [expiresAt, setExpiresAt] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -31,9 +34,137 @@ function CompanyDetails() {
       .catch((err) => console.error("Error cargando códigos", err))
       .finally(() => setLoading(false));
   }, [id]);
+    
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+
+    const body = {
+      code: `${company.name.toUpperCase().replace(/\s/g, '-')}-${Math.floor(Math.random() * 1000)}`,
+      companyId: company._id,
+      formationType: formationType,
+      maxUsers: parseInt(maxUsers),
+      expiresAt,
+    };
+
+    try {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/company-codes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        alert("✅ Código creado correctamente");
+        setCodes((prev) => [data.code, ...prev]);
+        setFormationType("basica");
+        setMaxUsers("10");
+        setExpiresAt("");
+      } else {
+        const data = await res.json();
+        alert(`❌ Error: ${data.message}`);
+      }
+    } catch (err) {
+      console.error("Error creando código:", err);
+      alert("❌ Error al crear código");
+    }
+  };
 
   if (loading) return <p className="p-4">Cargando...</p>;
 
+  const handleDeactivate = async (codeId) => {
+    if (!window.confirm("¿Estás seguro de desactivar este código?")) return;
+  
+    try {
+      const token = localStorage.getItem("token");
+  
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/company-codes/deactivate/${codeId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Respuesta inesperada del backend:", errorText);
+        alert("❌ Error al desactivar el código.");
+        return;
+      }
+  
+      const updated = await res.json();
+      setCodes((prev) =>
+        prev.map((code) => (code._id === updated._id ? updated : code))
+      );
+      alert("✅ Código desactivado");
+    } catch (err) {
+      console.error("Error inesperado al desactivar el código:", err);
+      alert("❌ Error inesperado al desactivar el código");
+    }
+  };
+
+  const handleActivate = async (codeId) => {
+    try {
+      const token = localStorage.getItem("token");
+  
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/company-codes/activate/${codeId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Respuesta inesperada al activar:", errorText);
+        alert("❌ Error al activar el código.");
+        return;
+      }
+  
+      const updated = await res.json();
+      setCodes((prev) =>
+        prev.map((code) => (code._id === updated._id ? updated : code))
+      );
+      alert("✅ Código activado correctamente");
+    } catch (error) {
+      console.error("Error al activar código:", error);
+      alert("❌ Error inesperado al activar código");
+    }
+  };
+
+  const handleDelete = async (codeId) => {
+    if (!window.confirm("¿Eliminar este código definitivamente? Esta acción no se puede deshacer.")) return;
+  
+    try {
+      const token = localStorage.getItem("token");
+  
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/company-codes/${codeId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (res.ok) {
+        setCodes((prev) => prev.filter((c) => c._id !== codeId));
+        alert("✅ Código eliminado");
+      } else {
+        const error = await res.json();
+        alert(`❌ Error al eliminar: ${error.message}`);
+      }
+    } catch (error) {
+      console.error("Error al eliminar código:", error);
+      alert("❌ Error inesperado al eliminar código");
+    }
+  };
+  
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -57,6 +188,50 @@ function CompanyDetails() {
         </Link>
       </div>
 
+      <div className="bg-gray-50 p-4 border rounded mb-6">
+        <h3 className="text-lg font-semibold mb-2">Crear nuevo código de empresa</h3>
+        <form onSubmit={handleCreate}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block mb-1 text-sm">Formación</label>
+              <select
+                value={formationType}
+                onChange={(e) => setFormationType(e.target.value)}
+                className="w-full border px-2 py-1 rounded"
+              >
+                <option value="basica">Básica</option>
+                <option value="avanzada">Avanzada</option>
+              </select>
+            </div>
+            <div>
+              <label className="block mb-1 text-sm">Cupo máximo</label>
+              <input
+                type="number"
+                value={maxUsers}
+                onChange={(e) => setMaxUsers(e.target.value)}
+                className="w-full border px-2 py-1 rounded"
+                min={1}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 text-sm">Fecha de caducidad</label>
+              <input
+                type="date"
+                value={expiresAt}
+                onChange={(e) => setExpiresAt(e.target.value)}
+                className="w-full border px-2 py-1 rounded"
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Crear código
+          </button>
+        </form>
+      </div>
+
       <h3 className="text-xl font-semibold mb-2">Códigos de empresa</h3>
 
       <div className="overflow-x-auto">
@@ -78,10 +253,37 @@ function CompanyDetails() {
                 <td className="px-4 py-2">{code.usedUsers} / {code.maxUsers}</td>
                 <td className="px-4 py-2">{code.expiresAt?.substring(0, 10)}</td>
                 <td className="px-4 py-2">
-                  {code.active && new Date(code.expiresAt) > new Date()
-                    ? "✅ Activo"
-                    : "❌ Inactivo"}
-                </td>
+        
+                    <div className="flex items-center gap-2">
+                      {code.active && new Date(code.expiresAt) > new Date() ? (
+                        <>
+                          <span>✅ Activo</span>
+                          <button
+                            className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                            onClick={() => handleDeactivate(code._id)}
+                          >
+                            Desactivar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span>❌ Inactivo</span>
+                          <button
+                            className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                            onClick={() => handleActivate(code._id)}
+                          >
+                            Activar
+                          </button>
+                          <button
+                                className="ml-2 px-2 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700"
+                                onClick={() => handleDelete(code._id)}
+                              >
+                                Eliminar
+                              </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
               </tr>
             ))}
           </tbody>

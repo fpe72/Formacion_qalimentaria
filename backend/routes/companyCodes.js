@@ -83,4 +83,61 @@ router.get("/by-company/:companyId", authenticateToken, requireAdmin, async (req
   }
 });
 
+// PATCH /api/company-codes/deactivate/:id
+router.patch("/deactivate/:id", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const code = await CompanyCode.findById(id);
+    if (!code) {
+      return res.status(404).json({ message: "Código no encontrado" });
+    }
+
+    code.active = false;
+    await code.save();
+
+    res.json(code);
+  } catch (error) {
+    console.error("Error al desactivar código:", error);
+    res.status(500).json({ message: "Error al desactivar código" });
+  }
+});
+
+// PATCH /api/company-codes/activate/:id
+router.patch("/activate/:id", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const code = await CompanyCode.findById(id);
+    if (!code) {
+      return res.status(404).json({ message: "Código no encontrado" });
+    }
+
+    code.active = true;
+    await code.save();
+
+    res.json(code);
+  } catch (error) {
+    console.error("Error al activar código:", error);
+    res.status(500).json({ message: "Error al activar código" });
+  }
+});
+
+// DELETE /api/company-codes/:id
+router.delete("/:id", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deleted = await CompanyCode.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Código no encontrado" });
+    }
+
+    res.json({ message: "Código eliminado correctamente", id });
+  } catch (error) {
+    console.error("Error al eliminar código:", error);
+    res.status(500).json({ message: "Error al eliminar código" });
+  }
+});
+
 module.exports = router;
