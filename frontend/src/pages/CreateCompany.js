@@ -101,33 +101,55 @@ function CreateCompany() {
       </form>
       {message && <p className="mt-4 text-sm">{message}</p>}
 
-      <h3 className="text-xl font-semibold mt-8 mb-2">Empresas registradas</h3>
-      
-      <ul className="list-disc pl-5 text-gray-700">
-        {companies.map((company) => (
-        <li key={company._id} className="flex items-center justify-between mb-2">
-          <span className={`font-semibold ${company.active ? 'text-green-600' : 'text-red-600'}`}>
-            {company.name} {company.active ? '(activa)' : '(inactiva)'}
-          </span>
-          <div className="flex gap-2 ml-2">
-            <button
-              onClick={() => toggleCompany(company._id)}
-              className="text-sm px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded"
-            >
-              {company.active ? 'Desactivar' : 'Activar'}
-            </button>
-            <Link
-                to={`/admin/company/${company._id}`}
-                className="text-sm px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Ver detalles
-              </Link>
-          </div>
-        </li>
-      ))}
-    </ul>
+      <h3 className="text-xl font-semibold mt-8 mb-4">Empresas registradas</h3>
 
-    </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white shadow rounded border text-sm">
+            <thead className="bg-gray-100 text-gray-700">
+              <tr>
+                <th className="px-4 py-2 text-left">Nombre</th>
+                <th className="px-4 py-2 text-center">Estado</th>
+                <th className="px-4 py-2 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {companies.map((company) => (
+                <tr key={company._id} className="border-t hover:bg-gray-50">
+                  <td className="px-4 py-2 max-w-xs truncate" title={company.name}>
+                    {company.name}
+                  </td>
+                  <td className="px-4 py-2 text-center">
+                    <span className={company.active ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
+                      {company.active ? "Activa" : "Inactiva"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    <div className="flex justify-end gap-2 flex-wrap">
+                      <button
+                        onClick={() => toggleCompany(company._id)}
+                        className={`px-4 py-1 rounded text-white text-xs whitespace-nowrap ${
+                          company.active
+                            ? "bg-gray-500 hover:bg-gray-600"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                      >
+                        {company.active ? "Desactivar" : "Activar"}
+                      </button>
+                      <Link
+                        to={`/admin/company/${company._id}`}
+                        className="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded whitespace-nowrap"
+                      >
+                        Ver detalles
+                      </Link>
+                    </div>
+                  </td>
+
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+      </div>
   );
 }
 
