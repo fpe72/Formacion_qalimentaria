@@ -1,27 +1,34 @@
-// backend/middleware/auth.js
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-module.exports = (req, res, next) => {
-  // Extraer el token del header Authorization
+// Middleware: verifica token JWT
+const authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No autorizado. Falta token.' });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "No autorizado. Falta token." });
   }
 
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.split(" ")[1];
 
   try {
-    // Verificar el token con la clave secreta
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Guardar los datos del usuario en la petición
     req.user = decoded;
-
-    // Continuar al siguiente middleware o controlador
     next();
   } catch (err) {
-    console.error('Error al verificar token:', err);
-    return res.status(403).json({ error: 'Token inválido' });
+    console.error("Error al verificar token:", err);
+    return res.status(403).json({ error: "Token inválido" });
   }
 };
+
+// Middleware: verifica si es admin
+const requireAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({ error: "Acceso solo para administradores" });
+  }
+  next();
+};
+
+// 👇 Exportación compatible: por defecto + por nombre
+module.exports = authenticateToken;
+module.exports.authenticateToken = authenticateToken;
+module.exports.requireAdmin = requireAdmin;

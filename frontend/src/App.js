@@ -15,6 +15,7 @@ import FinalExamList from './pages/FinalExamList'; // ✅ Importa el componente
 import EditFinalExam from './pages/EditFinalExam';
 import { jwtDecode } from 'jwt-decode';
 import CreateCompany from './pages/CreateCompany';
+import CompanyDetails from './pages/CompanyDetails';
 import LegalPage from './pages/LegalPage'; // ✅ NUEVA IMPORTACIÓN
 
 
@@ -140,6 +141,14 @@ function App() {
            </ProtectedAdminRoute>
          }   
        />
+       <Route 
+        path="/admin/company/:id" 
+        element={
+          <ProtectedAdminRoute>
+            <CompanyDetails />
+          </ProtectedAdminRoute>
+          }
+        />
         </Routes>
       </Layout>
     </Router>

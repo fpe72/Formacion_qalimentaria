@@ -69,3 +69,40 @@ POST http://localhost:5000/progress/fake-complete-all
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Q4YWU3N2I3Mzc5MzkxMDUxNmZlMzIiLCJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDQxNDQwNzAsImV4cCI6MTc0NDE0NzY3MH0.6uupohs5qheYG1gnYlbmcgeBoLEx1fQb8mCuV6SYcC0
 
 
+### Crear código de empresa (referenciado por una empresa existente)
+POST http://localhost:5000/api/company-codes
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Q4YWU3N2I3Mzc5MzkxMDUxNmZlMzIiLCJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDQyMzM4NzksImV4cCI6MTc0NDIzNzQ3OX0.SP0tjaX8TMEH3GEeaqqkmfzFqWyK6csLzMtScCSUVLE
+Content-Type: application/json
+
+{
+  "code": "EMPRESA-TEST-2025",
+  "companyId": "67edc4dae14e648b37499d03",
+  "formationType": "basica",
+  "maxUsers": 25,
+  "expiresAt": "2025-12-31T23:59:59.000Z"
+}
+
+
+### Listar códigos de empresa
+GET http://localhost:5000/api/company-codes
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Q4YWU3N2I3Mzc5MzkxMDUxNmZlMzIiLCJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDQyMzM4NzksImV4cCI6MTc0NDIzNzQ3OX0.SP0tjaX8TMEH3GEeaqqkmfzFqWyK6csLzMtScCSUVLE
+
+
+### Registro de usuario usando código de empresa válido
+POST http://localhost:5000/register
+Content-Type: application/json
+
+{
+  "email": "eva.martinez@test.com",
+  "password": "abc12345",
+  "name": "Eva",
+  "firstSurname": "Martínez",
+  "secondSurname": "López",
+  "dni": "12345678A",
+  "companyCode": "EMPRESA-TEST-2025"
+}
+
+
+### Listar códigos de una empresa concreta
+GET http://localhost:5000/api/company-codes/by-company/67edc4dae14e648b37499d03
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Q4YWU3N2I3Mzc5MzkxMDUxNmZlMzIiLCJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDQyMzg3MzMsImV4cCI6MTc0NDI0MjMzM30.hNVxGzfJGVcB_PzGr-Z49yANXEYz3mMfVZpaD5DypG0

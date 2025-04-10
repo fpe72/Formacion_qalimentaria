@@ -58,4 +58,22 @@ router.patch('/:id/toggle', authMiddleware, adminMiddleware, async (req, res) =>
   }
 });
 
+// Obtener una empresa por ID (solo admin)
+  router.get('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+
+  try {
+    const company = await Company.findById(req.params.id);
+
+    if (!company) {
+      return res.status(404).json({ message: 'Empresa no encontrada' });
+    }
+
+    res.json(company);
+  } catch (error) {
+    console.error('Error al obtener empresa por ID:', error);
+    res.status(500).json({ message: 'Error al obtener empresa' });
+  }
+});
+
+
 module.exports = router;

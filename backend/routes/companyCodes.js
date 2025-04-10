@@ -67,4 +67,20 @@ router.get("/", authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
+// Obtener códigos por empresa (solo admins)
+router.get("/by-company/:companyId", authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    const codes = await CompanyCode.find({ company: companyId })
+      .populate("company", "name")
+      .sort({ createdAt: -1 });
+
+    res.json(codes);
+  } catch (error) {
+    console.error("Error al listar códigos por empresa:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
 module.exports = router;

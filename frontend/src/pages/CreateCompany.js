@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
+import { Link } from 'react-router-dom'; // Asegúrate de tenerlo arriba
 
 function CreateCompany() {
   const [name, setName] = useState('');
@@ -101,25 +102,31 @@ function CreateCompany() {
       {message && <p className="mt-4 text-sm">{message}</p>}
 
       <h3 className="text-xl font-semibold mt-8 mb-2">Empresas registradas</h3>
+      
       <ul className="list-disc pl-5 text-gray-700">
         {companies.map((company) => (
-          <li key={company._id} className="flex items-center justify-between mb-2">
-           <span
-              className={`font-semibold ${
-                company.active ? 'text-green-600' : 'text-red-600'
-              }`}
-            >
-              {company.name} {company.active ? '(activa)' : '(inactiva)'}
-            </span>
+        <li key={company._id} className="flex items-center justify-between mb-2">
+          <span className={`font-semibold ${company.active ? 'text-green-600' : 'text-red-600'}`}>
+            {company.name} {company.active ? '(activa)' : '(inactiva)'}
+          </span>
+          <div className="flex gap-2 ml-2">
             <button
               onClick={() => toggleCompany(company._id)}
-              className="ml-2 text-sm px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded"
+              className="text-sm px-2 py-1 bg-gray-300 hover:bg-gray-400 rounded"
             >
               {company.active ? 'Desactivar' : 'Activar'}
             </button>
-          </li>
-        ))}
-      </ul>
+            <Link
+                to={`/admin/company/${company._id}`}
+                className="text-sm px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Ver detalles
+              </Link>
+          </div>
+        </li>
+      ))}
+    </ul>
+
     </div>
   );
 }
