@@ -13,6 +13,22 @@ const companySchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  address: {
+    type: String,
+    default: ''
+  },
+  phone: {
+    type: String,
+    default: ''
+  },
+  cif: {
+    type: String,
+    default: ''
+  },
+  email: {
+    type: String,
+    default: ''
+  }
   // (Opcional) puedes añadir módulos asignados:
   // modules: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Module' }]
 });
