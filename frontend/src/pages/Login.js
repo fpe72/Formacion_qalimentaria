@@ -30,11 +30,11 @@ function Login() {
         setMessage('Login exitoso');
         // Redirigir a la vista de módulos
         if (decoded.role === 'admin') {
-          navigate('/home');
+          navigate('/'); // ✅ redirige a la raíz
         } else {
           navigate('/modules');
         }
-        
+                
       } else {
         setMessage(data.message || 'Error en el login');
       }
