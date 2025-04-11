@@ -17,6 +17,10 @@ import { jwtDecode } from 'jwt-decode';
 import CreateCompany from './pages/CreateCompany';
 import CompanyDetails from './pages/CompanyDetails';
 import LegalPage from './pages/LegalPage'; // ✅ NUEVA IMPORTACIÓN
+import PagoParticular from './pages/PagoParticular';
+import RegistroFinal from './pages/RegistroFinal';
+
+
 
 
 // Ruta protegida mejorada para examen final
@@ -103,12 +107,14 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/pago-particular" element={<PagoParticular />} />
           <Route path="/modules" element={<ModulesView />} />
           <Route path="/modules/:order" element={<ModuleContent />} />
           <Route path="/progress" element={<ProgressView />} />
           <Route path="/create-module" element={<CreateModule />} />
           <Route path="/admin/create-company" element={<CreateCompany />} />
           <Route path="/legal/:file" element={<LegalPage />} />
+          <Route path="/registro-final" element={<RegistroFinal />} />
           <Route 
             path="/final-exam" 
             element={
