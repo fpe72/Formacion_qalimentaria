@@ -8,6 +8,9 @@ const CreateModule = () => {
   const [content, setContent] = useState('');
   const [order, setOrder] = useState('');
   const [questions, setQuestions] = useState([]);
+  // Estado para mostrar la vista previa
+  const [showPreview, setShowPreview] = useState(false);
+
 
   const token = localStorage.getItem('token');
 
@@ -177,6 +180,24 @@ const generateQuestionFromContent = async () => {
           required
         />
 
+                <button
+                  type="button"
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={() => setShowPreview(!showPreview)}
+                >
+                  {showPreview ? "Ocultar vista previa" : "Ver vista previa"}
+                </button>
+
+                {showPreview && (
+                  <div className="mt-4 border rounded shadow overflow-hidden">
+                    <iframe
+                      title="Vista previa del contenido"
+                      srcDoc={content}
+                      className="w-full h-[500px] bg-white"
+                    />
+                  </div>
+                )}
+                
         <input
           type="file"
           accept=".html"
