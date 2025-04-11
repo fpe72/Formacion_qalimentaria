@@ -106,3 +106,12 @@ Content-Type: application/json
 ### Listar códigos de una empresa concreta
 GET http://localhost:5000/api/company-codes/by-company/67edc4dae14e648b37499d03
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Q4YWU3N2I3Mzc5MzkxMDUxNmZlMzIiLCJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDQyMzg3MzMsImV4cCI6MTc0NDI0MjMzM30.hNVxGzfJGVcB_PzGr-Z49yANXEYz3mMfVZpaD5DypG0
+
+
+### Crear sesión de pago con Stripe
+POST http://localhost:5000/payment/create-checkout-session
+Content-Type: application/json
+
+{
+  "email": "prueba@ejemplo.com"
+}

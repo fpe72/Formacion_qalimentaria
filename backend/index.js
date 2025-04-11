@@ -12,6 +12,7 @@ const OpenAI = require('openai');
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const companyCodesRoutes = require("./routes/companyCodes");
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Resto de tus imports...
 
@@ -32,6 +33,7 @@ app.use(cors());
 app.options('*', cors());
 app.use('/companies', companyRoutes);
 app.use("/api/company-codes", companyCodesRoutes);
+app.use('/payment', paymentRoutes);
 
 
 // ✅ Ruta para mantener el backend vivo con UptimeRobot

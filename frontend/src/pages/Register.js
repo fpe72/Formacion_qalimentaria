@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -12,7 +13,7 @@ function Register() {
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
   const [company, setCompany] = useState('');
-
+  const [activationCode, setActivationCode] = useState("");
 
   const navigate = useNavigate();
 
@@ -32,31 +33,28 @@ function Register() {
       return;
     }
 
-
     if (!email || !name || !firstSurname || !secondSurname || !dni || !password) {
       setMessage('Todos los campos son obligatorios.');
       return;
     }
+
     if (!company) {
       setMessage('El nombre de la empresa es obligatorio');
       setSuccess(false);
       return;
     }
-    
+
     try {
-
       console.log("🟢 Datos que se van a enviar al backend:");
-        console.log({
-          email,
-          password,
-          name,
-          firstSurname,
-          secondSurname,
-          dni,
-          companyCode: company
-        });
-
-        console.log("📦 company:", company);
+      console.log({
+        email,
+        password,
+        name,
+        firstSurname,
+        secondSurname,
+        dni,
+        companyCode: company
+      });
 
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/register`, {
         method: 'POST',
@@ -90,115 +88,131 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center text-primary">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-10">
+      <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-3xl">
+        <h2 className="text-2xl font-bold text-center text-cyan-700 mb-6">
           Registro de Usuario
         </h2>
         <form onSubmit={handleRegister}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-700 mb-2">Nombre:</label>
-              <input 
+              <label className="block text-sm font-medium text-gray-700">Nombre</label>
+              <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
-                required 
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                required
               />
             </div>
             <div>
-              <label className="block text-gray-700 mb-2">Primer Apellido:</label>
-              <input 
+              <label className="block text-sm font-medium text-gray-700">Primer Apellido</label>
+              <input
                 type="text"
                 value={firstSurname}
                 onChange={(e) => setFirstSurname(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
-                required 
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                required
               />
             </div>
             <div>
-              <label className="block text-gray-700 mb-2">Segundo Apellido:</label>
-              <input 
+              <label className="block text-sm font-medium text-gray-700">Segundo Apellido</label>
+              <input
                 type="text"
                 value={secondSurname}
                 onChange={(e) => setSecondSurname(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
-                required 
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                required
               />
             </div>
             <div>
-              <label className="block text-gray-700 mb-2">DNI / Documento de identificación:</label>
-              <input 
+              <label className="block text-sm font-medium text-gray-700">DNI / Documento de identificación</label>
+              <input
                 type="text"
                 value={dni}
                 onChange={(e) => setDni(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
-                required 
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="companyCode" className="block font-semibold mb-1">
-                Código de activación:
-              </label>
-              <input
-                type="text"
-                id="companyCode"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                placeholder="Ej: EMPRESA-XXX"
-                title="Este código te lo facilitará tu empresa o se genera al confirmar el pago"
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 required
               />
-              <p className="text-sm text-gray-500 mt-1">
-                Este código te lo facilitará tu empresa o se generará automáticamente tras el pago de la formación.
-              </p>
             </div>
-
           </div>
+
           <div className="mt-4">
-            <label className="block text-gray-700 mb-2">Email:</label>
-            <input 
+            <label htmlFor="activationCode" className="block text-sm font-medium text-gray-700">
+              Código de activación
+            </label>
+            <input
+              type="text"
+              id="activationCode"
+              name="activationCode"
+              placeholder="Ej: EMPRESA-XXX"
+              value={activationCode}
+              onChange={(e) => {
+                setActivationCode(e.target.value);
+                setCompany(e.target.value); // sincronización necesaria
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Este código te lo facilitará tu empresa o se generará automáticamente tras el pago de la formación.
+            </p>
+          </div>
+
+          <div className="mt-3 text-center">
+            <p className="text-sm text-gray-600">
+              ¿Eres un usuario particular sin empresa?
+            </p>
+            <Link
+              to="/pago-particular"
+              className="text-sm text-blue-600 hover:underline font-semibold"
+            >
+              Paga aquí para obtener tu código de activación
+            </Link>
+          </div>
+
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
-              required 
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              required
             />
           </div>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
-              <label className="block text-gray-700 mb-2">Contraseña:</label>
-              <input 
+              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+              <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
-                required 
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                required
               />
             </div>
             <div>
-              <label className="block text-gray-700 mb-2">Repetir Contraseña:</label>
-              <input 
+              <label className="block text-sm font-medium text-gray-700">Repetir Contraseña</label>
+              <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
-                required 
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                required
               />
             </div>
           </div>
 
           {message && (
-            <p className="mt-4 text-sm" style={{ color: success ? "green" : "red" }}>
+            <p className={`mt-4 text-sm font-medium ${success ? 'text-green-600' : 'text-red-600'}`}>
               {message}
             </p>
           )}
 
-          <button 
-            type="submit" 
-            className="w-full bg-primary text-white py-2 mt-6 rounded hover:bg-secondary transition duration-300"
+          <button
+            type="submit"
+            className="w-full mt-6 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-4 rounded transition duration-300"
           >
             Registrarse
           </button>
