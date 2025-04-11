@@ -83,6 +83,8 @@ app.post('/register', async (req, res) => {
   try {
     const { email, password, name, firstSurname, secondSurname, dni, companyCode } = req.body;
 
+    console.log("🟡 Datos recibidos en /register:", { email, password, name, firstSurname, secondSurname, dni, companyCode });
+
     // Validación de campos básicos
     if (!email || !password || !name || !firstSurname || !secondSurname || !dni || !companyCode) {
       return res.status(400).json({ message: 'Faltan datos' });

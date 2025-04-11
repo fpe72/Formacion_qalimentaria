@@ -44,10 +44,24 @@ function Register() {
     }
     
     try {
+
+      console.log("🟢 Datos que se van a enviar al backend:");
+        console.log({
+          email,
+          password,
+          name,
+          firstSurname,
+          secondSurname,
+          dni,
+          companyCode: company
+        });
+
+        console.log("📦 company:", company);
+
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name, firstSurname, secondSurname, dni, companyName: company }),
+        body: JSON.stringify({ email, password, name, firstSurname, secondSurname, dni, companyCode: company }),
       });
 
       const data = await response.json();
@@ -123,15 +137,23 @@ function Register() {
                 required 
               />
             </div>
-            <div className="mt-4">
-             <label className="block text-gray-700 mb-2">Nombre de la empresa:</label>
-              <input 
-              type="text"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-primary"
-              required 
+            <div className="mb-4">
+              <label htmlFor="companyCode" className="block font-semibold mb-1">
+                Código de activación:
+              </label>
+              <input
+                type="text"
+                id="companyCode"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                placeholder="Ej: EMPRESA-XXX"
+                title="Este código te lo facilitará tu empresa o se genera al confirmar el pago"
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
               />
+              <p className="text-sm text-gray-500 mt-1">
+                Este código te lo facilitará tu empresa o se generará automáticamente tras el pago de la formación.
+              </p>
             </div>
 
           </div>
