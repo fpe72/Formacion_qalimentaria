@@ -2,7 +2,21 @@ const express = require('express');
 const router = express.Router();
 const stripe = require('../config/stripe');
 
+// Detectar entorno
+const isProduction = process.env.NODE_ENV === 'production';
+
+const successUrl = isProduction
+  ? 'https://formacion-qalimentaria.vercel.app/registro-final?session_id={CHECKOUT_SESSION_ID}'
+  : 'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev/registro-final?session_id={CHECKOUT_SESSION_ID}';
+
+const cancelUrl = isProduction
+  ? 'https://formacion-qalimentaria.vercel.app/pago-cancelado'
+  : 'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev/pago-cancelado';
+
 router.post('/create-checkout-session', async (req, res) => {
+  console.log("🛠️ POST /create-checkout-session llamada desde:", req.headers.origin);
+  console.log("📦 Body recibido:", req.body);
+
   const { email } = req.body;
 
   try {
@@ -16,19 +30,20 @@ router.post('/create-checkout-session', async (req, res) => {
             product_data: {
               name: 'Curso de Formación Qalimentaria',
             },
-            unit_amount: 1999, // en céntimos => 19.99 €
+            unit_amount: 1999, // 19.99 €
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: 'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev/registro-final?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev/pago-cancelado',
+      success_url: successUrl,
+      cancel_url: cancelUrl,
     });
 
+    console.log("✅ Sesión de Stripe creada:", session.id);
     res.status(200).json({ url: session.url });
   } catch (error) {
-    console.error('Error creando sesión de pago:', error.message);
+    console.error('❌ Error creando sesión de pago:', error.message);
     res.status(500).json({ error: 'Error al crear la sesión de pago' });
   }
 });
