@@ -11,7 +11,7 @@ export default function PagoParticular() {
     setError("");
 
     try {
-      const response = await fetch("https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/payment/create-checkout-session", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/payment/create-checkout-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
