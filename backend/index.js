@@ -13,8 +13,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const companyCodesRoutes = require("./routes/companyCodes");
 const paymentRoutes = require('./routes/paymentRoutes');
-
-// Resto de tus imports...
+const bodyParser = require('body-parser'); // ✅ usaremos esto en vez de express.raw()
 
 // Modelos del proyecto
 const User = require('./models/User');
@@ -26,8 +25,21 @@ const Company = require('./models/Company');
 const Attempt = require('./models/Attempt');
 const CompanyCode = require('./models/CompanyCode');
 
+// ⚠️ Puerto
 const PORT = process.env.PORT || 5000;
 
+// ✅ Stripe necesita RAW body para validar firma → USAMOS body-parser
+app.post(
+  '/stripe/webhook',
+  bodyParser.raw({ type: 'application/json' })
+);
+
+// ✅ Luego montamos la ruta stripe que usará ese rawBody
+const stripeRoutes = require('./routes/stripeRoutes');
+app.use('/stripe', stripeRoutes);
+
+// ✅ Resto de middlewares normales
+app.use(cors());
 app.use(express.json());
 
 
