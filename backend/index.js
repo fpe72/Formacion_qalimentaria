@@ -148,16 +148,27 @@ app.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Código de empresa inválido' });
     }
 
+    const isParticular = codeData.maxUsers === 1;
+
+  // Código inactivo
     if (!codeData.active) {
-      return res.status(400).json({ message: 'Código inactivo. Contacta con tu empresa' });
+      return res.status(400).json({
+        message: isParticular ? 'Código incorrecto' : 'Código inactivo. Contacta con tu empresa'
+      });
     }
 
+    // Caducado
     if (new Date(codeData.expiresAt) < new Date()) {
-      return res.status(400).json({ message: 'Código caducado' });
+      return res.status(400).json({
+        message: isParticular ? 'Código incorrecto' : 'Código caducado'
+      });
     }
 
+    // Cupo superado
     if (codeData.usedUsers >= codeData.maxUsers) {
-      return res.status(400).json({ message: 'Cupo máximo de usuarios alcanzado para este código' });
+      return res.status(400).json({
+        message: isParticular ? 'Código incorrecto' : 'Cupo máximo de usuarios alcanzado para este código'
+      });
     }
 
     // Validar existencia de usuario
@@ -195,7 +206,12 @@ app.post('/register', async (req, res) => {
       dni
     });
     codeData.usedUsers += 1;
-    await codeData.save();
+      codeData.users.push({
+        name,
+        email,
+        dni
+      });
+      await codeData.save();
 
     return res.status(201).json({ message: 'Usuario registrado con éxito' });
 
