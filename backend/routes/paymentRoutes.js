@@ -7,11 +7,11 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const successUrl = isProduction
   ? 'https://formacion-qalimentaria.vercel.app/registro-final?session_id={CHECKOUT_SESSION_ID}'
-  : 'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev/registro-final?session_id={CHECKOUT_SESSION_ID}';
+  : 'http://localhost:3000/registro-final?session_id={CHECKOUT_SESSION_ID}';
 
 const cancelUrl = isProduction
   ? 'https://formacion-qalimentaria.vercel.app/pago-cancelado'
-  : 'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev/pago-cancelado';
+  : 'http://localhost:3000/pago-cancelado';
 
 router.post('/create-checkout-session', async (req, res) => {
   console.log("🛠️ POST /create-checkout-session llamada desde:", req.headers.origin);

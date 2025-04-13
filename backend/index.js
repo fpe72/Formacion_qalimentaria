@@ -136,6 +136,25 @@ app.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Código de empresa inválido' });
     }
 
+    console.log("🧪 Validando email para código de Stripe:");
+    console.log("codeData.createdByStripe:", codeData.createdByStripe);
+    console.log("codeData.email:", codeData.email);
+    console.log("email introducido:", email);
+
+
+    // ✅ Validación: si el código fue generado tras pago de Stripe, debe coincidir el email
+    if (codeData.createdByStripe === true && typeof codeData.email === 'string') {
+      const emailInput = email?.trim().toLowerCase();
+      const emailGuardado = codeData.email.trim().toLowerCase();
+    
+      if (emailInput !== emailGuardado) {
+        console.warn(`❌ Intento de registro con email distinto al autorizado. Esperado: ${emailGuardado}, recibido: ${emailInput}`);
+        return res.status(400).json({
+          message: 'Este código solo puede ser usado por el email con el que se realizó el pago.'
+        });
+      }
+    }
+    
     const isParticular = codeData.maxUsers === 1;
 
   // Código inactivo

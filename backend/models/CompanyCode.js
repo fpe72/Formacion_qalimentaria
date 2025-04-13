@@ -47,6 +47,10 @@ const companyCodeSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  createdByStripe: {
+    type: Boolean,
+    default: false
+  },  
   auditTrail: [
     {
       action: {
