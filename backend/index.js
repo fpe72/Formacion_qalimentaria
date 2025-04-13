@@ -200,11 +200,6 @@ app.post('/register', async (req, res) => {
     await newUser.save();
 
     // Añadir usuario al código y actualizar cupo
-    codeData.users.push({
-      name: `${name} ${firstSurname} ${secondSurname}`,
-      email,
-      dni
-    });
     codeData.usedUsers += 1;
       codeData.users.push({
         name,
