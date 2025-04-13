@@ -22,33 +22,40 @@ exports.handleStripeWebhook = async (req, res) => {
       event?.type === 'checkout.session.completed' &&
       event?.data?.object?.customer_email
     ) {
+
       const session = event.data.object;
       const email = session.customer_email;
-
+    
       console.log('📧 Email recibido:', email);
-
-      // 1. Generar código
+    
+      // Verificar si ya existe un código activo para este email
+      const existingCode = await CompanyCode.findOne({ email, active: true });
+    
+      if (existingCode) {
+        console.warn(`⚠️ Ya existe un código activo para el email ${email}, se omite la creación.`);
+        return res.status(200).send(); // OK para Stripe
+      }
+    
+      // Generar código
       const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
       const code = `PARTICULAR-${randomSuffix}`;
-
-      // 2. Guardar en MongoDB
+    
       const newCode = new CompanyCode({
         code,
         active: true,
         createdByStripe: true,
         email,
         used: false,
-        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 días
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         maxUsers: 1,
         formationType: 'básica',
-        company: '67fa5f2950aafe5edec6aa17', // ✅ ID de la empresa "Particulares"
+        company: '67fa5f2950aafe5edec6aa17',
       });
-      
-      
+    
       await newCode.save();
       console.log('✅ Guardado en MongoDB:', newCode);
-
-      // 3. Enviar email
+    
+      // Enviar email (aunque falle, no duplicará código)
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -56,7 +63,7 @@ exports.handleStripeWebhook = async (req, res) => {
           pass: process.env.EMAIL_PASS,
         },
       });
-
+    
       const mailOptions = {
         from: `"Formación Qalimentaria" <${process.env.EMAIL_USER}>`,
         to: email,
@@ -67,9 +74,11 @@ exports.handleStripeWebhook = async (req, res) => {
                <p>Úsalo para completar tu registro en <a href="https://formacionqalimentaria.com">Formación Qalimentaria</a>.</p>
                <p>Un saludo,<br>El equipo de Formación Qalimentaria</p>`,
       };
-
+    
       await transporter.sendMail(mailOptions);
       console.log(`✅ Código enviado a ${email}: ${code}`);
+    
+
     } else {
       console.warn(`⚠️ Evento ignorado: ${event?.type}`);
     }
