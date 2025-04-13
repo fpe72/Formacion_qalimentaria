@@ -1,9 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function PagoParticular() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [courseInfo, setCourseInfo] = useState(null);
+
+  // Llamamos al backend para obtener la info del curso
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/stripe/course-info`)
+      .then(res => res.json())
+      .then(data => setCourseInfo(data))
+      .catch(err => console.error("Error al obtener info del curso", err));
+  }, []);
 
   const handlePago = async (e) => {
     e.preventDefault();
@@ -20,7 +29,6 @@ export default function PagoParticular() {
       const data = await response.json();
 
       if (data.url) {
-        // Redirigimos al pago de Stripe
         window.location.href = data.url;
       } else {
         setError("No se pudo iniciar el proceso de pago.");
@@ -36,6 +44,13 @@ export default function PagoParticular() {
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded shadow mt-10">
       <h2 className="text-2xl font-bold mb-4">Pago para usuarios particulares</h2>
+
+      {courseInfo && (
+        <p className="text-lg font-medium text-gray-800 mb-4">
+          {courseInfo.name} – {courseInfo.price.toFixed(2)} €
+        </p>
+      )}
+
       <form onSubmit={handlePago} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">

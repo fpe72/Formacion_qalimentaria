@@ -1,11 +1,34 @@
 // backend/index.js
 const dotenv = require('dotenv');
 const express = require('express');
+const cors = require('cors');
 const app = express();
 dotenv.config({ path: './.env' });
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://formacion-qalimentaria.vercel.app',
+  'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      /\.vercel\.app$/.test(origin) ||
+      /\.github\.dev$/.test(origin)
+    ) {
+      callback(null, true);
+    } else {
+      console.warn('❌ CORS rechazado para origen:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 const mongoose = require('mongoose');
-const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const OpenAI = require('openai');
@@ -42,38 +65,12 @@ const stripeRoutes = require('./routes/stripeRoutes');
 app.use('/stripe', stripeRoutes);
 
 // ✅ Resto de middlewares normales
-app.use(cors());
 app.use(express.json());
-
-
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://formacion-qalimentaria.vercel.app',
-  'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev'
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (
-      !origin ||
-      allowedOrigins.includes(origin) ||
-      /\.vercel\.app$/.test(origin) ||
-      /\.github\.dev$/.test(origin)
-    ) {
-      callback(null, true);
-    } else {
-      console.warn('❌ CORS rechazado para origen:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
 
 
 app.use('/companies', companyRoutes);
 app.use("/api/company-codes", companyCodesRoutes);
 app.use('/payment', paymentRoutes);
-
 
 // ✅ Ruta para mantener el backend vivo con UptimeRobot
 app.get("/", (req, res) => {
