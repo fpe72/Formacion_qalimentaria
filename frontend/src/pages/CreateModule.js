@@ -121,7 +121,7 @@ const generateQuestionFromContent = async () => {
 
   const handleDelete = () => {
     if (window.confirm('¿Seguro que quieres eliminar este módulo?')) {
-      fetch(`https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules/${selectedModuleId}`, {
+      fetch(`https://formacion-backend-docker.onrender.com/modules/${selectedModuleId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       })
