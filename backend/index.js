@@ -28,6 +28,9 @@ const CompanyCode = require('./models/CompanyCode');
 // ⚠️ Puerto
 const PORT = process.env.PORT || 5000;
 
+app.use('/stripe/webhook', express.raw({ type: 'application/json' }));
+
+
 // ✅ Stripe necesita RAW body para validar firma → USAMOS body-parser
 app.post(
   '/stripe/webhook',

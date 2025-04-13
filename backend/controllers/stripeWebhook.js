@@ -36,6 +36,7 @@ exports.handleStripeWebhook = async (req, res) => {
         code,
         active: true,
         createdByStripe: true,
+        email,
         used: false,
         expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 días
         maxUsers: 1,
@@ -45,6 +46,7 @@ exports.handleStripeWebhook = async (req, res) => {
       
       
       await newCode.save();
+      console.log('✅ Guardado en MongoDB:', newCode);
 
       // 3. Enviar email
       const transporter = nodemailer.createTransport({
