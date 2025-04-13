@@ -19,8 +19,7 @@ import CompanyDetails from './pages/CompanyDetails';
 import LegalPage from './pages/LegalPage'; // ✅ NUEVA IMPORTACIÓN
 import PagoParticular from './pages/PagoParticular';
 import RegistroFinal from './pages/RegistroFinal';
-
-
+import CompanyCodeList from './components/CompanyCodeList';
 
 
 // Ruta protegida mejorada para examen final
@@ -136,6 +135,14 @@ function App() {
             element={
               <ProtectedAdminRoute>
                 <FinalExamList />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route 
+            path="/admin/company-codes" 
+            element={
+              <ProtectedAdminRoute>
+                <CompanyCodeList />
               </ProtectedAdminRoute>
             }
           />

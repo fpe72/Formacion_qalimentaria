@@ -47,6 +47,7 @@ function Navigation() {
                       <Link to="/create-final-exam" className="text-gray-700 hover:text-primary">Gestionar Examen Final</Link>
                       <Link to="/exams" className="text-gray-700 hover:text-primary">Ver Exámenes</Link>
                       <Link to="/admin/create-company" className="text-gray-700 hover:text-primary">Crear Empresa</Link>
+                      <Link to="/admin/company-codes" className="text-gray-700 hover:text-primary">Ver Códigos de Empresa</Link>
                     </>
                   )}
                 </>
@@ -87,6 +88,7 @@ function Navigation() {
                   <Link to="/create-final-exam" className="text-gray-700">Gestionar Examen Final</Link>
                   <Link to="/exams" className="text-gray-700">Ver Exámenes</Link>
                   <Link to="/admin/create-company" className="text-gray-700">Crear Empresa</Link>
+                  <Link to="/admin/company-codes" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ver Códigos de Empresa</Link>
                 </>
               )}
               <button

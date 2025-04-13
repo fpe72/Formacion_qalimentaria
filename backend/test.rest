@@ -7,6 +7,11 @@ Content-Type: application/json
 }
 
 
+### Ver todos los códigos de empresa con usuarios registrados (requiere token de admin)
+GET http://localhost:5000/api/company-codes/admin/list
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Q4YWU3N2I3Mzc5MzkxMDUxNmZlMzIiLCJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDQ1NTI5NTksImV4cCI6MTc0NDU1NjU1OX0.JLNW4xeMASYHvvMvOwbEqoY5rJYwQ6A7mL9RR25_2rg
+
+
 ### Obtener contenido HTML de los módulos (requiere token Admin)
 GET https://reimagined-giggle-5gx75pv6r69xc4xvw-5000.app.github.dev/modules-content
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZlcm5hbmRvLnBhbGFjaW9zQHFhbGltZW50YXJpYS5lcyIsIm5hbWUiOiJGZXJuYW5kbyBQYWxhY2lvcyBFc3Rhw7EiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDMxNjYwNTQsImV4cCI6MTc0MzE2OTY1NH0.-GeyN35KLG9vkbu17P1020laLhuTxgByShYNfZC31Go
