@@ -48,7 +48,8 @@ app.use(express.json());
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://formacion-qalimentaria.vercel.app'
+  'https://formacion-qalimentaria.vercel.app',
+  'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev'
 ];
 
 app.use(cors({
@@ -61,24 +62,12 @@ app.use(cors({
     ) {
       callback(null, true);
     } else {
+      console.warn('❌ CORS rechazado para origen:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
 }));
-
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || /\.github\.dev$/.test(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
-
 
 
 app.use('/companies', companyRoutes);
