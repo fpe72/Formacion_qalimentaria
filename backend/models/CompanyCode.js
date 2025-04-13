@@ -16,9 +16,9 @@ const companyCodeSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  email: {
-    type: String,
-    required: true
+  email: { 
+    type: String, 
+    required: function () { return this.createdByStripe; }
   },
   maxUsers: {
     type: Number,
