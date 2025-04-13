@@ -121,7 +121,7 @@ const generateQuestionFromContent = async () => {
 
   const handleDelete = () => {
     if (window.confirm('¿Seguro que quieres eliminar este módulo?')) {
-      fetch(`https://formacion-backend-docker.onrender.com/modules/${selectedModuleId}`, {
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/modules/${selectedModuleId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       })

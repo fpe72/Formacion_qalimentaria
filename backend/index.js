@@ -1,9 +1,9 @@
 // backend/index.js
 const dotenv = require('dotenv');
+dotenv.config({ path: './.env' });
 const express = require('express');
 const cors = require('cors');
 const app = express();
-dotenv.config({ path: './.env' });
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -27,6 +27,8 @@ app.use(cors({
   },
   credentials: true
 }));
+
+console.log("📦 MONGO_URI desde .env:", process.env.MONGO_URI);
 
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
@@ -659,10 +661,7 @@ app.post('/progress/fake-complete-all', authMiddleware, async (req, res) => {
 
 // Conexión a MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('Conectado a MongoDB Atlas'))
   .catch((err) => console.error('Error al conectar a MongoDB Atlas', err));
 
