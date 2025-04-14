@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 async function sendCodeEmail(to, code) {
   const mailOptions = {
     from: '"Formación Qalimentaria" <info@qalimentaria.es>',
-    to: email,
+    to: to,
     subject: "Tu código de acceso al curso",
     html: `
       <p>Hola,</p>
@@ -29,7 +29,7 @@ async function sendCodeEmail(to, code) {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("✅ Email enviado a:", email);
+    console.log("✅ Email enviado a:", to);
   } catch (error) {
     console.error("❌ Error al enviar el email:", error);
     throw error;
