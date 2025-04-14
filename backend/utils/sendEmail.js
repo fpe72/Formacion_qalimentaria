@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-async function sendCodeEmail(email, code) {
+async function sendCodeEmail(to, code) {
   const mailOptions = {
     from: '"Formación Qalimentaria" <info@qalimentaria.es>',
     to: email,

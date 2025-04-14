@@ -1,7 +1,8 @@
 // backend/controllers/stripeWebhook.js
 const Stripe = require('stripe');
 const CompanyCode = require('../models/CompanyCode');
-const nodemailer = require('nodemailer');
+const sendCodeEmail = require('../utils/sendEmail');
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -54,40 +55,14 @@ exports.handleStripeWebhook = async (req, res) => {
         
       await newCode.save();
       console.log('✅ Guardado en MongoDB:', newCode);
-    
-      // Enviar email (aunque falle, no duplicará código)
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-    
-      const mailOptions = {
-        from: `"Formación Qalimentaria" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: 'Tu código de activación para registrarte',
-        html: `
-          <p>Hola,</p>
-          <p>Gracias por realizar el pago de tu formación.</p>
-          <p>Tu <strong>código de acceso</strong> es:</p>
-          <h2>${code}</h2>
-          <p>👉 Puedes registrarte directamente desde el siguiente enlace:</p>
-          <p><a href="https://formacion-qalimentaria.vercel.app/register" target="_blank">
-            https://formacion-qalimentaria.vercel.app/register
-          </a></p>
-          <p>Este código es personal y solo puede usarse una vez.</p>
-          <p>Un saludo,<br/>El equipo de Formación Qalimentaria</p>
-        `,
-      };
-      
+
       try {
-        await transporter.sendMail(mailOptions);
+        await sendCodeEmail(email, code);
         console.log(`✅ Código enviado a ${email}: ${code}`);
       } catch (err) {
         console.error(`❌ Error al enviar email a ${email}:`, err);
       }
+      
     
     } else {
       console.warn(`⚠️ Evento ignorado: ${event?.type}`);
