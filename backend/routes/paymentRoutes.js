@@ -30,7 +30,7 @@ router.post('/create-checkout-session', async (req, res) => {
             product_data: {
               name: 'Curso de Formación Qalimentaria',
             },
-            unit_amount: 5000, // 50,00 €
+            unit_amount: 1, // 0,01 €
           },
           quantity: 1,
         },
