@@ -142,13 +142,14 @@ router.delete("/:id", authenticateToken, requireAdmin, async (req, res) => {
 
 router.get('/admin/list', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const codes = await CompanyCode.find({ createdByStripe: { $ne: true } })
-      .populate('company', 'name') // solo traemos el nombre de la empresa
-      .select('code company usedUsers maxUsers users');
+    const codes = await CompanyCode.find({})
+      .populate('company', 'name') // si no hay empresa, será null
+      .select('code company usedUsers maxUsers users email createdByStripe');
 
     const response = codes.map((code) => ({
       code: code.code,
-      company: code.company?.name || 'Sin nombre',
+      tipo: code.createdByStripe ? 'Particular' : 'Empresa',
+      company: code.company?.name || code.email || 'Sin datos',
       usedUsers: code.usedUsers,
       maxUsers: code.maxUsers,
       users: code.users.map((u) => ({
@@ -158,9 +159,9 @@ router.get('/admin/list', authenticateToken, requireAdmin, async (req, res) => {
     }));
 
     res.json(response);
-  } catch (err) {
-    console.error('❌ Error en /admin/list:', err);
-    res.status(500).json({ message: 'Error al obtener los códigos de empresa' });
+  } catch (error) {
+    console.error('❌ Error al obtener los códigos:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
 

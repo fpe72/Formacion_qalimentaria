@@ -38,38 +38,40 @@ const CompanyCodeList = () => {
       <h2 className="text-2xl font-semibold mb-4">Códigos de Empresa</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300">
-          <thead className="bg-gray-100">
+        <thead className="bg-gray-100">
             <tr>
               <th className="p-2 border">Código</th>
-              <th className="p-2 border">Empresa</th>
+              <th className="p-2 border">Tipo</th>
+              <th className="p-2 border">Empresa / Email</th>
               <th className="p-2 border">Cupo</th>
               <th className="p-2 border">Emails registrados</th>
             </tr>
           </thead>
           <tbody>
-            {codes.map((code) => (
-              <tr key={code.code} className="border-t">
-                <td className="p-2 border font-mono">{code.code}</td>
-                <td className="p-2 border">{code.company}</td>
-                <td className="p-2 border text-center">
-                  {code.usedUsers} / {code.maxUsers}
-                </td>
-                <td className="p-2 border">
-                  <ul className="list-disc list-inside space-y-1">
-                    {code.users.length > 0 ? (
-                      code.users.map((u, i) => (
-                        <li key={i} className="text-sm text-gray-800">
-                          {u.name} – <span className="font-mono">{u.email}</span>
-                        </li>
-                      ))
-                    ) : (
-                      <p className="text-gray-400 italic">Ningún usuario registrado aún</p>
-                    )}
-                  </ul>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {codes.map((code) => (
+    <tr key={code.code} className="border-t">
+      <td className="p-2 border font-mono">{code.code}</td>
+      <td className="p-2 border">{code.tipo}</td> {/* NUEVO */}
+      <td className="p-2 border">{code.company}</td> {/* NUEVO */}
+      <td className="p-2 border text-center">
+        {code.usedUsers} / {code.maxUsers}
+      </td>
+      <td className="p-2 border">
+        <ul className="list-disc list-inside space-y-1">
+          {code.users.length > 0 ? (
+            code.users.map((u, i) => (
+              <li key={i} className="text-sm text-gray-800">
+                {u.name} – <span className="font-mono">{u.email}</span>
+              </li>
+            ))
+          ) : (
+            <p className="text-gray-400 italic">Ningún usuario registrado aún</p>
+          )}
+        </ul>
+      </td>
+    </tr>
+  ))}
+</tbody>
         </table>
       </div>
     </div>

@@ -43,15 +43,15 @@ exports.handleStripeWebhook = async (req, res) => {
       const newCode = new CompanyCode({
         code,
         active: true,
-        createdByStripe: true,
+        createdByStripe: true, 
         email,
-        used: false,
+        usedUsers: 0, // ✅ corregido correctamente
         expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
         maxUsers: 1,
         formationType: 'básica',
         company: '67fa5f2950aafe5edec6aa17',
-      });
-    
+    });
+        
       await newCode.save();
       console.log('✅ Guardado en MongoDB:', newCode);
     
