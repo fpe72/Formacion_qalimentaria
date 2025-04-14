@@ -67,18 +67,28 @@ exports.handleStripeWebhook = async (req, res) => {
       const mailOptions = {
         from: `"Formación Qalimentaria" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'Tu código de activación',
-        html: `<p>Hola,</p>
-               <p>Gracias por tu compra. Aquí tienes tu <strong>código de activación</strong>:</p>
-               <h2>${code}</h2>
-               <p>Úsalo para completar tu registro en <a href="https://formacionqalimentaria.com">Formación Qalimentaria</a>.</p>
-               <p>Un saludo,<br>El equipo de Formación Qalimentaria</p>`,
+        subject: 'Tu código de activación para registrarte',
+        html: `
+          <p>Hola,</p>
+          <p>Gracias por realizar el pago de tu formación.</p>
+          <p>Tu <strong>código de acceso</strong> es:</p>
+          <h2>${code}</h2>
+          <p>👉 Puedes registrarte directamente desde el siguiente enlace:</p>
+          <p><a href="https://formacion-qalimentaria.vercel.app/register" target="_blank">
+            https://formacion-qalimentaria.vercel.app/register
+          </a></p>
+          <p>Este código es personal y solo puede usarse una vez.</p>
+          <p>Un saludo,<br/>El equipo de Formación Qalimentaria</p>
+        `,
       };
+      
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ Código enviado a ${email}: ${code}`);
+      } catch (err) {
+        console.error(`❌ Error al enviar email a ${email}:`, err);
+      }
     
-      await transporter.sendMail(mailOptions);
-      console.log(`✅ Código enviado a ${email}: ${code}`);
-    
-
     } else {
       console.warn(`⚠️ Evento ignorado: ${event?.type}`);
     }
