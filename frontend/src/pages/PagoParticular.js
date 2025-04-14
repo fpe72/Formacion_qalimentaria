@@ -72,6 +72,21 @@ export default function PagoParticular() {
         >
           {loading ? "Redirigiendo al pago..." : "Pagar y obtener código"}
         </button>
+        <div className="mt-6 text-sm text-gray-600 text-center">
+        <p><strong>Pago seguro con Stripe.</strong> No almacenamos datos de tarjeta.</p>
+        <p>Tu información está protegida mediante <strong>cifrado SSL de 256 bits</strong>.</p>
+        <p>El email que introduzcas se usará únicamente para enviarte el código de acceso al curso.</p>
+
+        <div className="mt-3">
+          <a href="/aviso-legal" className="underline text-blue-600">Aviso Legal</a> · 
+          <a href="/politica-privacidad" className="underline text-blue-600 mx-2">Política de Privacidad</a> · 
+          <a href="/politica-cookies" className="underline text-blue-600">Cookies</a>
+        </div>
+      </div>
+            <div className="mt-4 flex justify-center items-center space-x-4">
+            <img src="/assets/images/stripe-logo.svg" alt="Stripe" className="h-6" />
+            <img src="/assets/images/ssl-secure.svg" alt="Conexión segura SSL" className="h-6" />
+          </div>
         {error && <p className="text-red-600 text-sm">{error}</p>}
       </form>
     </div>
