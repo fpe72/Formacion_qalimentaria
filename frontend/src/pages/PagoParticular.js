@@ -65,28 +65,38 @@ export default function PagoParticular() {
             placeholder="correo@ejemplo.com"
           />
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
-        >
-          {loading ? "Redirigiendo al pago..." : "Pagar y obtener código"}
-        </button>
-        <div className="mt-6 text-sm text-gray-600 text-center">
-        <p><strong>Pago seguro con Stripe.</strong> No almacenamos datos de tarjeta.</p>
-        <p>Tu información está protegida mediante <strong>cifrado SSL de 256 bits</strong>.</p>
-        <p>El email que introduzcas se usará únicamente para enviarte el código de acceso al curso.</p>
 
-        <div className="mt-3">
-          <a href="/aviso-legal" className="underline text-blue-600">Aviso Legal</a> · 
-          <a href="/politica-privacidad" className="underline text-blue-600 mx-2">Política de Privacidad</a> · 
-          <a href="/politica-cookies" className="underline text-blue-600">Cookies</a>
-        </div>
-      </div>
-            <div className="mt-4 flex justify-center items-center space-x-4">
-            <img src="/assets/images/stripe-logo.svg" alt="Stripe" className="h-6" />
-            <img src="/assets/images/ssl-secure.svg" alt="Conexión segura SSL" className="h-6" />
+        <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition"
+          >
+            {loading ? "Redirigiendo al pago..." : "Pagar y obtener código"}
+          </button>
+
+          <p className="text-xs text-center text-gray-500 mt-2">
+            El pago se realiza de manera segura mediante <strong>Stripe</strong>. Tus datos bancarios están cifrados y no se almacenan.
+          </p>
+
+          <div className="mt-8 border-t pt-4 text-xs text-center text-gray-600">
+            
+            <div className="flex justify-center items-center space-x-4 mb-2">
+              <img src="/assets/images/stripe-logo.svg" alt="Stripe" className="h-5"/>
+              <img src="/assets/images/ssl-secure.svg" alt="Conexión segura SSL" className="h-5"/>
+            </div>
+
+            <p className="mb-1"><strong>Transacción segura con cifrado SSL de 256 bits</strong></p>
+            <p className="mb-3">Tu email sólo se usa para enviarte el acceso a la formación.</p>
+
+            <div className="flex justify-center space-x-2 underline">
+              <a href="/aviso-legal" className="text-blue-500">Aviso Legal</a>
+              <span>·</span>
+              <a href="/politica-privacidad" className="text-blue-500">Privacidad</a>
+              <span>·</span>
+              <a href="/politica-cookies" className="text-blue-500">Cookies</a>
+            </div>
           </div>
+
         {error && <p className="text-red-600 text-sm">{error}</p>}
       </form>
     </div>
