@@ -53,14 +53,8 @@ const CompanyCode = require('./models/CompanyCode');
 // ⚠️ Puerto
 const PORT = process.env.PORT || 5000;
 
+// ✅ Necesario para que Stripe valide la firma del webhook correctamente
 app.use('/stripe/webhook', express.raw({ type: 'application/json' }));
-
-
-// ✅ Stripe necesita RAW body para validar firma → USAMOS body-parser
-app.post(
-  '/stripe/webhook',
-  bodyParser.raw({ type: 'application/json' })
-);
 
 // ✅ Luego montamos la ruta stripe que usará ese rawBody
 const stripeRoutes = require('./routes/stripeRoutes');
