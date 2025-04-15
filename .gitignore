@@ -14,3 +14,22 @@ backend/.env
 .DS_Store
 .vscode/
 *.log
+
+# Evitar subir archivos .env sensibles
+backend/.env
+frontend/.env
+
+# Proteger copias de seguridad y archivos temporales
+backend/env_backend_backup.txt
+frontend/env_frontend_backup.txt
+
+# Archivos temporales comunes
+*.log
+*.tar.gz
+*.zip
+*.bak
+*.swp
+.DS_Store
+
+# Archivos de Puppeteer temporales
+/tmp/*
