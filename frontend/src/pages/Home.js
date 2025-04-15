@@ -8,7 +8,6 @@ function Home() {
 
   return (
     <>
-      {/* 🔵 Mensaje destacado arriba */}
       {auth.token && auth.user?.role === "admin" && (
         <div className="w-full bg-blue-100 border-b border-blue-300 py-4 text-center shadow-sm">
           <p className="text-blue-800 font-semibold text-sm md:text-base">
@@ -18,21 +17,27 @@ function Home() {
       )}
 
       <main className="p-6">
-        <div className="min-h-screen bg-gradient-to-r from-primary to-secondary flex flex-col items-center justify-center text-center px-4">
-          <img src={logo} alt="Logo corporativo" className="w-90 mb-4" />
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            Bienvenido a Formación Q-Alimentaria
+        <div className="min-h-[90vh] bg-gradient-to-r from-[#0f9aa9] to-[#76b82a] flex flex-col items-center justify-start text-center px-4 py-8 pt-12">
+          <img src={logo} alt="Logo corporativo" className="w-80 mb-6" />
+
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            ¡Transforma tu futuro en el sector alimentario!
           </h1>
-          <p className="text-lg md:text-xl text-white mb-8 max-w-2xl">
+
+          <p className="text-lg md:text-xl text-white max-w-2xl mb-2">
+            La formación que está revolucionando la seguridad alimentaria. Aprende con expertos, certifica tus conocimientos y haz crecer tu carrera profesional desde hoy.
+          </p>
+
+          <p className="text-base md:text-lg text-white max-w-2xl mb-8">
             Acompañamos a las empresas del sector alimentario en su camino hacia la excelencia, garantizando la seguridad y calidad alimentaria.
           </p>
 
           {!auth.token && (
-            <Link 
-              to="/register" 
+            <Link
+              to="/register"
               className="bg-white text-primary font-bold py-3 px-6 rounded-full shadow-lg hover:bg-gray-100 transition duration-300"
             >
-              Regístrate Ahora
+              Empieza ahora
             </Link>
           )}
 
@@ -41,12 +46,33 @@ function Home() {
               ¡Ya estás dentro de la formación, accede a los módulos formativos!
             </div>
           )}
+
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-white text-center">
+            <div>
+              <div className="text-4xl mb-2">⭐️</div>
+              <p className="font-semibold">Certificación Profesional</p>
+              <p className="text-sm">Diploma con QR de verificación y validez legal.</p>
+            </div>
+            <div>
+              <div className="text-4xl mb-2">📚</div>
+              <p className="font-semibold">Contenido actualizado</p>
+              <p className="text-sm">Módulos prácticos adaptados a la normativa vigente.</p>
+            </div>
+            <div>
+              <div className="text-4xl mb-2">🚀</div>
+              <p className="font-semibold">Fácil y rápido</p>
+              <p className="text-sm">Regístrate y accede desde cualquier dispositivo.</p>
+            </div>
+            <div>
+              <div className="text-4xl mb-2">💬</div>
+              <p className="font-semibold">Soporte humano</p>
+              <p className="text-sm">Te acompañamos en cada paso.</p>
+            </div>
+          </div>
         </div>
       </main>
     </>
   );
 }
-
-
 
 export default Home;
