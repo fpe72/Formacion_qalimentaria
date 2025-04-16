@@ -8,8 +8,11 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'https://formacion-qalimentaria.vercel.app',
-  'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev'
+  'https://reimagined-giggle-5gx75pv6r69xc4xvw-3000.app.github.dev',
+  'https://formacion.qalimentaria.es', // ✅ Añadir dominio real frontend
+  'https://api.qalimentaria.es'         // ✅ Añadir dominio real backend (por si usas fetch desde consola del admin)
 ];
+
 
 app.use(cors({
   origin: function (origin, callback) {
