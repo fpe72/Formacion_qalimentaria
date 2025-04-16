@@ -4,6 +4,8 @@ dotenv.config({ path: './.env' });
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const isValidDNIorNIE = require('./utils/validateDNI');
+
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -118,7 +120,12 @@ app.get('/', (req, res) => {
 // ===================== REGISTRO =====================
 app.post('/register', async (req, res) => {
   try {
+
     const { email, password, name, firstSurname, secondSurname, dni, companyCode } = req.body;
+
+      if (!isValidDNIorNIE(dni)) {
+        return res.status(400).json({ message: 'DNI o NIE no válido. Verifica el formato y la letra.' });
+      }
 
     console.log("🟡 Datos recibidos en /register:", { email, password, name, firstSurname, secondSurname, dni, companyCode });
 

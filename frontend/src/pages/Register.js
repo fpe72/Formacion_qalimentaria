@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
+import isValidDNIorNIE from '../utils/validateDNI';
+
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -14,6 +16,8 @@ function Register() {
   const [success, setSuccess] = useState(false);
   const [company, setCompany] = useState('');
   const [activationCode, setActivationCode] = useState("");
+  const [dniError, setDniError] = useState('');
+
 
   const navigate = useNavigate();
 
@@ -127,13 +131,23 @@ function Register() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">DNI / Documento de identificación</label>
+
               <input
-                type="text"
-                value={dni}
-                onChange={(e) => setDni(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                required
-              />
+                  type="text"
+                  className="form-input w-full"
+                  placeholder="12345678A"
+                  value={dni}
+                  onChange={(e) => {
+                    setDni(e.target.value);
+                    setDniError(''); // limpia el error al escribir
+                  }}
+                  onBlur={() => {
+                    if (dni && !isValidDNIorNIE(dni)) {
+                      setDniError('❌ DNI o NIE no válido');
+                    }
+                  }}
+                />
+                {dniError && <p className="text-red-600 text-sm mt-1">{dniError}</p>}
             </div>
           </div>
 
