@@ -19,7 +19,6 @@ async function generateDiplomaPDF({ name, dni, company, date, serial, verificati
     });
 
     const fs = require("fs");
-      fs.writeFileSync("debug_diploma.html", html);
       console.log("🧪 HTML renderizado guardado como debug_diploma.html");
       
     // 2. Generar el PDF en memoria con Puppeteer
