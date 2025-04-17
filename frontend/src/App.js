@@ -20,6 +20,8 @@ import LegalPage from './pages/LegalPage'; // ✅ NUEVA IMPORTACIÓN
 import PagoParticular from './pages/PagoParticular';
 import RegistroFinal from './pages/RegistroFinal';
 import CompanyCodeList from './components/CompanyCodeList';
+import VerifyDiploma from './pages/VerifyDiploma';
+
 
 
 // Ruta protegida mejorada para examen final
