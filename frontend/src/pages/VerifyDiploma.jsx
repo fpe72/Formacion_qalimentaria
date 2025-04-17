@@ -7,7 +7,7 @@ export default function VerifyDiploma() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/diplomas/serial/${serial}`)
+    fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/diplomas/serial/${serial}`)
       .then(res => res.json())
       .then(data => {
         setDiploma(data);
