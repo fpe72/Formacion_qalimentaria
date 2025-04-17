@@ -86,7 +86,7 @@ let diploma = await Diploma.findOne({ userId: user._id });
 if (!diploma) {
   // Generar número de serie y URL de verificación
   const serial = `QA-${user.dni}-${Date.now()}`;
-  const verificationURL = `https://qalimentaria.es/verificar/${serial}`;
+  const verificationURL = `https://formacion.qalimentaria.es/verificar/${serial}`;
 
   // Crear el diploma en base de datos
   diploma = new Diploma({
