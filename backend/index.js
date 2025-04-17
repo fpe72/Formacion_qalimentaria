@@ -5,7 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const isValidDNIorNIE = require('./utils/validateDNI');
-
+const validateEmail = require('./utils/validateEmailWithMailboxlayer');
 
 const allowedOrigins = [
   'http://localhost:3000',

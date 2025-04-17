@@ -18,16 +18,22 @@ export default function PagoParticular() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
+  
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/payment/create-checkout-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-
+  
       const data = await response.json();
-
+  
+      if (!response.ok) {
+        setError(data.message || "No se pudo iniciar el proceso de pago.");
+        setLoading(false);
+        return;
+      }
+  
       if (data.url) {
         window.location.href = data.url;
       } else {
@@ -40,6 +46,7 @@ export default function PagoParticular() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded shadow mt-10">
@@ -96,6 +103,12 @@ export default function PagoParticular() {
               <a href="/politica-cookies" className="text-blue-500">Cookies</a>
             </div>
           </div>
+
+          {loading && (
+            <p className="text-gray-600 text-sm mt-1">
+              Validando correo electrónico...
+            </p>
+          )}
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
       </form>
