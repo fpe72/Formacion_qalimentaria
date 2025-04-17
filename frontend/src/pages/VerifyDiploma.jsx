@@ -6,8 +6,10 @@ export default function VerifyDiploma() {
   const [diploma, setDiploma] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
-    fetch(`${import.meta.env.REACT_APP_BACKEND_URL}/diplomas/serial/${serial}`)
+    fetch(`${backendURL}/diplomas/serial/${serial}`)
       .then(res => res.json())
       .then(data => {
         setDiploma(data);
@@ -28,7 +30,7 @@ export default function VerifyDiploma() {
       <p><strong>Fecha:</strong> {diploma.date}</p>
       <p className="mt-4 text-sm text-gray-500">Nº de Registro: {diploma.serial}</p>
       <a
-        href={`${import.meta.env.VITE_BACKEND_URL}/final-exam/diploma/download/${diploma.serial}`}
+        href={`${backendURL}/final-exam/diploma/download/${diploma.serial}`}
         target="_blank"
         className="mt-6 inline-block bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800"
       >
