@@ -114,6 +114,7 @@ function App() {
           <Route path="/admin/create-company" element={<CreateCompany />} />
           <Route path="/legal/:file" element={<LegalPage />} />
           <Route path="/registro-final" element={<RegistroFinal />} />
+          <Route path="/verificar/:serial" element={<VerifyDiploma />} />
           <Route 
             path="/final-exam" 
             element={

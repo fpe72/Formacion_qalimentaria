@@ -86,7 +86,7 @@ let diploma = await Diploma.findOne({ userId: user._id });
 if (!diploma) {
   // Generar número de serie y URL de verificación
   const serial = `QA-${user.dni}-${Date.now()}`;
-  const verificationURL = `https://tuweb.com/verificar/${serial}`;
+  const verificationURL = `https://qalimentaria.es/verificar/${serial}`;
 
   // Crear el diploma en base de datos
   diploma = new Diploma({
@@ -231,6 +231,19 @@ router.post('/diploma/generate', async (req, res) => {
   } catch (error) {
     console.error("❌ Error generando diploma:", error);
     return res.status(500).json({ error: 'Error al generar el diploma.' });
+  }
+});
+
+// GET /diplomas/serial/:serial
+router.get("/diplomas/serial/:serial", async (req, res) => {
+  try {
+    const diploma = await Diploma.findOne({ serial: req.params.serial });
+    if (!diploma) return res.status(404).json(null);
+
+    res.json(diploma);
+  } catch (error) {
+    console.error("❌ Error al buscar diploma por serial:", error);
+    res.status(500).json({ error: "Error interno" });
   }
 });
 
