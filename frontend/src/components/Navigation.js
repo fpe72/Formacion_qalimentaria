@@ -84,11 +84,11 @@ function Navigation() {
               <Link to="/progress" onClick={() => setMenuOpen(false)} className="text-gray-700">Progreso</Link>
               {isAdmin && (
                 <>
-                  <Link to="/create-module" className="text-gray-700">Crear Módulo</Link>
-                  <Link to="/create-final-exam" className="text-gray-700">Gestionar Examen Final</Link>
-                  <Link to="/exams" className="text-gray-700">Ver Exámenes</Link>
-                  <Link to="/admin/create-company" className="text-gray-700">Crear Empresa</Link>
-                  <Link to="/admin/company-codes" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ver Códigos de Empresa</Link>
+                  <Link to="/create-module" onClick={() => setMenuOpen(false)} className="text-gray-700">Crear Módulo</Link>
+                  <Link to="/create-final-exam" onClick={() => setMenuOpen(false)} className="text-gray-700">Gestionar Examen Final</Link>
+                  <Link to="/exams" onClick={() => setMenuOpen(false)} className="text-gray-700">Ver Exámenes</Link>                  
+                  <Link to="/admin/create-company" onClick={() => setMenuOpen(false)} className="text-gray-700">Crear Empresa</Link>
+                  <Link to="/admin/company-codes" onClick={() => setMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ver Códigos de Empresa</Link>
                 </>
               )}
               <button
