@@ -95,7 +95,7 @@ if (!diploma) {
     name: `${user.name} ${user.firstSurname} ${user.secondSurname}`,
     dni: user.dni,
     company: user.companyName || "Sin empresa",
-    date: new Date().toLocaleDateString(),
+    date: moment().format("DD/MM/YYYY"),
     serial,
     verificationURL
   });
