@@ -233,11 +233,12 @@ router.post('/diploma/generate', async (req, res) => {
     return res.status(500).json({ error: 'Error al generar el diploma.' });
   }
 });
-
 // GET /diplomas/serial/:serial
 router.get("/diplomas/serial/:serial", async (req, res) => {
   try {
-    const diploma = await Diploma.findOne({ serial: req.params.serial });
+    const diploma = await Diploma.findOne({
+  serial: { $regex: `^${req.params.serial}$`, $options: 'i' }
+});
     if (!diploma) return res.status(404).json(null);
 
     res.json(diploma);
