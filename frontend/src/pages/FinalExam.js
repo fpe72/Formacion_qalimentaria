@@ -17,7 +17,6 @@ const FinalExam = () => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [examTimeLeft, setExamTimeLeft] = useState(null); // tiempo restante mientras se realiza el examen
   const [isGenerating, setIsGenerating] = useState(false);
-
   const checkAttemptStatus = async (examId) => {
     try {
       const token = localStorage.getItem('token');
@@ -411,7 +410,24 @@ const FinalExam = () => {
                 <ProgressBar />
               ) : (
                 <button
-                  onClick={downloadDiploma}
+                onClick={handleDownloadClick}
+                 
+                const handleDownloadClick = async () => {
+                  setIsGenerating(true);
+                
+                  // Inicia temporizador paralelo de mínimo 15s
+                  const minimumDelay = new Promise((resolve) => setTimeout(resolve, 15000));
+                
+                  // Ejecuta en paralelo: generación del diploma y temporizador
+                  await Promise.all([
+                    downloadDiploma(),
+                    minimumDelay
+                  ]);
+                
+                  setIsGenerating(false);
+                };
+                
+
                   className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
                 >
                   Descargar diploma
@@ -436,17 +452,6 @@ const FinalExam = () => {
   }
   
   const current = exam.questions[currentQuestion];
-  const ProgressBar = () => (
-    <div className="mt-6 w-64 mx-auto">
-      <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden">
-        <div
-          className="bg-green-500 h-4 animate-pulse"
-          style={{ width: '100%' }}
-        ></div>
-      </div>
-      <p className="mt-2 text-sm text-gray-600">Generando diploma, por favor espera...</p>
-    </div>
-  );
   
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -491,5 +496,17 @@ const FinalExam = () => {
     </div>
   );
 };
+
+const ProgressBar = () => (
+  <div className="mt-6 w-64 mx-auto">
+    <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden">
+      <div
+        className="bg-green-500 h-4 animate-pulse"
+        style={{ width: '100%' }}
+      ></div>
+    </div>
+    <p className="mt-2 text-sm text-gray-600">Generando diploma, por favor espera...</p>
+  </div>
+);
 
 export default FinalExam;
