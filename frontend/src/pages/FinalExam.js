@@ -308,6 +308,14 @@ const FinalExam = () => {
   if (loading) return <p className="text-center mt-10">Cargando examen...</p>;
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
 
+  const handleDownloadClick = async () => {
+    setIsGenerating(true);
+    const minimumDelay = new Promise((resolve) => setTimeout(resolve, 15000));
+    await Promise.all([downloadDiploma(), minimumDelay]);
+    setIsGenerating(false);
+  };
+  
+
   if (!started && examPassed) {
     return (
       <div className="text-center mt-10">
@@ -395,6 +403,8 @@ const FinalExam = () => {
     const passingScore = Math.round(questionCount * 0.75);
     const passed = score >= passingScore;
     const percentage = Math.round((score / questionCount) * 100);
+
+   
   
     return (
       <div className="text-center mt-10 space-y-4">
@@ -411,27 +421,10 @@ const FinalExam = () => {
               ) : (
                 <button
                 onClick={handleDownloadClick}
-                 
-                const handleDownloadClick = async () => {
-                  setIsGenerating(true);
-                
-                  // Inicia temporizador paralelo de mínimo 15s
-                  const minimumDelay = new Promise((resolve) => setTimeout(resolve, 15000));
-                
-                  // Ejecuta en paralelo: generación del diploma y temporizador
-                  await Promise.all([
-                    downloadDiploma(),
-                    minimumDelay
-                  ]);
-                
-                  setIsGenerating(false);
-                };
-                
-
-                  className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
-                >
-                  Descargar diploma
-                </button>
+                className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+              >
+                Descargar diploma
+              </button>              
               )}
           </>
         ) : (
