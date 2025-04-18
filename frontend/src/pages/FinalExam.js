@@ -314,18 +314,20 @@ const FinalExam = () => {
       <div className="text-center mt-10">
         <h2 className="text-2xl font-bold text-green-700">✅ Ya has aprobado el examen final</h2>
         <p className="mt-4">No es necesario repetirlo.</p>
-
-
-
-         <button
-        onClick={downloadDiploma}
-        className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
-        >
-        Descargar diploma
-       </button>
+  
+        {isGenerating ? (
+          <ProgressBar />
+        ) : (
+          <button
+            onClick={downloadDiploma}
+            className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+          >
+            Descargar diploma
+          </button>
+        )}
       </div>
     );
-  }
+  }  
 
   if (!started) {
     const tiempoTotalMinutos = exam.questions.length + 3;
