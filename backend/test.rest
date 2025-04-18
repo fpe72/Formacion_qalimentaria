@@ -120,3 +120,8 @@ Content-Type: application/json
 {
   "email": "prueba@ejemplo.com"
 }
+
+
+### Verificar diploma por serial (producción)
+GET https://api.qalimentaria.es/diplomas/serial/QA-09786126V-1744899306568
+Accept: application/json

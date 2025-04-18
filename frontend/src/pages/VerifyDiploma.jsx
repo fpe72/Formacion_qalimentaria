@@ -9,8 +9,8 @@ const VerifyDiploma = () => {
   useEffect(() => {
     const fetchDiploma = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/diplomas/serial/${serial}`);
-        if (!response.ok) {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/diplomas/serial/${serial}`);
+        if (!response.ok) 
           throw new Error("Diploma no encontrado");
         }
         const data = await response.json();
