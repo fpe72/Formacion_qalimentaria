@@ -38,7 +38,7 @@ const VerifyDiploma = () => {
           <p className="text-gray-700 mb-2"><strong>Nombre:</strong> {diploma.name}</p>
           <p className="text-gray-700 mb-2"><strong>DNI:</strong> {diploma.dni}</p>
           <p className="text-gray-700 mb-2"><strong>Empresa:</strong> {diploma.company === "Sin empresa" ? "Particular" : diploma.company}</p>
-          <p className="text-gray-700 mb-2"><strong>Fecha de emisión:</strong> {diploma.date}</p>
+          <p className="text-gray-700 mb-2"><strong>Fecha de emisión:</strong> {moment(diploma.date).format('DD/MM/YYYY')}</p>
           <p className="text-gray-700 mt-4"><strong>Nº de Registro:</strong> {diploma.serial}</p>
           <p className="text-green-600 font-medium mt-6">
           Este diploma ha sido emitido oficialmente por <span className="whitespace-nowrap">Q–Alimentaria.</span>
