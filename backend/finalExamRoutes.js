@@ -95,14 +95,13 @@ if (!diploma) {
     name: `${user.name} ${user.firstSurname} ${user.secondSurname}`,
     dni: user.dni,
     company: user.companyName || "Sin empresa",
-    date: moment().format("DD/MM/YYYY"),
+    date: new Date().toISOString().split('T')[0], // ✅ correcto ISO (solo fecha)
     serial,
     verificationURL
   });
 
   await diploma.save();
 }
-
 
     // Generar QR como base64
     const qrBase64 = await QRCode.toDataURL(diploma.verificationURL);
