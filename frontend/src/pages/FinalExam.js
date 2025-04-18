@@ -16,7 +16,7 @@ const FinalExam = () => {
   const [retryDeadline, setRetryDeadline] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
   const [examTimeLeft, setExamTimeLeft] = useState(null); // tiempo restante mientras se realiza el examen
-
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const checkAttemptStatus = async (examId) => {
     try {
@@ -200,8 +200,9 @@ const FinalExam = () => {
 
   const downloadDiploma = async () => {
     try {
-      const token = localStorage.getItem("token");
+      setIsGenerating(true); // ⏳ Mostrar barra de progreso visual
   
+      const token = localStorage.getItem("token");
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/final-exam/diploma/${attemptId}`,
         {
@@ -215,8 +216,6 @@ const FinalExam = () => {
       if (!response.ok) throw new Error("Error al generar el diploma.");
   
       const blob = await response.blob();
-  
-      // 🔐 Forzamos el tipo MIME manualmente para evitar errores
       const secureBlob = new Blob([blob], { type: "application/pdf" });
       const url = window.URL.createObjectURL(secureBlob);
   
@@ -227,16 +226,15 @@ const FinalExam = () => {
       link.click();
       link.remove();
   
-      // Limpieza opcional
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
       alert("No se pudo descargar el diploma.");
+    } finally {
+      setIsGenerating(false); // ✅ Ocultar barra una vez finalice
     }
   };
   
-
-
   const handleAnswer = (selectedIndex) => {
     const updated = [...answers];
     updated[currentQuestion] = selectedIndex;
@@ -391,7 +389,6 @@ const FinalExam = () => {
     calculateScoreManually();
   };
   
-
   if (score !== null) {
     const questionCount = exam.questions.length;
     const passingScore = Math.round(questionCount * 0.75);
@@ -408,17 +405,16 @@ const FinalExam = () => {
             </p>
             <p className="text-gray-800 text-lg">Resultado: <strong>{percentage}%</strong></p>
            
-           
-            <button
-            onClick={downloadDiploma}
-            className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
-            >
-            Descargar diploma
-            </button>
-
-
-
-
+            {isGenerating ? (
+                <ProgressBar />
+              ) : (
+                <button
+                  onClick={downloadDiploma}
+                  className="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+                >
+                  Descargar diploma
+                </button>
+              )}
           </>
         ) : (
           <>
@@ -437,8 +433,19 @@ const FinalExam = () => {
     );
   }
   
-
   const current = exam.questions[currentQuestion];
+  const ProgressBar = () => (
+    <div className="mt-6 w-64 mx-auto">
+      <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden">
+        <div
+          className="bg-green-500 h-4 animate-pulse"
+          style={{ width: '100%' }}
+        ></div>
+      </div>
+      <p className="mt-2 text-sm text-gray-600">Generando diploma, por favor espera...</p>
+    </div>
+  );
+  
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h2 className="text-xl font-bold mb-2">
