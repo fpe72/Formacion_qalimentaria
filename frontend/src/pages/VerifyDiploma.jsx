@@ -10,7 +10,7 @@ const VerifyDiploma = () => {
     const fetchDiploma = async () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/final-exam/diplomas/serial/${serial}`);
-        if (!response.ok) 
+        if (!response.ok) {
           throw new Error("Diploma no encontrado");
         }
         const data = await response.json();
@@ -19,9 +19,10 @@ const VerifyDiploma = () => {
         setError(err.message);
       }
     };
-
+  
     fetchDiploma();
   }, [serial]);
+  
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center px-4 py-8">
