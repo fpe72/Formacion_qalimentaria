@@ -7,7 +7,7 @@ const moment = require("moment");
 async function generateDiplomaPDF({ name, dni, company, date, serial, verificationURL, logoSrc, firmaSrc, qrSrc }) {
   try {
     // Formatear la fecha al formato español: DD/MM/YYYY
-    const formattedDate = moment(date).format("DD/MM/YYYY");
+    const formattedDate = moment(date, moment.ISO_8601).format("DD/MM/YYYY");
 
     // 1. Renderizar el HTML con EJS
     const templatePath = path.join(__dirname, "../templates/diploma_dp.html");
