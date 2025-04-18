@@ -1,16 +1,21 @@
 const path = require("path");
 const ejs = require("ejs");
 const puppeteer = require("puppeteer");
+const moment = require("moment");
+
 
 async function generateDiplomaPDF({ name, dni, company, date, serial, verificationURL, logoSrc, firmaSrc, qrSrc }) {
   try {
+    // Formatear la fecha al formato español: DD/MM/YYYY
+    const formattedDate = moment(date).format("DD/MM/YYYY");
+
     // 1. Renderizar el HTML con EJS
     const templatePath = path.join(__dirname, "../templates/diploma_dp.html");
     const html = await ejs.renderFile(templatePath, {
       name,
       dni,
       company,
-      date,
+      date: formattedDate,
       serial,
       verificationURL,
       logoSrc,

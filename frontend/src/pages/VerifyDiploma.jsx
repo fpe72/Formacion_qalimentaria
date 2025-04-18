@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import moment from 'moment';
+
 
 const VerifyDiploma = () => {
   const { serial } = useParams();
