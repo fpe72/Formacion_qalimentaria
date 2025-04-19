@@ -38,6 +38,7 @@ function Layout({ children }) {
         <a href="/legal/aviso-legal" className="text-blue-600 hover:underline ml-2">Aviso legal</a> |
         <a href="/legal/politica-privacidad" className="text-blue-600 hover:underline ml-2">Política de privacidad</a> |
         <a href="/legal/politica-cookies" className="text-blue-600 hover:underline ml-2">Política de cookies</a>
+        <a href="https://qalimentaria.es/contacto/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">Contacto</a>
       </footer>
 
       {/* Espaciador para compensar el footer fijo */}
