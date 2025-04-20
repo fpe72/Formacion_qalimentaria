@@ -688,6 +688,21 @@ mongoose
   .then(() => console.log('Conectado a MongoDB Atlas'))
   .catch((err) => console.error('Error al conectar a MongoDB Atlas', err));
 
+
+  const path = require('path');
+
+  app.get('/sitemap.xml', (req, res) => {
+    const sitemapPath = path.join(__dirname, '../frontend/public/sitemap.xml');
+    res.sendFile(sitemapPath, (err) => {
+      if (err) {
+        console.error('❌ Error al servir sitemap.xml:', err);
+        res.status(500).send('Error interno al servir sitemap');
+      }
+    });
+  });
+  
+
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
