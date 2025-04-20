@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import isValidDNIorNIE from '../utils/validateDNI';
+import { Helmet } from 'react-helmet';
+
 
 
 function Register() {
@@ -92,6 +94,12 @@ function Register() {
   };
 
   return (
+    <>
+      <Helmet>
+        <title>Acceso al Curso | Formación Qalimentaria</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-10">
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-3xl">
         <h2 className="text-2xl font-bold text-center text-cyan-700 mb-6">
@@ -233,6 +241,7 @@ function Register() {
         </form>
       </div>
     </div>
+    </>
   );
 }
 

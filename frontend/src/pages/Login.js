@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import AuthContext from '../context/AuthContext';
+import { Helmet } from 'react-helmet';
+
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -45,6 +47,13 @@ function Login() {
   };
 
   return (
+
+    <>
+    <Helmet>
+      <title>Acceso al Curso | Formación Qalimentaria</title>
+      <meta name="robots" content="noindex, nofollow" />
+    </Helmet>
+
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-primary">
@@ -83,6 +92,7 @@ function Login() {
         </form>
       </div>
     </div>
+    </>
   );
 }
 
