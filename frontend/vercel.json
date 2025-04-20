@@ -1,0 +1,10 @@
+{
+    "redirects": [
+      {
+        "source": "/sitemap.xml",
+        "destination": "https://formacion-backend-docker.onrender.com/sitemap.xml",
+        "permanent": true
+      }
+    ]
+  }
+  
