@@ -21,8 +21,10 @@ function Home() {
           <img src={logo} alt="Logo corporativo" className="w-80 mb-6" />
 
           <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+            Curso de Manipulador de Alimentos Online<br />
             ¡Transforma tu futuro en el sector alimentario!
           </h1>
+
 
           <p className="text-lg md:text-xl text-gray-700 max-w-2xl mb-2">
             La formación que está revolucionando la seguridad alimentaria. Aprende con expertos, certifica tus conocimientos y haz crecer tu carrera profesional desde hoy.
@@ -50,22 +52,22 @@ function Home() {
           <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-gray-700 text-center">
             <div>
               <div className="text-4xl mb-2">⭐️</div>
-              <p className="font-semibold">Certificación Profesional</p>
+              <p className="font-semibold text-lg">Certificación Profesional</p>
               <p className="text-sm">Diploma con QR de verificación y validez legal.</p>
             </div>
             <div>
               <div className="text-4xl mb-2">📚</div>
-              <p className="font-semibold">Contenido actualizado</p>
+              <p className="font-semibold text-lg">Contenido actualizado</p>
               <p className="text-sm">Módulos prácticos adaptados a la normativa vigente.</p>
             </div>
             <div>
               <div className="text-4xl mb-2">🚀</div>
-              <p className="font-semibold">Fácil y rápido</p>
+              <p className="font-semibold text-lg">Fácil y rápido</p>
               <p className="text-sm">Regístrate y accede desde cualquier dispositivo.</p>
             </div>
             <div>
               <div className="text-4xl mb-2">💬</div>
-              <p className="font-semibold">Soporte humano</p>
+              <p className="font-semibold text-lg">Soporte humano</p>
               <p className="text-sm">Te acompañamos en cada paso.</p>
             </div>
           </div>
