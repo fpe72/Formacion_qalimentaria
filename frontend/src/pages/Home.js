@@ -122,7 +122,7 @@ function Home() {
           {!auth.token && (
             <Link
               to="/register"
-              className="bg-white text-primary font-bold py-3 px-6 rounded-full shadow-lg hover:bg-gray-100 transition duration-300"
+              className="bg-[#76b82a] text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-[#66a825] transition duration-300"
             >
               Empieza ahora
             </Link>
