@@ -2,9 +2,56 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import logo from '../assets/images/logo2.png';
+import { useState, useRef, useEffect } from 'react';
 
 function Home() {
   const { auth } = useContext(AuthContext);
+  const [showVideo, setShowVideo] = useState(false);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (showVideo && videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            // reproducción OK
+          })
+          .catch((error) => {
+            console.warn("Reproducción automática bloqueada por el navegador:", error);
+          });
+      }
+    }
+  }, [showVideo]);  
+
+  // Cerrar modal con Escape o clic fuera
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        setShowVideo(false);
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleOutsideClick = (e) => {
+    if (e.target.id === 'videoModal') {
+      setShowVideo(false);
+    }
+  };
+
+  const handleVideoClick = () => {
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+    } else {
+      videoRef.current.pause();
+    }
+  };
+  
+  const handleVideoEnd = () => {
+    setShowVideo(false);
+  };
 
   return (
     <>
@@ -18,21 +65,59 @@ function Home() {
 
       <main className="p-6">
         <div className="min-h-[90vh] bg-white flex flex-col items-center justify-start text-center px-4 py-8 pt-12">
-          <img src={logo} alt="Logo corporativo" className="w-80 mb-6" />
+        <img src={logo} alt="Curso de Manipulador de Alimentos - Qalimentaria" className="w-80 mb-6" />
 
-          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
-            Curso de Manipulador de Alimentos Online<br />
-            ¡Transforma tu futuro en el sector alimentario!
-          </h1>
+        <div className="mb-8">
+            <p className="text-lg font-semibold text-gray-700 mb-2">
+              ¿Eres nuevo?
+            </p>
+            <button
+              onClick={() => setShowVideo(true)}
+              className="bg-primary text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-primary/90 transition duration-300"
+            >
+              Mira nuestro vídeo explicativo sobre el curso
+            </button>
 
+            {showVideo && (
+              <div
+                id="videoModal"
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+                onClick={handleOutsideClick}
+              >
+                <div className="relative w-full max-w-2xl mx-4">
+                 
+                <video
+                    ref={videoRef}
+                    className="w-full rounded-xl shadow-lg"
+                    controls
+                    onClick={(e) => e.stopPropagation()}
+                    onEnded={handleVideoEnd}
+                  >
 
-          <p className="text-lg md:text-xl text-gray-700 max-w-2xl mb-2">
-            La formación que está revolucionando la seguridad alimentaria. Aprende con expertos, certifica tus conocimientos y haz crecer tu carrera profesional desde hoy.
-          </p>
+                    <source
+                      src="/videos/video_formacion_qalimentaria.mp4"
+                      type="video/mp4"
+                    />
+                    Tu navegador no soporta la reproducción de vídeo.
+                  </video>
+                </div>
+              </div>
+            )}
 
-          <p className="text-base md:text-lg text-gray-700 max-w-2xl mb-8">
-            Acompañamos a las empresas del sector alimentario en su camino hacia la excelencia, garantizando la seguridad y calidad alimentaria.
-          </p>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2">
+              Curso de Manipulador de Alimentos Online
+            </h1>
+            <h2 className="text-2xl md:text-3xl font-semibold text-gray-700 mb-6">
+              ¡Transforma tu futuro en el sector alimentario!
+            </h2>
+
+            <p className="text-center text-lg text-gray-700 mb-4">
+              Haz el <strong>Curso de Manipulador de Alimentos online</strong> con expertos y obtén tu <strong>Carnet de Manipulador de Alimentos</strong> 100% válido en toda España. Fórmate hoy y mejora tu futuro profesional.
+            </p>
+            <p className="text-center text-lg text-gray-700 mb-4">
+              Acompañamos a personas y empresas del sector alimentario en su camino hacia la excelencia, garantizando la seguridad, la higiene y la calidad de los alimentos.
+            </p>
 
           {!auth.token && (
             <Link
@@ -75,6 +160,7 @@ function Home() {
       </main>
     </>
   );
+  
 }
 
 export default Home;

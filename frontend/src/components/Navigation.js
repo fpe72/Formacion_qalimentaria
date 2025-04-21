@@ -23,7 +23,7 @@ function Navigation() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Bloque izquierdo: logo y botón hamburguesa */}
         <div className="flex items-center space-x-4">
-          <img src={logo} alt="Logo corporativo" className="w-48" />
+        <img src={logo} alt="Logotipo de Qalimentaria - Seguridad Alimentaria" className="w-48" />
   
           {/* Botón hamburguesa visible SOLO en móvil */}
           <button
