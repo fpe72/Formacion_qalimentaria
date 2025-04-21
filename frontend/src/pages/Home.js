@@ -78,6 +78,15 @@ function Home() {
               Mira nuestro vídeo explicativo sobre el curso
             </button>
 
+            <div className="mt-6 text-sm text-gray-700 max-w-2xl mx-auto text-center">
+              <p className="mb-2 font-semibold">Resumen del vídeo:</p>
+              <ul className="list-disc list-inside text-left">
+                <li>Visión general del <strong>Curso de Manipulador de Alimentos</strong> impartido por Q-Alimentaria.</li>
+                <li>Resumen de los módulos formativos incluidos en la plataforma.</li>
+                <li>Información básica para obtener el <strong>Carnet de Manipulador de Alimentos</strong>.</li>
+              </ul>
+            </div>
+
             {showVideo && (
               <div
                 id="videoModal"
