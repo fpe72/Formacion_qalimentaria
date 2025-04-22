@@ -126,3 +126,7 @@ Content-Type: application/json
 GET http://localhost:5000/final-exam/diplomas/serial/QA-09786126V-1744899306568
 Content-Type: application/json
 
+### Verificar modulos 
+GET http://localhost:5000/final-exam/diplomas/serial/QA-09786126V-1745001391229/modules
+Content-Type: application/json
+

@@ -13,6 +13,8 @@ const fs = require("fs");
 const path = require("path")
 const Diploma = require('./models/Diploma'); // al principio del archivo
 const QRCode = require("qrcode"); // al principio del archivo
+const Progress = require('./models/Progress');
+const Module = require('./models/Module');
 
 // GET /final-exam/active
 router.get('/active', authMiddleware, async (req, res) => {
@@ -244,6 +246,31 @@ router.get("/diplomas/serial/:serial", async (req, res) => {
   } catch (error) {
     console.error("❌ Error al buscar diploma por serial:", error);
     res.status(500).json({ error: "Error interno" });
+  }
+});
+
+router.get('/diplomas/serial/:serial/modules', async (req, res) => {
+  try {
+    const diploma = await Diploma.findOne({ serial: req.params.serial });
+    if (!diploma) return res.status(404).json({ error: 'Diploma no encontrado' });
+
+      const User = require('./models/User');
+      const user = await User.findOne({ dni: diploma.dni });
+      if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+      const progress = await Progress.find({ userEmail: user.email }).populate('module');
+
+    const sortedModules = progress
+      .sort((a, b) => a.module.order - b.module.order)
+      .map(p => ({
+        title: p.module.title,
+        completedOn: p.dateCompleted
+      }));
+
+    res.json(sortedModules);
+  } catch (error) {
+    console.error("❌ Error obteniendo módulos completados:", error);
+    res.status(500).json({ error: "Error al obtener módulos completados" });
   }
 });
 
