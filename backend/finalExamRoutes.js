@@ -263,7 +263,7 @@ router.get('/diplomas/serial/:serial/modules', async (req, res) => {
     const sortedModules = progress
       .sort((a, b) => a.module.order - b.module.order)
       .map(p => ({
-        title: p.module.title,
+        title: p.module.description || p.module.title, // usa descripción si existe, si no, usa título
         completedOn: p.dateCompleted
       }));
 
