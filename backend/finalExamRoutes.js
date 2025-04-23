@@ -261,6 +261,7 @@ router.get('/diplomas/serial/:serial/modules', async (req, res) => {
       const progress = await Progress.find({ userEmail: user.email }).populate('module');
 
     const sortedModules = progress
+      .filter(p => p.module && p.module.order >= 1) // ✅ solo módulos 1 al 8
       .sort((a, b) => a.module.order - b.module.order)
       .map(p => ({
         title: p.module.description || p.module.title, // usa descripción si existe, si no, usa título

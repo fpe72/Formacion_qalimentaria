@@ -53,18 +53,43 @@ const VerifyDiploma = () => {
           <p className="text-green-600 font-medium mt-6"> 
           Este diploma ha sido emitido oficialmente por <span className="whitespace-nowrap">Q–Alimentaria.</span>
           </p>
+
           {completedModules.length > 0 && (
-              <div className="mt-6 bg-blue-50 border-l-4 border-blue-400 p-4 text-left rounded-md shadow-sm">
-                <h2 className="text-lg font-semibold text-blue-700 mb-2">Contenido del curso:</h2>
-                <ul className="list-disc list-inside text-sm text-gray-700">
-                  {completedModules.map((mod, idx) => (
-                    <li key={idx}>
-                      {mod.title} – {new Date(mod.completedOn).toLocaleDateString("es-ES")}
-                    </li>
-                  ))}
-                </ul>
+          <div className="mt-6 bg-white border border-green-500 rounded-xl shadow-sm p-6 text-left w-full">
+            <h2 className="text-xl font-semibold text-green-700 mb-4 border-b border-green-200 pb-2">
+              Informe de asistencia al curso
+            </h2>
+            <table className="w-full text-sm text-gray-700 border-separate border-spacing-y-2">
+              <thead>
+                <tr className="text-left">
+                  <th className="font-medium pb-1">Contenido del módulo</th>
+                  <th className="font-medium pb-1">Fecha completada</th>
+                </tr>
+              </thead>
+              <tbody>
+                {completedModules.map((mod, idx) => (
+                  <tr key={idx} className="align-top">
+                    <td className="pr-4">{mod.title}</td>
+                    <td>{new Date(mod.completedOn).toLocaleDateString("es-ES")}</td>
+                  </tr>
+                ))}
+                </tbody>
+              </table>
+
+              {/* Firma de Eva */}
+              <div className="mt-6 text-center">
+                <img
+                 src="/assets/images/firma-eva-bloque.png"
+                 alt="Firma Eva María Martín Cruz - Gerente de Q-Alimentaria"
+                 className="mx-auto max-h-28 object-contain"
+               />
+                <p className="mt-2 text-sm text-gray-800 font-semibold">Eva María Martín Cruz</p>
+                <p className="text-sm text-gray-600">Gerente</p>
+                <p className="text-sm text-gray-500">Ing. Agrónoma | Lic. Tecnología de Alimentos</p>
               </div>
-            )}
+            </div>
+          )}
+
 
         </div>
       ) : (
