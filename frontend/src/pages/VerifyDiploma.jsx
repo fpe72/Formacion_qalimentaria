@@ -83,9 +83,6 @@ const VerifyDiploma = () => {
                  alt="Firma Eva María Martín Cruz - Gerente de Q-Alimentaria"
                  className="mx-auto max-h-28 object-contain"
                />
-                <p className="mt-2 text-sm text-gray-800 font-semibold">Eva María Martín Cruz</p>
-                <p className="text-sm text-gray-600">Gerente</p>
-                <p className="text-sm text-gray-500">Ing. Agrónoma | Lic. Tecnología de Alimentos</p>
               </div>
             </div>
           )}
