@@ -66,9 +66,26 @@ router.get('/my-latest-attempt', authMiddleware, async (req, res) => {
       .sort({ endTime: -1 })
       .populate('examId', 'title');
 
-    res.json({ attempt: latestAttempt || null });
+    /* ── CIERRE AUTOMÁTICO ──────────────────────────────────────
+       Si existe un intento “in-progress”, LO MARCAMOS SIEMPRE
+       como finished en cuanto el alumno vuelve a esta pantalla:
+       – refresco de página
+       – botón Atrás
+       – sesión expirada y nuevo login
+       – cualquier retorno a la pantalla de inicio del examen
+    ─────────────────────────────────────────────────────────── */
+    if (latestAttempt && latestAttempt.status === 'in-progress') {
+      latestAttempt.status  = 'finished';
+      latestAttempt.endTime = new Date();
+      await latestAttempt.save();        // ← persistir cierre
+      return res.json({ attempt: null }); // ← frontend creará uno nuevo
+    }
+
+    // Sin intento activo → devolvemos último terminado o null
+    return res.json({ attempt: latestAttempt || null });
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener intento' });
+    console.error('❌ /my-latest-attempt:', error);
+    return res.status(500).json({ error: 'Error al obtener intento' });
   }
 });
 
