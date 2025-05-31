@@ -21,6 +21,8 @@ import PagoParticular from './pages/PagoParticular';
 import RegistroFinal from './pages/RegistroFinal';
 import CompanyCodeList from './components/CompanyCodeList';
 import VerifyDiploma from './pages/VerifyDiploma';
+import AdminProgress from './pages/AdminProgress';
+
 
 
 
@@ -163,6 +165,14 @@ function App() {
           <ProtectedAdminRoute>
             <CompanyDetails />
           </ProtectedAdminRoute>
+          }
+        />
+        <Route 
+          path="/admin/progreso" 
+          element={
+            <ProtectedAdminRoute>
+              <AdminProgress />
+            </ProtectedAdminRoute>
           }
         />
         </Routes>

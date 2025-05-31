@@ -48,6 +48,7 @@ function Navigation() {
                       <Link to="/exams" className="text-gray-700 hover:text-primary">Ver Exámenes</Link>
                       <Link to="/admin/create-company" className="text-gray-700 hover:text-primary">Crear Empresa</Link>
                       <Link to="/admin/company-codes" className="text-gray-700 hover:text-primary">Ver Códigos de Empresa</Link>
+                      <Link to="/admin/progreso" className="text-gray-700 hover:text-primary">Ver Progreso Usuarios</Link>
                     </>
                   )}
                 </>

@@ -63,7 +63,11 @@ app.use('/stripe/webhook', express.raw({ type: 'application/json' }));
 
 // ✅ Luego montamos la ruta stripe que usará ese rawBody
 const stripeRoutes = require('./routes/stripeRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+
 app.use('/stripe', stripeRoutes);
+app.use('/api/admin', adminRoutes);
+
 
 // ✅ Resto de middlewares normales
 app.use(express.json());
