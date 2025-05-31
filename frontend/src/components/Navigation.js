@@ -90,6 +90,7 @@ function Navigation() {
                   <Link to="/exams" onClick={() => setMenuOpen(false)} className="text-gray-700">Ver Exámenes</Link>                  
                   <Link to="/admin/create-company" onClick={() => setMenuOpen(false)} className="text-gray-700">Crear Empresa</Link>
                   <Link to="/admin/company-codes" onClick={() => setMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ver Códigos de Empresa</Link>
+                  <Link to="/admin/progreso" onClick={() => setMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ver Progreso Usuarios</Link>                
                 </>
               )}
               <button
