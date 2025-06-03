@@ -44,6 +44,10 @@ function AdminProgress() {
       socket.on('user-online', ({ email }) => {
         setOnlineNow((prev) => new Set(prev).add(email));
       });
+
+      socket.on('online-users', (emails) => {
+          setOnlineNow(new Set(emails));          // lista inicial completa
+        });
     
       socket.on('user-offline', ({ email }) => {
         setOnlineNow((prev) => {

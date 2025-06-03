@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const onlineUsers = new Map();          // userId -> socket.id
+const onlineUsers = new Map();          // email -> socket.id
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
@@ -7,15 +7,15 @@ module.exports = (io) => {
     socket.on('auth', (token) => {
       try {
         const payload = jwt.verify(token, process.env.JWT_SECRET);
-        const userId  = payload._id;
-        onlineUsers.set(userId, socket.id);
+        const email = payload.email.toLowerCase();
+        onlineUsers.set(email, socket.id);
 
         // avisamos a los admins
-        io.emit('user-online', { userId, email: payload.email });
+        io.emit('user-online', { email });          // a todos
 
         socket.on('disconnect', () => {
-          onlineUsers.delete(userId);
-          io.emit('user-offline', { userId, email: payload.email });
+          onlineUsers.delete(email);
+          io.emit('user-offline', { email });
         });
       } catch { socket.disconnect(); }
     });
