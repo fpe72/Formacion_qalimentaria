@@ -37,7 +37,11 @@ export const AuthProvider = ({ children }) => {
         console.warn('🔔 Token expirado — cerrando sesión automáticamente');
         logout();
       } else {
-        setAuth({ token, user: decoded });
+        // 🔌 Conectar socket en producción y local
+          if (!socket) {
+            socket = io(process.env.REACT_APP_BACKEND_URL.replace(/\/api.*$/, ''));
+            socket.emit('auth', token);
+          }
       }
     } catch (err) {
       console.error('Error al decodificar el token:', err);
