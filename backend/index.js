@@ -55,6 +55,7 @@ const Company = require('./models/Company');
 const Attempt = require('./models/Attempt');
 const CompanyCode = require('./models/CompanyCode');
 
+
 // ⚠️ Puerto
 const PORT = process.env.PORT || 5000;
 
@@ -68,11 +69,8 @@ const adminRoutes = require('./routes/adminRoutes');
 app.use('/stripe', stripeRoutes);
 app.use('/api/admin', adminRoutes);
 
-
 // ✅ Resto de middlewares normales
 app.use(express.json());
-
-
 app.use('/companies', companyRoutes);
 app.use("/api/company-codes", companyCodesRoutes);
 app.use('/payment', paymentRoutes);
@@ -83,12 +81,11 @@ app.get("/", (req, res) => {
 });
 
 // Rutas del proyecto
-app.use('/companies', companyRoutes);
+const noCache = require('./middleware/noCache');
 const finalExamRoutes = require('./finalExamRoutes');
-app.use('/final-exam', finalExamRoutes);
+app.use('/final-exam', noCache, finalExamRoutes);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbackSecret';
-
 
 // Middleware autenticación
 function authMiddleware(req, res, next) {

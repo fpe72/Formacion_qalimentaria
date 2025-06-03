@@ -84,6 +84,14 @@ const FinalExam = () => {
     fetchExam();
   }, []);
 
+// 🔄 LIMPIAR localStorage Y sessionStorage AL CARGAR LA PÁGINA
+  useEffect(() => {
+    localStorage.removeItem('examState');
+    localStorage.removeItem('answersBuffer');
+    sessionStorage.clear();
+  }, []);
+
+
   useEffect(() => {
     const fetchLatestAttempt = async () => {
       try {
