@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import AuthContext from "../context/AuthContext";
+import { io } from 'socket.io-client';
+
 
 function AdminProgress() {
   const { auth } = useContext(AuthContext);
@@ -7,6 +9,7 @@ function AdminProgress() {
   const [filtroEmpresa, setFiltroEmpresa] = useState("");
   const [loading, setLoading] = useState(true);
   const [empresas, setEmpresas] = useState([]);
+  const [onlineNow, setOnlineNow] = useState(new Set());
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -32,7 +35,27 @@ function AdminProgress() {
 
     if (auth?.token) {
       fetchProgress();
+    
+      // ✅ Socket realtime para detectar usuarios online
+      const socket = io(process.env.REACT_APP_BACKEND_URL.replace(/\/api.*$/, ''));
+    
+      socket.emit('auth', auth.token);
+    
+      socket.on('user-online', ({ email }) => {
+        setOnlineNow((prev) => new Set(prev).add(email));
+      });
+    
+      socket.on('user-offline', ({ email }) => {
+        setOnlineNow((prev) => {
+          const next = new Set(prev);
+          next.delete(email);
+          return next;
+        });
+      });
+    
+      return () => socket.disconnect();
     }
+    
   }, [auth]);
 
   const dataFiltrada = filtroEmpresa
@@ -107,6 +130,7 @@ function AdminProgress() {
           <table className="min-w-full table-auto border border-gray-300">
             <thead className="bg-gray-100">
               <tr>
+                <th className="px-3 py-2 border text-center">●</th>
                 <th className="px-3 py-2 border">Nombre</th>
                 <th className="px-3 py-2 border">Email</th>
                 <th className="px-3 py-2 text-center">Empresa</th>
@@ -119,6 +143,13 @@ function AdminProgress() {
             <tbody>
               {dataFiltrada.map((u, idx) => (
                 <tr key={idx} className="text-sm">
+                  <td className="border px-2 py-1 text-center">
+                      {onlineNow.has(u.email) ? (
+                        <span className="text-green-600 text-xl">●</span>
+                      ) : (
+                        <span className="text-gray-300 text-xl">○</span>
+                      )}
+                 </td>
                   <td className="border px-2 py-1">{u.name}</td>
                   <td className="border px-2 py-1">{u.email}</td>
                   <td className="border px-2 py-1 text-center">{u.company}</td>

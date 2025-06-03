@@ -2,8 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
+
+const authMiddleware = require('./middleware/auth');      // ✅ clave correcta
+const { adminMiddleware } = require('./middleware');      // ✅ aquí SÓLO sacamos adminMiddleware
+
 const Company = require('./models/Company');
-const { authMiddleware, adminMiddleware } = require('./middleware');
 
 // Crear nueva empresa (solo admin)
 router.post('/', authMiddleware, adminMiddleware, async (req, res) => {

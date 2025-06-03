@@ -702,6 +702,10 @@ mongoose
       });
     });
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
+    const http = require('http').createServer(app);
+    const io   = require('socket.io')(http, { cors: { origin: '*' } });
+    
+    require('./socket')(io); // 👈 esto conecta nuestro socket.js
+    
+    http.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
+    

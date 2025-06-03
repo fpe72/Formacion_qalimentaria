@@ -346,18 +346,22 @@ const FinalExam = () => {
       <div className="text-center mt-10 max-w-2xl mx-auto space-y-6">
   
         {/* BLOQUE DE INSTRUCCIONES MEJORADO */}
-        <div className="p-6 border-2 border-gray-300 rounded-xl bg-white shadow-md">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">📝 Instrucciones antes de comenzar el examen</h2>
-          <ul className="text-left list-disc list-inside text-gray-700 text-lg space-y-2">
-            <li>📌 El examen contiene <strong>{exam.questions.length}</strong> preguntas tipo test.</li>
-            <li>✅ Debes acertar al menos el <strong>75%</strong> para aprobar.</li>
-            <li>🎯 Solo dispones de <strong>2 intentos</strong>.</li>
-            <li>⏳ Si suspendes el primer intento,<strong> dispones de 72 horas</strong> para realizar el segundo intento. Si no lo haces en ese plazo, deberás repetir toda la formación.</li>
-            <li>⚠️ Si actualizas la página durante el examen, perderás tu progreso.</li>
-            <li>🎓 Una vez aprobado, no podrás repetir el examen.</li>
-          </ul>
-        </div>
-  
+          <div className="p-6 border-2 border-gray-300 rounded-xl bg-white shadow-md">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">📝 Instrucciones antes de comenzar el examen</h2>
+            <ul className="text-left list-disc list-inside text-gray-700 text-lg space-y-2">
+              <li>📌 El examen contiene <strong>{exam.questions.length}</strong> preguntas tipo test.</li>
+              <li>✅ Debes acertar al menos el <strong>75 %</strong> para aprobar.</li>
+              <li>🎯 Dispones de <strong>2 intentos</strong>.</li>
+              <li>⏳ Si suspendes el primer intento, <strong>dispones de 72 horas</strong> para realizar el segundo intento. Si no lo haces en ese plazo, deberás repetir toda la formación.</li>
+              <li>⚠️🔃 <strong>Si actualizas la página</strong>, perderás tu progreso.</li>
+              <li>⚠️🔙 <strong>Si pulsas la flecha “Atrás”</strong> del navegador, perderás tu progreso.</li>
+              <li>⚠️🚪 <strong>Si cierras sesión</strong> (o la sesión se cierra tras <strong>10 minutos</strong> de inactividad), perderás tu progreso.</li>
+              <li>⚠️🖥️ <strong>Si abres el examen en dos pestañas o dispositivos al mismo tiempo</strong>, se invalidará el intento y perderás tu progreso.</li>
+              <li>⚠️⚡ Cualquier cierre inesperado del navegador o caída de conexión finaliza el intento y el progreso se perderá.</li>
+              <li>⚠️🎓 Una vez aprobado, no podrás repetir el examen.</li>
+            </ul>
+          </div>
+
         {/* TIEMPO TOTAL DISPONIBLE */}
         <div className="p-5 border-2 border-blue-500 rounded-lg bg-blue-50 text-blue-900 font-semibold text-xl">
           ⏱️ Tiempo total disponible para realizar el examen: <strong>{tiempoTotalMinutos} minutos</strong>
