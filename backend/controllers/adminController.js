@@ -32,6 +32,7 @@ const getAllUserProgress = async (req, res) => {
       return {
         name: user.name,
         email: user.email,
+        role: user.role,  
         company: company?.name || 'Sin empresa',
         modulesCompleted: {
           count: completedModules.length,

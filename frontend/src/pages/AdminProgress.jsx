@@ -142,15 +142,20 @@ function AdminProgress() {
             </thead>
             <tbody>
               {dataFiltrada.map((u, idx) => (
-                <tr key={idx} className="text-sm">
+                <tr key={idx} className="text-sm border-t">
                   <td className="border px-2 py-1 text-center">
-                      {onlineNow.has(u.email) ? (
-                        <span className="text-green-600 text-xl">●</span>
-                      ) : (
-                        <span className="text-gray-300 text-xl">○</span>
-                      )}
-                 </td>
-                  <td className="border px-2 py-1">{u.name}</td>
+                    {onlineNow.has(u.email) ? (
+                      <span className="text-green-600 text-xl">●</span>
+                    ) : (
+                      <span className="text-gray-300 text-xl">○</span>
+                    )}
+                  </td>
+                  <td className="border px-2 py-1">
+                    {u.name}
+                    {u.role === 'admin' && (
+                      <span className="ml-2 text-blue-600 font-semibold text-xs">🛡 ADMIN</span>
+                    )}
+                  </td>
                   <td className="border px-2 py-1">{u.email}</td>
                   <td className="border px-2 py-1 text-center">{u.company}</td>
                   <td className="border px-2 py-1 text-center">{u.modulesCompleted.percentage}%</td>
@@ -161,7 +166,7 @@ function AdminProgress() {
                     {u.exam?.date ? new Date(u.exam.date).toLocaleDateString("es-ES") : "—"}
                   </td>
                   <td className="border px-2 py-1 text-center">
-                    {u.diploma.issued ? (
+                    {u.diploma?.issued ? (
                       <a
                         href={u.diploma.url}
                         className="text-blue-600 underline"
@@ -177,6 +182,7 @@ function AdminProgress() {
                 </tr>
               ))}
             </tbody>
+
           </table>
         </div>
       )}

@@ -7,6 +7,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ token: null, user: null });
+  const [loading, setLoading] = useState(true); 
 
   /** 🔐 Cierre de sesión centralizado */
   const logout = () => {
@@ -26,6 +27,7 @@ export const AuthProvider = ({ children }) => {
     // 🛑 Si el token está vacío, "null" o es cadena vacía → limpiamos y salimos
     if (!token || token === 'null' || token.trim() === '') {
       logout();
+      setLoading(false); 
       return;
     }
 
@@ -36,23 +38,30 @@ export const AuthProvider = ({ children }) => {
       if (decoded.exp && Date.now() / 1000 > decoded.exp) {
         console.warn('🔔 Token expirado — cerrando sesión automáticamente');
         logout();
+        setLoading(false);
       } else {
-        // 🔌 Conectar socket en producción y local
-          if (!socket) {
-            socket = io(process.env.REACT_APP_BACKEND_URL.replace(/\/api.*$/, ''));
-            socket.emit('auth', token);
-          }
+        // 🔌 Conectar socket si no está ya conectado
+        if (!socket) {
+          socket = io(process.env.REACT_APP_BACKEND_URL.replace(/\/api.*$/, ''));
+          socket.emit('auth', token);
+        }
+      
+        // ✅ ESTO ES LO QUE FALTABA
+        setAuth({ token, user: decoded });
+        setLoading(false);
       }
+      
     } catch (err) {
       console.error('Error al decodificar el token:', err);
       logout(); // token corrupto → limpiar
+      setLoading(false)
     }
   }, []);
 
   let socket = null;
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth, logout }}>
+    <AuthContext.Provider value={{ auth, setAuth, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
