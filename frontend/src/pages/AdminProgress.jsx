@@ -126,9 +126,10 @@ function AdminProgress() {
       {loading ? (
         <p>Cargando datos...</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[70vh]">
           <table className="min-w-full table-auto border border-gray-300">
-            <thead className="bg-gray-100">
+            <thead className="bg-gray-100 sticky top-0 z-10 shadow-md">
+
               <tr>
                 <th className="px-3 py-2 border text-center">●</th>
                 <th className="px-3 py-2 border">Nombre</th>

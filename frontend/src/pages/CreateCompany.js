@@ -45,7 +45,14 @@ function CreateCompany() {
           }
         });
         const data = await res.json();
-        setCompanies(data);
+        if (Array.isArray(data)) {
+          setCompanies(data);
+        } else if (Array.isArray(data.companies)) {
+          setCompanies(data.companies);
+        } else {
+          console.error("❌ Formato inesperado al cargar empresas:", data);
+          setCompanies([]);
+        }
       } catch (err) {
         console.error('Error al cargar empresas:', err);
       }
