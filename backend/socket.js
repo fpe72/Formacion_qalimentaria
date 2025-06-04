@@ -8,14 +8,20 @@ module.exports = (io) => {
       try {
         const payload = jwt.verify(token, process.env.JWT_SECRET);
         const email = payload.email.toLowerCase();
+        const isAdmin = payload.role === 'admin'; 
         onlineUsers.set(email, socket.id);
 
-        // avisamos a los admins
-        io.emit('user-online', { email });          // a todos
+        /* 👉 si ES admin se une a la sala 'admins' */
+        if (isAdmin) {
+          socket.join('admins');
+          /* 1️⃣ Enviamos SOLO a este socket la lista actual */
+          socket.emit('online-users', Array.from(onlineUsers.keys()));
+        }
+        io.to('admins').emit('user-online', { email });
 
         socket.on('disconnect', () => {
           onlineUsers.delete(email);
-          io.emit('user-offline', { email });
+          io.to('admins').emit('user-offline', { email });
         });
       } catch { socket.disconnect(); }
     });
