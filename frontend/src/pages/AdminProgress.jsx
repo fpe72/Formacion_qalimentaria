@@ -62,6 +62,36 @@ function AdminProgress() {
     
   }, [auth]);
 
+  const handleDownload = async (userId, userName) => {
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/admin/diploma/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        }
+      );
+  
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+  
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `diploma_${userName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error descargando diploma:", err);
+      alert("No se pudo descargar el diploma.");
+    }
+  };
+  
+
+
   const dataFiltrada = filtroEmpresa
     ? data.filter(u => u.company.toLowerCase().includes(filtroEmpresa.toLowerCase()))
     : data;
@@ -75,7 +105,8 @@ function AdminProgress() {
         "Estado examen",
         "Fecha intento",
         "Diploma",
-        "Enlace diploma"
+        "Enlace diploma",
+        "Enlace descarga"
       ];
     
       const rows = dataFiltrada.map((u) => [
@@ -86,7 +117,8 @@ function AdminProgress() {
         u.exam?.passed ? "Aprobado" : u.exam ? "Suspendido" : "",
         u.exam?.date ? new Date(u.exam.date).toLocaleDateString("es-ES") : "",
         u.diploma.issued ? "Sí" : "No",
-        u.diploma.issued ? u.diploma.url : ""
+        u.diploma.issued ? u.diploma.url : "",
+        u.diploma.issued ? `${process.env.REACT_APP_BACKEND_URL}/api/admin/diploma/${u._id}` : ""
       ]);
     
       const csvContent = [headers, ...rows]
@@ -143,6 +175,7 @@ function AdminProgress() {
                 <th className="px-3 py-2 border">Examen</th>
                 <th className="px-3 py-2 border">Fecha intento</th>
                 <th className="px-3 py-2 border">Diploma</th>
+                <th className="px-3 py-2 border">Descargar</th>
               </tr>
             </thead>
             <tbody>
@@ -184,6 +217,21 @@ function AdminProgress() {
                       "—"
                     )}
                   </td>
+
+                  <td className="border px-2 py-1 text-center">
+                    {u.diploma?.issued ? (
+                      <button
+                      onClick={() => handleDownload(u._id, u.name.replace(/\s+/g, "_"))}
+                      className="text-green-600 underline hover:text-green-700 bg-transparent border-none p-0"
+                    >
+                      PDF
+                    </button>
+                    
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+
                 </tr>
               ))}
             </tbody>
