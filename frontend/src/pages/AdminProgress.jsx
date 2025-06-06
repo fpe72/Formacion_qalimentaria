@@ -104,9 +104,9 @@ function AdminProgress() {
         "% Módulos",
         "Estado examen",
         "Fecha intento",
+        "% Aciertos",
         "Diploma",
-        "Enlace diploma",
-        "Enlace descarga"
+        "Enlace diploma"
       ];
     
       const rows = dataFiltrada.map((u) => [
@@ -116,9 +116,9 @@ function AdminProgress() {
         `${u.modulesCompleted?.percentage || 0}%`,
         u.exam?.passed ? "Aprobado" : u.exam ? "Suspendido" : "",
         u.exam?.date ? new Date(u.exam.date).toLocaleDateString("es-ES") : "",
+        u.exam?.passed && u.exam?.score && u.exam?.totalQuestions ? `${Math.round((u.exam.score / u.exam.totalQuestions) * 100)}%` : "",
         u.diploma.issued ? "Sí" : "No",
-        u.diploma.issued ? u.diploma.url : "",
-        u.diploma.issued ? `${process.env.REACT_APP_BACKEND_URL}/api/admin/diploma/${u._id}` : ""
+        u.diploma.issued ? u.diploma.url : ""
       ]);
     
       const csvContent = [headers, ...rows]
@@ -174,6 +174,7 @@ function AdminProgress() {
                 <th className="px-3 py-2 border">% Módulos</th>
                 <th className="px-3 py-2 border">Examen</th>
                 <th className="px-3 py-2 border">Fecha intento</th>
+                <th className="px-3 py-2 border">% Aciertos</th>
                 <th className="px-3 py-2 border">Diploma</th>
                 <th className="px-3 py-2 border">Descargar</th>
               </tr>
@@ -203,6 +204,13 @@ function AdminProgress() {
                   <td className="border px-2 py-1 text-center">
                     {u.exam?.date ? new Date(u.exam.date).toLocaleDateString("es-ES") : "—"}
                   </td>
+
+                  <td className="border px-2 py-1 text-center">
+                    {u.exam?.passed && u.exam?.score && u.exam?.totalQuestions
+                      ? `${Math.round((u.exam.score / u.exam.totalQuestions) * 100)}%`
+                      : "—"}
+                  </td>
+   
                   <td className="border px-2 py-1 text-center">
                     {u.diploma?.issued ? (
                       <a

@@ -4,6 +4,7 @@ const Attempt = require('../models/Attempt');
 const Diploma = require('../models/Diploma');
 const Company = require('../models/Company');
 const Module = require('../models/Module');
+const Exam = require('../models/FinalExam');
 
 const getAllUserProgress = async (req, res) => {
   try {
@@ -18,7 +19,14 @@ const getAllUserProgress = async (req, res) => {
         return mod ? { id: mod._id, title: mod.title } : null;
       }).filter(Boolean);
 
-      const attempt = await Attempt.findOne({ userId: user._id }).lean();
+      const attempt = await Attempt.findOne({ userId: user._id, passed: true }).sort({ endTime: -1 }).lean();
+      let totalQuestions = 0;
+
+      if (attempt?.examId) {
+        const exam = await Exam.findById(attempt.examId).lean();
+        totalQuestions = exam?.questions?.length || 0;
+      }
+
       const diploma = await Diploma.findOne({ userId: user._id }).lean();
       // Si tiene diploma emitido → forzamos que se muestre como aprobado
       if (diploma && attempt && !attempt.passed) {
@@ -45,7 +53,8 @@ const getAllUserProgress = async (req, res) => {
           status: attempt.status,
           score: attempt.score,
           passed: attempt.passed,
-          date: attempt.endTime || attempt.startTime || null
+          date: attempt.endTime || attempt.startTime || null,
+          totalQuestions: totalQuestions
         } : null,
         diploma: diploma ? {
           issued: true,
