@@ -1,9 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ModuleCard from '../components/ModuleCard';
 import AuthContext from '../context/AuthContext';
 
 function ModulesView() {
   const { auth } = useContext(AuthContext);
+  const navigate = useNavigate(); 
   if (auth.user?.role === 'admin') {
     return (
       <div className="text-center text-red-500 p-6">
@@ -87,6 +89,7 @@ function ModulesView() {
   // Calcular progreso:
   const totalModules = modules.length;
   const completedCount = completedModules.length;
+  const allModulesCompleted = totalModules > 0 && completedCount === totalModules;
   const progressPercentage = totalModules > 0 ? (completedCount / totalModules) * 100 : 0;
 
   return (
@@ -123,6 +126,21 @@ function ModulesView() {
         <div className="text-right text-sm text-gray-600 mt-1">
           {completedCount} de {totalModules} módulos completados ({progressPercentage.toFixed(1)}%)
         </div>
+        {!hasPassedFinalExam && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => allModulesCompleted && navigate('/final-exam')}
+              disabled={!allModulesCompleted}
+              className={`px-6 py-2 rounded font-semibold transition ${
+                allModulesCompleted
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Ir al Examen Final
+            </button>
+          </div>
+        )}
       </div>
 
       <h2 className="text-3xl font-bold text-primary mb-6 text-center">Lista de Módulos</h2>

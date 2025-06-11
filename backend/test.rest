@@ -6,6 +6,14 @@ Content-Type: application/json
   "password": "Fpe19720602$"
 }
 
+### Obtener Token usuario
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+  "email": "thermalvisor@gmail.com",
+  "password": "02061972"
+}
 
 ### Ver todos los códigos de empresa con usuarios registrados (requiere token de admin)
 GET http://localhost:5000/api/company-codes/admin/list
@@ -71,7 +79,20 @@ Content-Type: application/json
 
 ### Simular formación completa para usuario autenticado
 POST http://localhost:5000/progress/fake-complete-all
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2ZkOTczMGMxMTMyODkxYThmNDlkN2EiLCJlbWFpbCI6InRoZXJtYWx2aXNvckBnbWFpbC5jb20iLCJuYW1lIjoiRmVybmFuZG8iLCJyb2xlIjoidXNlciIsImlhdCI6MTc0ODk1MTAzNywiZXhwIjoxNzQ4OTU0NjM3fQ.Ewglp8hY4I2bB7Fe7rAcEjUgjz---jLSnkgR0KbTDTw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2ZkOTczMGMxMTMyODkxYThmNDlkN2EiLCJlbWFpbCI6InRoZXJtYWx2aXNvckBnbWFpbC5jb20iLCJuYW1lIjoiRmVybmFuZG8iLCJyb2xlIjoidXNlciIsImlhdCI6MTc0OTY0MTExMywiZXhwIjoxNzQ5NjQ0NzEzfQ.vj1FgCAY7Jy0f33H6XtU3EuQpm5beL3xEgNZzdN6pwo
+
+
+### Finalizar intento y aprobar el examen (score 21 de 27)
+POST http://localhost:5000/api/final-exam/end-attempt
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2ZkOTczMGMxMTMyODkxYThmNDlkN2EiLCJlbWFpbCI6InRoZXJtYWx2aXNvckBnbWFpbC5jb20iLCJuYW1lIjoiRmVybmFuZG8iLCJyb2xlIjoidXNlciIsImlhdCI6MTc0OTY0MTExMywiZXhwIjoxNzQ5NjQ0NzEzfQ.vj1FgCAY7Jy0f33H6XtU3EuQpm5beL3xEgNZzdN6pwo
+
+{
+  "attemptId": "68496c650b445a5909d8e840",
+  "score": 21,
+  "totalQuestions": 27
+}
+
 
 
 ### Crear código de empresa (referenciado por una empresa existente)
